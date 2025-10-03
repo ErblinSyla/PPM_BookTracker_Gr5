@@ -21,10 +21,16 @@ export default function RootLayout() {
                 ), 
                 
             }}
-            
-            
-            
             />
+
+        <Stack.Screen 
+        name="login"
+        options={{
+          title: "Login Page",
+          headerStyle: { backgroundColor: "#121212" },
+          headerTintColor: "#fff",
+        }}
+      />
         </Stack>
     );
 }

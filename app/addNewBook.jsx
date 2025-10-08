@@ -1,16 +1,24 @@
-import React, { useState, useRef } from "react";
-import { View, Text, TextInput, Image, Button, StyleSheet, TouchableOpacity } from "react-native";
-import { CameraView, useCameraPermissions } from "expo-camera";
-import * as MediaLibrary from "expo-media-library";
+//import React, { useState, useRef } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { Alert,View, Text, TextInput, Image, Button, StyleSheet, TouchableOpacity } from "react-native";
+//import { CameraView, useCameraPermissions } from "expo-camera";
+//import * as MediaLibrary from "expo-media-library";
 
 export default function AddBookScreen() {
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [coverUri, setCoverUri] = useState(null);
-  const [showCamera, setShowCamera] = useState(false);
-  const [permission, requestPermission] = useCameraPermissions();
-  const cameraRef = useRef(null);
+  //const [title, setTitle] = useState("");
+  //const [author, setAuthor] = useState("");
+  //const [coverUri, setCoverUri] = useState(null);
+  //const [showCamera, setShowCamera] = useState(false);
+  //const [permission, requestPermission] = useCameraPermissions();
+  //const cameraRef = useRef(null);
+  const handleTakePhoto = () => {
+    console.log("User chose to take a photo");
+  };
+  const handleChooseFromGallery = () => {
+    console.log("User chose from gallery");
+  };
 
+/*
   if (!permission) {
     return <View><Text>Duke kontrolluar lejet...</Text></View>;
   }
@@ -60,34 +68,55 @@ export default function AddBookScreen() {
       </View>
     );
   }
-
+*/
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={["#522987", "#4e56c0"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 30,
+      }}>
+    <View >
       <Text style={styles.title}>Shto Libër të Ri</Text>
 
       <TextInput
         placeholder="Titulli i librit"
+        placeholderTextColor={"white"}
         style={styles.input}
-        value={title}
-        onChangeText={setTitle}
+        //value={title}
+        //onChangeText={setTitle}
       />
 
       <TextInput
         placeholder="Autori"
+        placeholderTextColor={"white"}
+
         style={styles.input}
-        value={author}
-        onChangeText={setAuthor}
+        //value={author}
+        //onChangeText={setAuthor}
       />
 
-      {coverUri ? (
-        <Image source={{ uri: coverUri }} style={styles.coverImage} />
-      ) : (
+      
         <View style={styles.placeholder}>
-          <Text style={{ color: "#777" }}>Nuk ka kopertinë</Text>
+          <Text style={{ color: "white" }}>Nuk ka kopertinë</Text>
         </View>
-      )}
+      
 
-      <TouchableOpacity style={styles.uploadButton} onPress={() => setShowCamera(true)}>
+      <TouchableOpacity style={styles.uploadButton} onPress={() => {
+    Alert.alert(
+      "Upload Photo",
+      "Choose an option:",
+      [
+        { text: "Take a Photo", onPress: () => handleTakePhoto() },
+        { text: "Choose from Gallery", onPress: () => handleChooseFromGallery() },
+        { text: "Cancel", style: "cancel" },
+      ],
+      { cancelable: true }
+    );
+  }}/*onPress={() => setShowCamera(true)}*/>
         <Text style={styles.uploadButtonText}>Ngarko kopertinën</Text>
       </TouchableOpacity>
 
@@ -95,6 +124,7 @@ export default function AddBookScreen() {
         <Text style={styles.saveButtonText}>Ruaj librin</Text>
       </TouchableOpacity>
     </View>
+    </LinearGradient>
   );
 }
 
@@ -109,8 +139,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
+    color: "#FFDD59",
   },
   input: {
+    width:300,
+    height:50,
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 10,
@@ -124,7 +157,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   placeholder: {
-    width: "100%",
+    width: 300,
     height: 250,
     borderWidth: 1,
     borderColor: "#aaa",
@@ -134,18 +167,18 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   uploadButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#FFDD59",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 15,
   },
   uploadButtonText: {
-    color: "#fff",
+    color: "#4B0082",
     fontSize: 16,
   },
   saveButton: {
-    backgroundColor: "green",
+    backgroundColor: "#4B0082",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
@@ -216,3 +249,6 @@ captureInner: {
   },
 
 });
+/* {coverUri ? (
+        <Image source={{ uri: coverUri }} style={styles.coverImage} />
+      ) : (*/

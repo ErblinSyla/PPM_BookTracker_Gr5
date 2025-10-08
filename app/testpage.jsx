@@ -1,8 +1,10 @@
 import {Text, View} from "react-native";
 import { auth } from '../firebaseConfig';
+import {useRouter} from "expo-router";
 
 export default function TestPage() {
     console.log("Firebase Test: ", auth);
+    const router = useRouter();
     return (
         <View 
         style={{
@@ -12,6 +14,9 @@ export default function TestPage() {
         }}
         >
             <Text>Hello World and welcome to the Test Page!</Text>
+            <Text style={{
+                fontSize:25,
+            }} onPress={() => router.push("/addNewBook")}>Open Camera</Text>
         </View>
 
     );

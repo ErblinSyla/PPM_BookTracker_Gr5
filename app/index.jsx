@@ -1,7 +1,10 @@
 import { Text, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import {useRouter} from "expo-router";
 
 export default function Index() {
+  const router=useRouter();
+
   return (
     <LinearGradient
       colors={["#522987", "#4e56c0"]}
@@ -60,7 +63,7 @@ export default function Index() {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={{ padding: 10 }}>
+      <TouchableOpacity style={{ padding: 10 }} onPress={()=>router.push("/login")}>
         <Text
           style={{
             textAlign: "center",

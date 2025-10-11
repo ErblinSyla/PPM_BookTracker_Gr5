@@ -3,26 +3,26 @@ import { View, Text, Pressable, StyleSheet, StatusBar } from "react-native";
 export default function CreateAcc() {
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f5efe6" />
+      <StatusBar barStyle="light-content" backgroundColor="#0d1b2a" />
 
-      <Text style={styles.logo}>Create an Account</Text>
+      <Text style={styles.title}>Create an Account</Text>
       <Text style={styles.subtitle}>
         Join BookTrack and start organizing your reading journey.
       </Text>
 
-      <Pressable style={[styles.button, styles.actionButton]}>
+      <Pressable style={styles.button}>
         <Text style={styles.buttonText}>Continue with Email</Text>
       </Pressable>
 
-      <Pressable style={[styles.button, styles.actionButton]}>
+      <Pressable style={styles.button}>
         <Text style={styles.buttonText}>Continue with Google</Text>
       </Pressable>
 
-      <Pressable style={[styles.button, styles.actionButton]}>
+      <Pressable style={styles.button}>
         <Text style={styles.buttonText}>Continue with Apple</Text>
       </Pressable>
 
-      <Pressable style={[styles.button, styles.actionButton]}>
+      <Pressable style={styles.button}>
         <Text style={styles.buttonText}>Continue with SSO</Text>
       </Pressable>
     </View>
@@ -32,41 +32,40 @@ export default function CreateAcc() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5efe6", 
+    backgroundColor: "#0d1b2a", // navy blue
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 28,
+    padding: 24,
   },
-  logo: {
-    fontSize: 32,
+  title: {
+    color: "#ffffff",
+    fontSize: 30,
     fontWeight: "700",
-    color: "#2e2c2c",
-    marginBottom: 8,
-    fontFamily: "serif",
+    marginBottom: 10,
+    letterSpacing: 0.5,
     textAlign: "center",
   },
   subtitle: {
-    fontSize: 16,
-    color: "#4f4a45",
+    color: "#aab4be",
+    fontSize: 15,
     marginBottom: 40,
     textAlign: "center",
-    fontStyle: "italic",
     lineHeight: 22,
   },
   button: {
+    borderColor: "#ffffff",
+    borderWidth: 1,
+    borderRadius: 30,
     width: "100%",
-    borderRadius: 6,
-    paddingVertical: 14,
-    marginBottom: 14,
-    alignItems: "center",
-  },
-  actionButton: {
-    backgroundColor: "#6b5643", 
+    paddingVertical: 15,
+    marginBottom: 16,
+    backgroundColor: "transparent",
   },
   buttonText: {
     color: "#ffffff",
-    fontWeight: "600",
-    fontSize: 15,
     textAlign: "center",
+    fontSize: 16,
+    fontWeight: "500",
+    letterSpacing: 0.3,
   },
 });

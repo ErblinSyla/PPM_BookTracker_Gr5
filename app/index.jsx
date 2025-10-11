@@ -50,6 +50,7 @@ export default function Index() {
           marginBottom: 15,
           width: "80%",
         }}
+        onPress={() => router.push("/signup")}
       >
         <Text
           style={{

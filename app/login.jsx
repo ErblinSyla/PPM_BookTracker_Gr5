@@ -38,10 +38,21 @@ export default function Login() {
           borderColor: "#ccc",
           borderWidth: 1,
           borderRadius: 8,
-          marginBottom: 20,
+          marginBottom: 5,
           paddingLeft: 10,
         }}
       />
+
+      <Text
+        style={{
+          color: "blue",
+          marginBottom: 20,
+          alignSelf: "flex-start",
+          marginLeft: 10,
+        }}
+      >
+        Forgot Password?
+      </Text>
 
       <Button title="Log In" onPress={() => router.push("/testpage")} />
 

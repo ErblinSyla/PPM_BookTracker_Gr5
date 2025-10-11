@@ -14,6 +14,18 @@ export default function Login() {
         backgroundColor: "#e0f7fa",
       }}
     >
+
+       <Pressable
+        onPress={() => router.back()}
+        style={{
+          position: "absolute",
+          top: 50,
+          left: 20,
+        }}
+      >
+        <Text style={{ color: "blue", fontSize: 16 }}>← Back</Text>
+      </Pressable>
+      
       <Text style={{ fontSize: 24, marginBottom: 20 }}>Log In</Text>
 
       <TextInput

@@ -43,11 +43,11 @@ export default function Login() {
         }}
       />
 
-      <Button title="Log In" onPress={() => {}} />
+      <Button title="Log In" onPress={() => router.push("/testpage")} />
 
       <Pressable onPress={() => router.push("/signup")}>
         <Text style={{ color: "blue", marginTop: 20 }}>
-          Don't have an account? Sign Up
+          Don't have an account? Sign Up.
         </Text>
       </Pressable>
     </View>

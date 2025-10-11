@@ -1,9 +1,14 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, StatusBar } from "react-native";
 
 export default function CreateAcc() {
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#0d1b2a" />
+
       <Text style={styles.title}>Create an Account</Text>
+      <Text style={styles.subtitle}>
+        Join BookTrack and start organizing your reading journey.
+      </Text>
 
       <Pressable style={styles.button}>
         <Text style={styles.buttonText}>Continue with Email</Text>
@@ -27,28 +32,40 @@ export default function CreateAcc() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1a237e",
+    backgroundColor: "#0d1b2a", // ngjyra e backgroundit 
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 24,
   },
   title: {
-    color: "white",
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 30,
+    color: "#ffffff",
+    fontSize: 30,
+    fontWeight: "700",
+    marginBottom: 10,
+    letterSpacing: 0.5,
+    textAlign: "center",
+  },
+  subtitle: {
+    color: "#aab4be",
+    fontSize: 15,
+    marginBottom: 40,
+    textAlign: "center",
+    lineHeight: 22,
   },
   button: {
-    width: "100%",
-    paddingVertical: 14,
+    borderColor: "#ffffff",
     borderWidth: 1,
-    borderColor: "#fff",
-    borderRadius: 25,
-    marginBottom: 15,
+    borderRadius: 30,
+    width: "100%",
+    paddingVertical: 15,
+    marginBottom: 16,
+    backgroundColor: "transparent",
   },
   buttonText: {
-    color: "white",
+    color: "#ffffff",
     textAlign: "center",
     fontSize: 16,
+    fontWeight: "500",
+    letterSpacing: 0.3,
   },
 });

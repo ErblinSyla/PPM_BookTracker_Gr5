@@ -14,6 +14,18 @@ export default function Login() {
         backgroundColor: "#e0f7fa",
       }}
     >
+
+       <Pressable
+        onPress={() => router.back()}
+        style={{
+          position: "absolute",
+          top: 50,
+          left: 20,
+        }}
+      >
+        <Text style={{ color: "blue", fontSize: 16 }}>← Back</Text>
+      </Pressable>
+      
       <Text style={{ fontSize: 24, marginBottom: 20 }}>Log In</Text>
 
       <TextInput
@@ -38,16 +50,27 @@ export default function Login() {
           borderColor: "#ccc",
           borderWidth: 1,
           borderRadius: 8,
-          marginBottom: 20,
+          marginBottom: 5,
           paddingLeft: 10,
         }}
       />
 
-      <Button title="Log In" onPress={() => {}} />
+      <Text
+        style={{
+          color: "blue",
+          marginBottom: 20,
+          alignSelf: "flex-start",
+          marginLeft: 10,
+        }}
+      >
+        Forgot Password?
+      </Text>
+
+      <Button title="Log In" onPress={() => router.push("/testpage")} />
 
       <Pressable onPress={() => router.push("/signup")}>
         <Text style={{ color: "blue", marginTop: 20 }}>
-          Don't have an account? Sign Up
+          Don't have an account? Sign Up.
         </Text>
       </Pressable>
     </View>

@@ -1,24 +1,41 @@
-//import React, { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Alert,View, Text, TextInput, Image, Button, StyleSheet, TouchableOpacity } from "react-native";
-//import { CameraView, useCameraPermissions } from "expo-camera";
-//import * as MediaLibrary from "expo-media-library";
+import { requestMediaLibraryPermissionsAsync,launchImageLibraryAsync,MediaTypeOptions} from "expo-image-picker";
+
+import { CameraView, useCameraPermissions } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
+
+
 
 export default function AddBookScreen() {
-  //const [title, setTitle] = useState("");
-  //const [author, setAuthor] = useState("");
-  //const [coverUri, setCoverUri] = useState(null);
-  //const [showCamera, setShowCamera] = useState(false);
-  //const [permission, requestPermission] = useCameraPermissions();
-  //const cameraRef = useRef(null);
-  const handleTakePhoto = () => {
-    console.log("User chose to take a photo");
-  };
-  const handleChooseFromGallery = () => {
-    console.log("User chose from gallery");
-  };
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [coverUri, setCoverUri] = useState(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
+  const cameraRef = useRef(null);
+ 
+  const ChooseFromGallery = async () => {
+  const { status } = await requestMediaLibraryPermissionsAsync();
+  if (status !== "granted") {
+    alert("Leja për qasje në galeri është e nevojshme!");
+    return;
+  }
 
-/*
+  const result = await launchImageLibraryAsync({
+    mediaTypes: MediaTypeOptions.Images,
+    allowsEditing: true,
+    quality: 1,
+  });
+
+  if (!result.canceled) {
+    setCoverUri(result.assets[0].uri);
+  }
+};
+
+
+
   if (!permission) {
     return <View><Text>Duke kontrolluar lejet...</Text></View>;
   }
@@ -68,8 +85,10 @@ export default function AddBookScreen() {
       </View>
     );
   }
-*/
+
   return (
+   
+
     <LinearGradient colors={["#522987", "#4e56c0"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
@@ -86,8 +105,8 @@ export default function AddBookScreen() {
         placeholder="Titulli i librit"
         placeholderTextColor={"white"}
         style={styles.input}
-        //value={title}
-        //onChangeText={setTitle}
+        value={title}
+        onChangeText={setTitle}
       />
 
       <TextInput
@@ -95,13 +114,16 @@ export default function AddBookScreen() {
         placeholderTextColor={"white"}
 
         style={styles.input}
-        //value={author}
-        //onChangeText={setAuthor}
+        value={author}
+        onChangeText={setAuthor}
       />
 
       
         <View style={styles.placeholder}>
-          <Text style={{ color: "white" }}>Nuk ka kopertinë</Text>
+          {coverUri ? (
+        <Image source={{ uri: coverUri }} style={styles.coverImage} />
+      ) : (
+          <Text style={{ color: "white" }}>Nuk ka kopertinë</Text>)}
         </View>
       
 
@@ -110,17 +132,21 @@ export default function AddBookScreen() {
       "Upload Photo",
       "Choose an option:",
       [
-        { text: "Take a Photo", onPress: () => handleTakePhoto() },
-        { text: "Choose from Gallery", onPress: () => handleChooseFromGallery() },
+        { text: "Take a Photo", onPress:() => setShowCamera(true)},
+        { text: "Choose from Gallery", onPress: () => ChooseFromGallery() },
         { text: "Cancel", style: "cancel" },
       ],
       { cancelable: true }
     );
-  }}/*onPress={() => setShowCamera(true)}*/>
+  }}>
         <Text style={styles.uploadButtonText}>Ngarko kopertinën</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.saveButton} onPress={() => alert("Libri u shtua!")}>
+      <TouchableOpacity style={styles.saveButton} onPress={() => {if(title.trim()==="" || author.trim()==="" || coverUri==null){
+        Alert.alert("Kujdes!","Ju lutem plotesoni te gjitha fushat para se ta ruani librin!")
+      }else{
+        Alert.alert("Sukses!","Libri u shtua!")
+      }}}>
         <Text style={styles.saveButtonText}>Ruaj librin</Text>
       </TouchableOpacity>
     </View>
@@ -249,6 +275,4 @@ captureInner: {
   },
 
 });
-/* {coverUri ? (
-        <Image source={{ uri: coverUri }} style={styles.coverImage} />
-      ) : (*/
+/* */

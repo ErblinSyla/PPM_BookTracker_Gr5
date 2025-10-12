@@ -1,33 +1,53 @@
-import {Stack } from "expo-router";
-import {Pressable, Text} from "react-native";
-import {useRouter} from "expo-router";
+import { Stack } from "expo-router";
+import { Pressable, Text } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function RootLayout() {
     const router = useRouter();
     return ( 
         <Stack>
-            <Stack.Screen name="index"
-            
-            options = {{
-                title: "Home Page",
-                headerStyle: {
-                    backgroundColor: "#121212",
-                },
-                headerTintColor: "#fff",
-                headerLeft: () => (
-                    <Pressable onPress= {() => router.push("/testpage")}>
-                        <Text style={{color: "white",marginLeft:10}}>Back</Text>
-                    </Pressable>
-                ), 
-            }}
-            />
+            <Stack.Screen 
+        name="index"
+        options={{
+          headerShown: false,
+          title: "Welcome To BookTracker",
+          headerStyle: { backgroundColor: "#121212" },
+          headerTintColor: "#fff",
+        }}
+      />
 
         <Stack.Screen 
         name="login"
         options={{
-          title: "Login Page",
+          headerShown: false,
+          title: "Sign In",
           headerStyle: { backgroundColor: "#121212" },
           headerTintColor: "#fff",
+        }}
+      />
+        <Stack.Screen 
+        name="signup"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen 
+        name="addNewBook"
+        options={{
+          headerShown: false,
+        }}
+      />
+        <Stack.Screen 
+        name="testpage"
+        options={{
+          title: "Homepage",
+          headerStyle: { backgroundColor: "#121212" },
+          headerTintColor: "#fff",
+          headerLeft: () => (
+            <Pressable onPress={() => router.push("/")}>
+              <Text style={{ color: "white", marginLeft: 10 }}>Sign Out</Text>
+            </Pressable>
+          ),
         }}
       />
         </Stack>

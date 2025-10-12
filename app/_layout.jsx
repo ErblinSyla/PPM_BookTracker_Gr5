@@ -19,11 +19,6 @@ export default function RootLayout() {
                         <Text style={{color: "white",marginLeft:10}}>Back</Text>
                     </Pressable>
                 ), 
-                  headerRight: () => (
-                  <Pressable onPress={() => router.push("/login")}>
-                    <Text style={{color: "white", marginRight:10}}>Log In</Text>
-                    </Pressable>
-                )
             }}
             />
 

@@ -1,9 +1,9 @@
 import { Text, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import {useRouter} from "expo-router";
-export default function Index() {
 
-  const router = useRouter();
+export default function Index() {
+  const router=useRouter();
 
   return (
     <LinearGradient
@@ -63,7 +63,7 @@ export default function Index() {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={{ padding: 10 }} onPress = {() => router.push("/login")}>
+      <TouchableOpacity style={{ padding: 10 }} onPress={()=>router.push("/login")}>
         <Text
           style={{
             textAlign: "center",

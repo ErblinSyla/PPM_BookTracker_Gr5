@@ -23,12 +23,7 @@ export default function Index() {
         colors={["#522987", "#4e56c0"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          paddingHorizontal: 30,
-        }}
+        style={{ flex: 1 }}
       >
         <View
           style={{
@@ -52,89 +47,95 @@ export default function Index() {
             right: -80,
           }}
         />
-        <Image
-          source={require("../assets/book.png")}
-          style={{ width: 60, height: 60, marginBottom: 20 }}
-          resizeMode="contain"
-        />
+        
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
+          <Image
+            source={require("../assets/book.png")}
+            style={{ width: 60, height: 60, marginBottom: 20 }}
+            resizeMode="contain"
+          />
 
-        <Text
-          style={{
-            fontSize: 21,
-            fontWeight: "900",
-            letterSpacing: 1.2,
-            textTransform: "uppercase",
-            color: "#FFDD59",
-            marginBottom: 12,
-          }}
-        >
-          Welcome to BookTracker
-        </Text>
-
-        <Text
-          style={{
-            fontSize: 18,
-            color: "#FFFFFFCC",
-            textAlign: "center",
-            fontStyle: "italic",
-            lineHeight: 24,
-          }}
-        >
-          Discover, read, and track your favorite books.
-        </Text>
-        <TouchableOpacity
-          style={{
-            backgroundColor: "#FFDD59",
-            paddingVertical: 14,
-            borderRadius: 30,
-            width: "80%",
-            maxWidth: 300,
-            shadowColor: "#000",
-            shadowOpacity: 0.3,
-            shadowRadius: 10,
-            elevation: 6,
-            marginTop: 20,
-          }}
-          onPress={() => router.push("/signup")}
-        >
           <Text
             style={{
-              color: "#522987",
-              fontWeight: "bold",
-              fontSize: 16,
-              textAlign: "center",
+              fontSize: 21,
+              fontWeight: "900",
+              letterSpacing: 1.2,
+              textTransform: "uppercase",
+              color: "#FFDD59",
+              marginBottom: 12,
             }}
           >
-            Get Started
+            Welcome to BookTracker
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ padding: 10 }}
-          onPress={() => router.push("/login")}
-        >
+
           <Text
             style={{
+              fontSize: 18,
+              color: "#FFFFFFCC",
               textAlign: "center",
               fontStyle: "italic",
-              color: "#E0E0E0",
+              lineHeight: 24,
             }}
           >
-            Already have an account? Log in.
+            Discover, read, and track your favorite books.
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{ padding: 10 }}>
-          <Text
+          <TouchableOpacity
             style={{
-              color: "#FFFFFFB0",
-              fontSize: 14,
-              marginTop: 40,
-              fontStyle: "italic",
+              backgroundColor: "#FFDD59",
+              paddingVertical: 14,
+              borderRadius: 30,
+              width: "80%",
+              maxWidth: 300,
+              shadowColor: "#000",
+              shadowOpacity: 0.3,
+              shadowRadius: 10,
+              elevation: 6,
+              marginTop: 20,
             }}
+            onPress={() => router.push("/signup")}
           >
-            “A reader lives a thousand lives before he dies.” — George R.R.
-            Martin
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={{
+                color: "#522987",
+                fontWeight: "bold",
+                fontSize: 16,
+                textAlign: "center",
+              }}
+            >
+              Get Started
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ padding: 10 }}
+            onPress={() => router.push("/login")}
+          >
+            <Text
+              style={{
+                textAlign: "center",
+                fontStyle: "italic",
+                color: "#E0E0E0",
+              }}
+            >
+              Already have an account? Log in.
+            </Text>
+          </TouchableOpacity>
+        </View>
+        
+        <View style={{ alignItems: 'center', paddingBottom: 20, paddingLeft: 20, paddingRight: 20 }}>
+          <TouchableOpacity style={{ padding: 10 }}>
+            <Text
+              style={{
+                color: "#FFFFFFB0",
+                fontSize: 14,
+                fontStyle: "italic",
+                textAlign: "center",
+                paddingBottom: 25,
+              }}
+            >
+              "A reader lives a thousand lives before he dies." — George R.R. Martin
+            </Text>
+          </TouchableOpacity>
+        </View>
       </LinearGradient>
     </SafeAreaView>
   );

@@ -4,10 +4,12 @@ import {
   SafeAreaView,
   Image,
   View,
+  Animated,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import { useEffect, useRef } from "react";
 
 export const options = {
   headerShown: false,
@@ -15,6 +17,148 @@ export const options = {
 
 export default function Index() {
   const router = useRouter();
+
+  const fadeImage = useRef(new Animated.Value(0)).current;
+  const slideImage = useRef(new Animated.Value(30)).current;
+  const floatImage = useRef(new Animated.Value(0)).current;
+  
+  const fadeTitle = useRef(new Animated.Value(0)).current;
+  const slideTitle = useRef(new Animated.Value(30)).current;
+  const fadeSubtitle = useRef(new Animated.Value(0)).current;
+  const fadeQuote = useRef(new Animated.Value(0)).current;
+  const floatTitle = useRef(new Animated.Value(0)).current;
+  const floatSubtitle = useRef(new Animated.Value(0)).current;
+  const floatQuote = useRef(new Animated.Value(0)).current;
+  const buttonScale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeImage, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideImage, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(fadeTitle, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideTitle, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 200);
+
+    const subtitleTimer = setTimeout(() => {
+      Animated.timing(fadeSubtitle, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }).start();
+    }, 600);
+
+    const quoteTimer = setTimeout(() => {
+      Animated.timing(fadeQuote, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }).start();
+    }, 1000);
+
+    setTimeout(() => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(floatImage, {
+            toValue: -4,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(floatImage, {
+            toValue: 0,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(floatTitle, {
+            toValue: -4,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(floatTitle, {
+            toValue: 0,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(floatSubtitle, {
+            toValue: 4,
+            duration: 2500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(floatSubtitle, {
+            toValue: 0,
+            duration: 2500,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+
+      setTimeout(() => {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(floatQuote, {
+              toValue: -3,
+              duration: 3000,
+              useNativeDriver: true,
+            }),
+            Animated.timing(floatQuote, {
+              toValue: 0,
+              duration: 3000,
+              useNativeDriver: true,
+            }),
+          ])
+        ).start();
+      }, 1000);
+    }, 1500);
+
+    return () => {
+      clearTimeout(subtitleTimer);
+      clearTimeout(quoteTimer);
+    };
+  }, []);
+
+  const handlePressIn = () => {
+    Animated.spring(buttonScale, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(buttonScale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -49,49 +193,81 @@ export default function Index() {
         />
         
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
-          <Image
+          <Animated.Image
             source={require("../assets/book.png")}
-            style={{ width: 60, height: 60, marginBottom: 20 }}
+            style={[
+              {
+                opacity: fadeImage,
+                transform: [
+                  { translateY: slideImage },
+                  { translateY: floatImage },
+                ],
+                width: 60,
+                height: 60,
+                marginBottom: 20,
+              },
+            ]}
             resizeMode="contain"
           />
 
-          <Text
-            style={{
-              fontSize: 21,
-              fontWeight: "900",
-              letterSpacing: 1.2,
-              textTransform: "uppercase",
-              color: "#FFDD59",
-              marginBottom: 12,
-            }}
+          <Animated.Text
+            style={[
+              {
+                opacity: fadeTitle,
+                transform: [
+                  { translateY: slideTitle },
+                  { translateY: floatTitle },
+                ],
+                fontSize: 21,
+                fontWeight: "900",
+                letterSpacing: 1.2,
+                textTransform: "uppercase",
+                color: "#FFDD59",
+                marginBottom: 12,
+                textAlign: "center",
+              },
+            ]}
           >
             Welcome to BookTracker
-          </Text>
+          </Animated.Text>
 
-          <Text
-            style={{
-              fontSize: 18,
-              color: "#FFFFFFCC",
-              textAlign: "center",
-              fontStyle: "italic",
-              lineHeight: 24,
-            }}
+          <Animated.Text
+            style={[
+              {
+                opacity: fadeSubtitle,
+                transform: [{ translateY: floatSubtitle }],
+                fontSize: 18,
+                color: "#FFFFFFCC",
+                textAlign: "center",
+                fontStyle: "italic",
+                lineHeight: 24,
+              },
+            ]}
           >
             Discover, read, and track your favorite books.
-          </Text>
+          </Animated.Text>
+          
           <TouchableOpacity
-            style={{
-              backgroundColor: "#FFDD59",
-              paddingVertical: 14,
-              borderRadius: 30,
-              width: "80%",
-              maxWidth: 300,
-              shadowColor: "#000",
-              shadowOpacity: 0.3,
-              shadowRadius: 10,
-              elevation: 6,
-              marginTop: 20,
-            }}
+            style={[
+              {
+                transform: [{ scale: buttonScale }],
+                backgroundColor: "#FFDD59",
+                paddingVertical: 14,
+                borderRadius: 30,
+                width: "80%",
+                maxWidth: 300,
+                shadowColor: "#000",
+                shadowOpacity: 0.3,
+                shadowRadius: 10,
+                elevation: 6,
+                marginTop: 20,
+                alignItems: "center",
+                justifyContent: "center",
+              },
+            ]}
+            activeOpacity={0.9}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
             onPress={() => router.push("/signup")}
           >
             <Text
@@ -105,6 +281,7 @@ export default function Index() {
               Get Started
             </Text>
           </TouchableOpacity>
+          
           <TouchableOpacity
             style={{ padding: 10 }}
             onPress={() => router.push("/login")}
@@ -121,7 +298,14 @@ export default function Index() {
           </TouchableOpacity>
         </View>
         
-        <View style={{ alignItems: 'center', paddingBottom: 20, paddingLeft: 20, paddingRight: 20 }}>
+        <Animated.View style={{ 
+          alignItems: 'center', 
+          paddingBottom: 20, 
+          paddingLeft: 20, 
+          paddingRight: 20,
+          opacity: fadeQuote,
+          transform: [{ translateY: floatQuote }],
+        }}>
           <TouchableOpacity style={{ padding: 10 }}>
             <Text
               style={{
@@ -135,7 +319,7 @@ export default function Index() {
               "A reader lives a thousand lives before he dies." — George R.R. Martin
             </Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </LinearGradient>
     </SafeAreaView>
   );

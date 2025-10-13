@@ -1,6 +1,9 @@
 import { View, Text, Pressable, StyleSheet, StatusBar } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function CreateAcc() {
+  const router = useRouter();
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0d1b2a" />
@@ -25,6 +28,13 @@ export default function CreateAcc() {
       <Pressable style={styles.button}>
         <Text style={styles.buttonText}>Continue with SSO</Text>
       </Pressable>
+
+      <Pressable onPress={() => router.push("/login")}>
+        <Text style={styles.loginText}>
+          Already have an account?{" "}
+          <Text style={styles.loginLink}>Log in</Text>
+        </Text>
+      </Pressable>
     </View>
   );
 }
@@ -32,7 +42,7 @@ export default function CreateAcc() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0d1b2a", // navy blue
+    backgroundColor: "#0d1b2a", 
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
@@ -67,5 +77,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
     letterSpacing: 0.3,
+  },
+  loginText: {
+    color: "#aab4be",
+    marginTop: 25,
+    fontSize: 14,
+  },
+  loginLink: {
+    color: "#ffb300", 
+    fontWeight: "700",
   },
 });

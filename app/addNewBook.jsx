@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Alert,View, Text, TextInput, Image, Button, StyleSheet, TouchableOpacity } from "react-native";
 import { requestMediaLibraryPermissionsAsync,launchImageLibraryAsync,MediaTypeOptions} from "expo-image-picker";
-
+import {useRouter} from "expo-router";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 
@@ -15,6 +15,8 @@ export default function AddBookScreen() {
   const [showCamera, setShowCamera] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
+  const router = useRouter();
+
  
   const ChooseFromGallery = async () => {
   const { status } = await requestMediaLibraryPermissionsAsync();
@@ -103,7 +105,7 @@ export default function AddBookScreen() {
 
       <TextInput
         placeholder="Titulli i librit"
-        placeholderTextColor={"white"}
+        placeholderTextColor={"lightgray"}
         style={styles.input}
         value={title}
         onChangeText={setTitle}
@@ -111,7 +113,7 @@ export default function AddBookScreen() {
 
       <TextInput
         placeholder="Autori"
-        placeholderTextColor={"white"}
+        placeholderTextColor={"lightgray"}
 
         style={styles.input}
         value={author}
@@ -123,7 +125,7 @@ export default function AddBookScreen() {
           {coverUri ? (
         <Image source={{ uri: coverUri }} style={styles.coverImage} />
       ) : (
-          <Text style={{ color: "white" }}>Nuk ka kopertinë</Text>)}
+          <Text style={{ color: "white" }} >Nuk ka kopertinë</Text>)}
         </View>
       
 
@@ -139,14 +141,14 @@ export default function AddBookScreen() {
       { cancelable: true }
     );
   }}>
-        <Text style={styles.uploadButtonText}>Ngarko kopertinën</Text>
+        <Text style={styles.uploadButtonText} >Ngarko kopertinën</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.saveButton} onPress={() => {if(title.trim()==="" || author.trim()==="" || coverUri==null){
         Alert.alert("Kujdes!","Ju lutem plotesoni te gjitha fushat para se ta ruani librin!")
       }else{
-        Alert.alert("Sukses!","Libri u shtua!")
-      }}}>
+        Alert.alert("Sukses!","Libri u shtua!",[{onPress: () => router.push("/homepage")}] ) }
+        }}>
         <Text style={styles.saveButtonText}>Ruaj librin</Text>
       </TouchableOpacity>
     </View>
@@ -175,6 +177,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     marginBottom: 15,
+    color: "white",
   },
   coverImage: {
     width: "100%",

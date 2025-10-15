@@ -66,7 +66,7 @@ export default function Login() {
         Forgot Password?
       </Text>
 
-      <Button title="Log In" onPress={() => router.push("/testpage")} />
+      <Button title="Log In" onPress={() => router.push("/homepage")} />
 
       <Pressable onPress={() => router.push("/signup")}>
         <Text style={{ color: "blue", marginTop: 20 }}>

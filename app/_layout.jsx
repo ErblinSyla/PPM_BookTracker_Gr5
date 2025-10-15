@@ -38,16 +38,9 @@ export default function RootLayout() {
         }}
       />
         <Stack.Screen 
-        name="testpage"
+        name="homepage"
         options={{
-          title: "Homepage",
-          headerStyle: { backgroundColor: "#121212" },
-          headerTintColor: "#fff",
-          headerLeft: () => (
-            <Pressable onPress={() => router.push("/")}>
-              <Text style={{ color: "white", marginLeft: 10 }}>Sign Out</Text>
-            </Pressable>
-          ),
+         headerShown: false,
         }}
       />
         </Stack>

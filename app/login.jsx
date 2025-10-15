@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   SafeAreaView,
+  Animated,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,6 +15,23 @@ import { StatusBar } from "expo-status-bar";
 export default function Login() {
   const router = useRouter();
   const [isChecked, setChecked] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -29,6 +47,29 @@ export default function Login() {
           paddingHorizontal: 30,
         }}
       >
+        <View
+          style={{
+            position: "absolute",
+            width: 200,
+            height: 200,
+            borderRadius: 100,
+            backgroundColor: "#ffffff20",
+            top: 100,
+            left: -50,
+          }}
+        />
+        <View
+          style={{
+            position: "absolute",
+            width: 250,
+            height: 250,
+            borderRadius: 125,
+            backgroundColor: "#ffffff10",
+            bottom: 50,
+            right: -80,
+          }}
+        />
+
         <TouchableOpacity
           onPress={() => router.back()}
           style={{
@@ -40,7 +81,13 @@ export default function Login() {
           <Text style={{ color: "#FFDD59", fontSize: 16 }}>← Back</Text>
         </TouchableOpacity>
 
-        <View style={{ width: "100%" }}>
+        <Animated.View
+          style={{
+            width: "100%",
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          }}
+        >
           <Text
             style={{
               fontSize: 28,
@@ -150,6 +197,11 @@ export default function Login() {
               borderRadius: 10,
               width: "100%",
               marginBottom: 25,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 4,
+              elevation: 6,
             }}
           >
             <Text
@@ -172,7 +224,7 @@ export default function Login() {
               </Text>
             </Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </LinearGradient>
     </SafeAreaView>
   );

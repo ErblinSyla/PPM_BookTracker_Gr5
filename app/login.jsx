@@ -1,78 +1,156 @@
-import { View, Text, TextInput, Button, Pressable } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import Checkbox from "expo-checkbox";
 import { useRouter } from "expo-router";
 
 export default function Login() {
   const router = useRouter();
+  const [isChecked, setChecked] = useState(false);
 
   return (
     <View
       style={{
         flex: 1,
+        backgroundColor: "#fff",
         justifyContent: "center",
         alignItems: "center",
-        padding: 20,
-        backgroundColor: "#e0f7fa",
+        paddingHorizontal: 25,
       }}
     >
-
-       <Pressable
+      {/* Back */}
+      <TouchableOpacity
         onPress={() => router.back()}
+        style={{ position: "absolute", top: 50, left: 20 }}
+      >
+        <Text style={{ color: "#6C63FF", fontSize: 16 }}>← Back</Text>
+      </TouchableOpacity>
+
+      {/* Title */}
+      <Text
         style={{
-          position: "absolute",
-          top: 50,
-          left: 20,
+          fontSize: 28,
+          fontWeight: "700",
+          color: "#2C2C54",
+          textAlign: "center",
+          marginBottom: 8,
         }}
       >
-        <Text style={{ color: "blue", fontSize: 16 }}>← Back</Text>
-      </Pressable>
-      
-      <Text style={{ fontSize: 24, marginBottom: 20 }}>Log In</Text>
-
-      <TextInput
-        placeholder="Username or Email"
-        style={{
-          width: "100%",
-          height: 50,
-          borderColor: "#ccc",
-          borderWidth: 1,
-          borderRadius: 8,
-          marginBottom: 10,
-          paddingLeft: 10,
-        }}
-      />
-
-      <TextInput
-        placeholder="Password"
-        secureTextEntry={true}
-        style={{
-          width: "100%",
-          height: 50,
-          borderColor: "#ccc",
-          borderWidth: 1,
-          borderRadius: 8,
-          marginBottom: 5,
-          paddingLeft: 10,
-        }}
-      />
+        Login to your{"\n"}account.
+      </Text>
 
       <Text
         style={{
-          color: "blue",
-          marginBottom: 20,
-          alignSelf: "flex-start",
-          marginLeft: 10,
+          color: "#A0A0A0",
+          marginBottom: 25,
+          textAlign: "center",
         }}
       >
-        Forgot Password?
+        Hello, welcome back to your account
       </Text>
 
-      <Button title="Log In" onPress={() => router.push("/homepage")} />
+      {/* Email */}
+      <Text
+        style={{
+          alignSelf: "flex-start",
+          color: "#6C63FF",
+          marginBottom: 5,
+        }}
+      >
+        E-mail
+      </Text>
+      <TextInput
+        placeholder="example@email.com"
+        style={{
+          width: "100%",
+          height: 50,
+          borderWidth: 1,
+          borderColor: "#BDBDBD",
+          borderRadius: 10,
+          paddingLeft: 12,
+          marginBottom: 15,
+        }}
+      />
 
-      <Pressable onPress={() => router.push("/signup")}>
-        <Text style={{ color: "blue", marginTop: 20 }}>
-          Don't have an account? Sign Up.
+      {/* Password */}
+      <Text
+        style={{
+          alignSelf: "flex-start",
+          color: "#6C63FF",
+          marginBottom: 5,
+        }}
+      >
+        Password
+      </Text>
+      <TextInput
+        placeholder="Your Password"
+        secureTextEntry
+        style={{
+          width: "100%",
+          height: 50,
+          borderWidth: 1,
+          borderColor: "#BDBDBD",
+          borderRadius: 10,
+          paddingLeft: 12,
+          marginBottom: 10,
+        }}
+      />
+
+      {/* Remember + Forgot */}
+      <View
+        style={{
+          width: "100%",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 25,
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Checkbox
+            value={isChecked}
+            onValueChange={setChecked}
+            color={isChecked ? "#6C63FF" : undefined}
+          />
+          <Text style={{ marginLeft: 8, color: "#757575" }}>Remember me</Text>
+        </View>
+
+        <TouchableOpacity>
+          <Text style={{ color: "#6C63FF", fontWeight: "500" }}>
+            Forgot Password?
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Login Button */}
+      <TouchableOpacity
+        onPress={() => router.push("/home")}
+        style={{
+          backgroundColor: "#6C63FF",
+          paddingVertical: 14,
+          borderRadius: 10,
+          width: "100%",
+          marginBottom: 25,
+        }}
+      >
+        <Text
+          style={{
+            textAlign: "center",
+            color: "#fff",
+            fontWeight: "600",
+            fontSize: 16,
+          }}
+        >
+          Login
         </Text>
-      </Pressable>
+      </TouchableOpacity>
+
+      {/* Sign up text */}
+      <TouchableOpacity onPress={() => router.push("/signup")}>
+        <Text style={{ color: "#6C63FF", fontWeight: "500" }}>
+          Don’t have an account?{" "}
+          <Text style={{ fontWeight: "700" }}>Sign Up</Text>
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }

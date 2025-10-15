@@ -17,7 +17,7 @@ export default function Login() {
         paddingHorizontal: 25,
       }}
     >
-      {/* Back */}
+  
       <TouchableOpacity
         onPress={() => router.back()}
         style={{ position: "absolute", top: 50, left: 20 }}
@@ -25,7 +25,6 @@ export default function Login() {
         <Text style={{ color: "#6C63FF", fontSize: 16 }}>← Back</Text>
       </TouchableOpacity>
 
-      {/* Title */}
       <Text
         style={{
           fontSize: 28,
@@ -48,7 +47,6 @@ export default function Login() {
         Hello, welcome back to your account
       </Text>
 
-      {/* Email */}
       <Text
         style={{
           alignSelf: "flex-start",
@@ -71,7 +69,6 @@ export default function Login() {
         }}
       />
 
-      {/* Password */}
       <Text
         style={{
           alignSelf: "flex-start",
@@ -95,7 +92,6 @@ export default function Login() {
         }}
       />
 
-      {/* Remember + Forgot */}
       <View
         style={{
           width: "100%",
@@ -121,7 +117,6 @@ export default function Login() {
         </TouchableOpacity>
       </View>
 
-      {/* Login Button */}
       <TouchableOpacity
         onPress={() => router.push("/home")}
         style={{
@@ -144,7 +139,6 @@ export default function Login() {
         </Text>
       </TouchableOpacity>
 
-      {/* Sign up text */}
       <TouchableOpacity onPress={() => router.push("/signup")}>
         <Text style={{ color: "#6C63FF", fontWeight: "500" }}>
           Don’t have an account?{" "}

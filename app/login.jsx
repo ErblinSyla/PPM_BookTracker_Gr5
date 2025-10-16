@@ -196,7 +196,7 @@ export default function Login() {
               paddingVertical: 14,
               borderRadius: 10,
               width: "100%",
-              marginBottom: 25,
+              marginBottom: 15,
               shadowColor: "#000",
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.3,
@@ -217,13 +217,33 @@ export default function Login() {
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => router.push("/signup")}>
-            <Text style={{ color: "#FFFFFFCC", textAlign: "center" }}>
+            <Text style={{ color: "#FFFFFFCC", textAlign: "center", marginBottom: 15 }}>
               Don’t have an account?{" "}
-              <Text style={{ fontWeight: "700", color: "#FFDD59" }}>
-                Sign Up
-              </Text>
+              <Text style={{ fontWeight: "700", color: "#FFDD59" }}>Sign Up</Text>
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => router.push("/addNewBook")}
+            style={{
+              backgroundColor: "#FFDD59",
+              paddingVertical: 14,
+              borderRadius: 10,
+              width: "100%",
+            }}
+          >
+            <Text
+    style={{
+      textAlign: "center",
+      color: "#522987", 
+      fontWeight: "700",
+      fontSize: 16,
+    }}
+  >
+              Go to Book List
+            </Text>
+          </TouchableOpacity>
+
         </Animated.View>
       </LinearGradient>
     </SafeAreaView>

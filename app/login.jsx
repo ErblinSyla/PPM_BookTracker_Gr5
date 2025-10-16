@@ -4,13 +4,12 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   Animated,
+  StatusBar,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 
 export default function Login() {
   const router = useRouter();
@@ -34,8 +33,8 @@ export default function Login() {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <StatusBar style="light" />
+    <View style={{ flex: 1 }}>
+      <StatusBar hidden />
       <LinearGradient
         colors={["#522987", "#4e56c0"]}
         start={{ x: 0, y: 0 }}
@@ -69,7 +68,6 @@ export default function Login() {
             right: -80,
           }}
         />
-
         <TouchableOpacity
           onPress={() => router.back()}
           style={{
@@ -80,7 +78,6 @@ export default function Login() {
         >
           <Text style={{ color: "#FFDD59", fontSize: 16 }}>← Back</Text>
         </TouchableOpacity>
-
         <Animated.View
           style={{
             width: "100%",
@@ -99,7 +96,6 @@ export default function Login() {
           >
             Login to your{"\n"}account
           </Text>
-
           <Text
             style={{
               color: "#FFFFFFCC",
@@ -110,7 +106,6 @@ export default function Login() {
           >
             Hello, welcome back to your account
           </Text>
-
           <Text
             style={{
               alignSelf: "flex-start",
@@ -135,7 +130,6 @@ export default function Login() {
               backgroundColor: "#ffffff15",
             }}
           />
-
           <Text
             style={{
               alignSelf: "flex-start",
@@ -161,7 +155,6 @@ export default function Login() {
               backgroundColor: "#ffffff15",
             }}
           />
-
           <View
             style={{
               width: "100%",
@@ -181,14 +174,12 @@ export default function Login() {
                 Remember me
               </Text>
             </View>
-
             <TouchableOpacity>
               <Text style={{ color: "#FFDD59", fontWeight: "500" }}>
                 Forgot Password?
               </Text>
             </TouchableOpacity>
           </View>
-
           <TouchableOpacity
             onPress={() => router.push("/home")}
             style={{
@@ -215,14 +206,20 @@ export default function Login() {
               Login
             </Text>
           </TouchableOpacity>
-
           <TouchableOpacity onPress={() => router.push("/signup")}>
-            <Text style={{ color: "#FFFFFFCC", textAlign: "center", marginBottom: 15 }}>
+            <Text
+              style={{
+                color: "#FFFFFFCC",
+                textAlign: "center",
+                marginBottom: 15,
+              }}
+            >
               Don’t have an account?{" "}
-              <Text style={{ fontWeight: "700", color: "#FFDD59" }}>Sign Up</Text>
+              <Text style={{ fontWeight: "700", color: "#FFDD59" }}>
+                Sign Up
+              </Text>
             </Text>
           </TouchableOpacity>
-
           <TouchableOpacity
             onPress={() => router.push("/addNewBook")}
             style={{
@@ -233,19 +230,18 @@ export default function Login() {
             }}
           >
             <Text
-    style={{
-      textAlign: "center",
-      color: "#522987", 
-      fontWeight: "700",
-      fontSize: 16,
-    }}
-  >
+              style={{
+                textAlign: "center",
+                color: "#522987",
+                fontWeight: "700",
+                fontSize: 16,
+              }}
+            >
               Go to Book List
             </Text>
           </TouchableOpacity>
-
         </Animated.View>
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 }

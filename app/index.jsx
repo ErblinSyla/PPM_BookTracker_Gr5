@@ -1,7 +1,6 @@
 import {
   Text,
   TouchableOpacity,
-  SafeAreaView,
   Image,
   View,
   Animated,
@@ -10,6 +9,7 @@ import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const options = {
   headerShown: false,
@@ -161,12 +161,12 @@ export default function Index() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <StatusBar style="light" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#522987' }} edges={[]}>
+      <StatusBar style="light" backgroundColor="transparent" translucent={true} />
       <LinearGradient
         colors={["#522987", "#4e56c0"]}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 1 }}
         style={{ flex: 1 }}
       >
         <View

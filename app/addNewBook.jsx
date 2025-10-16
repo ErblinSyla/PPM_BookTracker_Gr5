@@ -1,312 +1,251 @@
-import React, { useState, useRef } from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { Alert,View, Text, TextInput, Image, Button, StyleSheet, TouchableOpacity } from "react-native";
-import { requestMediaLibraryPermissionsAsync,launchImageLibraryAsync,MediaTypeOptions} from "expo-image-picker";
-import {useRouter} from "expo-router";
-import { CameraView, useCameraPermissions } from "expo-camera";
-import * as MediaLibrary from "expo-media-library";
+"use client"
 
+import React, { useEffect, useState } from "react"
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  Alert,
+  Platform,
+} from "react-native"
+import { StatusBar } from "expo-status-bar"
+import { useRouter, useLocalSearchParams } from "expo-router"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { LinearGradient } from "expo-linear-gradient"
+import * as ImagePicker from "expo-image-picker"
 
+export default function AddNewBook() {
+  const router = useRouter()
+  const { editId } = useLocalSearchParams()
 
-export default function AddBookScreen() {
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [coverUri, setCoverUri] = useState(null);
-  const [showCamera, setShowCamera] = useState(false);
-  const [permission, requestPermission] = useCameraPermissions();
-  const cameraRef = useRef(null);
-  const router = useRouter();
+  const [title, setTitle] = useState("")
+  const [author, setAuthor] = useState("")
+  const [description, setDescription] = useState("")
+  const [cover, setCover] = useState(null)
+  const [isEditing, setIsEditing] = useState(false)
 
- 
-  const ChooseFromGallery = async () => {
-  const { status } = await requestMediaLibraryPermissionsAsync();
-  if (status !== "granted") {
-    alert("Leja për qasje në galeri është e nevojshme!");
-    return;
-  }
-
-  const result = await launchImageLibraryAsync({
-    mediaTypes: MediaTypeOptions.Images,
-    allowsEditing: true,
-    quality: 1,
-  });
-
-  if (!result.canceled) {
-    setCoverUri(result.assets[0].uri);
-  }
-};
-
-
-
-  if (!permission) {
-    return <View><Text>Duke kontrolluar lejet...</Text></View>;
-  }
-
-  if (!permission.granted) {
-    return (
-      <View style={styles.permissionContainer}>
-        <Text style={{ textAlign: "center", marginBottom: 10 }}>
-          Aplikacioni ka nevojë për qasje në kamerë për të ngarkuar kopertinën.
-        </Text>
-        <Button title="Lejo qasjen" onPress={requestPermission} />
-      </View>
-    );
-  }
-
-  const takePhoto = async () => {
-    if (cameraRef.current) {
-      const photo = await cameraRef.current.takePictureAsync();
-      await MediaLibrary.saveToLibraryAsync(photo.uri);
-      setCoverUri(photo.uri);
-      setShowCamera(false);
+  useEffect(() => {
+    if (editId) {
+      loadBookForEditing(editId)
     }
-  };
+  }, [editId])
 
-  // Nëse kamera është e hapur
-  //<Text style={styles.captureButton}></Text>
-  if (showCamera) {
-    return (//
-      <View style={styles.cameraContainer}>
-        <CameraView style={styles.camera} ref={cameraRef} facing="back" />
-        <View style={styles.cameraButtons}>
-         <TouchableOpacity style={styles.backButton} onPress={() => setShowCamera(false)}>
-    <Text style={{fontSize:18}}>⏎</Text>
-  </TouchableOpacity>
+  const loadBookForEditing = async (id) => {
+    try {
+      const storedBooks = await AsyncStorage.getItem("books")
+      if (storedBooks) {
+        const booksArray = JSON.parse(storedBooks)
+        const bookToEdit = booksArray.find((b) => b.id === id)
+        if (bookToEdit) {
+          setTitle(bookToEdit.title || "")
+          setAuthor(bookToEdit.author || "")
+          setDescription(bookToEdit.description || "")
+          setCover(bookToEdit.cover || null)
+          setIsEditing(true)
+        }
+      }
+    } catch (error) {
+      console.error("Error loading book for edit:", error)
+    }
+  }
 
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 1,
+    })
+    if (!result.canceled) {
+      setCover(result.assets[0].uri)
+    }
+  }
 
-       <View style={styles.centerButtonContainer}>
-        <View style={styles.captureOuter}>
-            <View style={styles.captureInner}>
-          <TouchableOpacity style={styles.captureButton} onPress={takePhoto} >
-            
-            </TouchableOpacity>
-            </View>
-            </View>
-            </View>
-        </View>
-      </View>
-    );
+  const saveBook = async () => {
+    if (!title.trim() || !author.trim()) {
+      Alert.alert("Gabim", "Ju lutemi plotësoni të paktën titullin dhe autorin.")
+      return
+    }
+
+    try {
+      const storedBooks = await AsyncStorage.getItem("books")
+      const booksArray = storedBooks ? JSON.parse(storedBooks) : []
+
+      if (isEditing) {
+        // Update existing book
+        const updatedBooks = booksArray.map((b) =>
+          b.id === editId ? { ...b, title, author, description, cover } : b
+        )
+        await AsyncStorage.setItem("books", JSON.stringify(updatedBooks))
+      } else {
+        // Add new book
+        const newBook = {
+          id: Date.now().toString(),
+          title,
+          author,
+          description,
+          cover,
+          dateAdded: new Date().toISOString(),
+        }
+        booksArray.push(newBook)
+        await AsyncStorage.setItem("books", JSON.stringify(booksArray))
+      }
+
+      Alert.alert("Sukses", isEditing ? "Libri u përditësua me sukses." : "Libri u shtua me sukses.")
+      router.push("/homepage")
+    } catch (error) {
+      console.error("Error saving book:", error)
+    }
   }
 
   return (
-   
+    <SafeAreaView style={styles.safe}>
+      <StatusBar style="light" />
+      <LinearGradient
+        colors={["#522987", "#4e56c0"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.container}
+      >
+        <ScrollView contentContainerStyle={styles.scroll}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text style={styles.backBtn}>←</Text>
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>
+              {isEditing ? "Përditëso Librin" : "Shto Libër të Ri"}
+            </Text>
+            <View style={{ width: 28 }} />
+          </View>
 
-    <LinearGradient colors={["#522987", "#4e56c0"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        paddingHorizontal: 30,
-      }}>
-    <View >
-      
-      <View style={styles.nav}>
-         <Image source={require("../assets/notHomepage.png")} style={styles.navSymbol}/>
-        <Text style={styles.navTextBlue} onPress={()=> router.push("/homepage")}>Home</Text>
-        <Text style={styles.navText}>/</Text>
-        <Text style={styles.navText}>Shto Libër</Text>
-      </View>
+          <View style={styles.form}>
+            <Text style={styles.label}>Titulli</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Shkruaj titullin e librit"
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              value={title}
+              onChangeText={setTitle}
+            />
 
-      <Text style={styles.title}>Shto Libër të Ri</Text>
+            <Text style={styles.label}>Autori</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Shkruaj emrin e autorit"
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              value={author}
+              onChangeText={setAuthor}
+            />
 
-      <TextInput
-        placeholder="Titulli i librit"
-        placeholderTextColor={"lightgray"}
-        style={styles.input}
-        value={title}
-        onChangeText={setTitle}
-      />
+            <Text style={styles.label}>Përshkrimi</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Shto një përshkrim të shkurtër..."
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              value={description}
+              onChangeText={setDescription}
+              multiline
+            />
 
-      <TextInput
-        placeholder="Autori"
-        placeholderTextColor={"lightgray"}
+            <TouchableOpacity style={styles.imageBtn} onPress={pickImage}>
+              <Text style={styles.imageBtnText}>
+                {cover ? "📚 Ndrysho kopertinën" : "📘 Zgjidh një kopertinë"}
+              </Text>
+            </TouchableOpacity>
 
-        style={styles.input}
-        value={author}
-        onChangeText={setAuthor}
-      />
-
-      
-        <View style={styles.placeholder}>
-          {coverUri ? (
-        <Image source={{ uri: coverUri }} style={styles.coverImage} />
-      ) : (
-          <Text style={{ color: "white" }} >Nuk ka kopertinë</Text>)}
-        </View>
-      
-
-      <TouchableOpacity style={styles.uploadButton} onPress={() => {
-    Alert.alert(
-      "Upload Photo",
-      "Choose an option:",
-      [
-        { text: "Take a Photo", onPress:() => setShowCamera(true)},
-        { text: "Choose from Gallery", onPress: () => ChooseFromGallery() },
-        { text: "Cancel", style: "cancel" },
-      ],
-      { cancelable: true }
-    );
-  }}>
-        <Text style={styles.uploadButtonText} >Ngarko kopertinën</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.saveButton} onPress={() => {if(title.trim()==="" || author.trim()==="" || coverUri==null){
-        Alert.alert("Kujdes!","Ju lutem plotesoni te gjitha fushat para se ta ruani librin!")
-      }else{
-        Alert.alert("Sukses!","Libri u shtua!",[{onPress: () => router.push("/homepage")}] ) }
-        }}>
-        <Text style={styles.saveButtonText}>Ruaj librin</Text>
-      </TouchableOpacity>
-    </View>
-    </LinearGradient>
-  );
+            <TouchableOpacity style={styles.saveBtn} onPress={saveBook}>
+              <Text style={styles.saveText}>{isEditing ? "Ruaj Ndryshimet" : "Shto Librin"}</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </LinearGradient>
+    </SafeAreaView>
+  )
 }
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: "#522987",
+  },
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
   },
-  nav:{
-    flexDirection:"row",
-    textAlign:"left",
-    paddingBottom:80,
+  scroll: {
+    paddingHorizontal: 24,
+    paddingBottom: 60,
   },
-  navText:{
-    marginRight:10,
-    fontWeight:"bold",
-    fontSize:18,
-    color:"gold",
-  }, 
-  navTextBlue:{
-    marginRight:10,
-    fontWeight:"bold",
-    fontSize:18,
-    color:"#0053C0",
-  },
-  navSymbol:{
-    width:30,
-    height:20,
-    resizeMode: "cover",
-
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    textAlign: "center",
+  header: {
+    marginTop: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 20,
+  },
+  backBtn: {
     color: "#FFDD59",
+    fontSize: 26,
+    fontWeight: "700",
+  },
+  headerTitle: {
+    color: "#FFDD59",
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  form: {
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  label: {
+    color: "#FFDD59",
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 6,
+    marginTop: 12,
   },
   input: {
-    width:300,
-    height:50,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 15,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: Platform.OS === "ios" ? 14 : 10,
     color: "white",
+    fontSize: 15,
   },
-  coverImage: {
-    width: "100%",
-    height: 250,
-    borderRadius: 10,
-    marginBottom: 15,
+  textArea: {
+    height: 100,
+    textAlignVertical: "top",
   },
-  placeholder: {
-    width: 300,
-    height: 250,
-    borderWidth: 1,
-    borderColor: "#aaa",
+  imageBtn: {
+    marginTop: 20,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 15,
   },
-  uploadButton: {
-    backgroundColor: "#FFDD59",
-    padding: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 15,
+  imageBtnText: {
+    color: "#FFDD59",
+    fontWeight: "700",
   },
-  uploadButtonText: {
-    color: "#4B0082",
-    fontSize: 16,
-  },
-  saveButton: {
-    backgroundColor: "#4B0082",
-    padding: 12,
-    borderRadius: 8,
+  saveBtn: {
+    marginTop: 30,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    paddingVertical: 14,
+    borderRadius: 14,
     alignItems: "center",
   },
-  saveButtonText: {
-    color: "#fff",
-    fontSize: 16,
+  saveText: {
+    color: "white",
+    fontSize: 17,
+    fontWeight: "700",
   },
-  cameraContainer: {
-    flex: 1,
-  },
-  camera: {
-    flex: 1,
-  },
-  cameraButtons: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 25,
-    backgroundColor: "rgba(1,1,1,1)",
-  },
-  captureButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 100,
-    backgroundColor : "white",
-    padding:30,
-    postion: "absolute",
-    left: 5,
-    top: 5,
-  },
-  backButton:{
-    position: "absolute",
-  left: 20,
-  top: 25,
-  width: 50,
-  height: 50,
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: "rgba(255,255,255,0.7)",
-  borderRadius: 25,
-  },
-  centerButtonContainer: {
-    flexDirection: "row",
-    justifyContent:"center",
-    alignItems:"center",
-  },
-  captureOuter: {
-  width: 80,
-  height: 80,
-  borderRadius: 100,
-  backgroundColor: "white",
-},
-captureInner: {
-  width: 70,
-  height: 70,
-  borderRadius: 100,
-  position: "absolute",
-  bottom: 5,
-  left: 5,
-  backgroundColor: "black",  
-},
-  permissionContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-
-});
-/* */
+})

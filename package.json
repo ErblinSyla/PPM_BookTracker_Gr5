@@ -1,5 +1,5 @@
 {
-  "name": "projekti-grupor-pm",
+  "name": "ppm-book-tracker-gr5",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
@@ -26,7 +26,21 @@
     "react-native-check-box": "^2.1.7",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
-    "react-native-web": "^0.21.0"
+    "react-native-web": "^0.21.0",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "lucide-react": "0.546.0",
+    "tailwind-merge": "3.3.1",
+    "tailwindcss-animate": "1.0.7",
+    "@react-native-async-storage/async-storage": "^2.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.0",
+    "@types/react": "~19.1.0",
+    "typescript": "^5.3.0",
+    "@types/node": "24.8.0",
+    "tailwindcss": "4.1.14",
+    "postcss": "8.5.6"
   },
   "private": true
 }

@@ -101,6 +101,14 @@ export default function AddBookScreen() {
         paddingHorizontal: 30,
       }}>
     <View >
+      
+      <View style={styles.nav}>
+         <Image source={require("../assets/notHomepage.png")} style={styles.navSymbol}/>
+        <Text style={styles.navTextBlue} onPress={()=> router.push("/homepage")}>Home</Text>
+        <Text style={styles.navText}>/</Text>
+        <Text style={styles.navText}>Shto Libër</Text>
+      </View>
+
       <Text style={styles.title}>Shto Libër të Ri</Text>
 
       <TextInput
@@ -161,6 +169,29 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#fff",
+  },
+  nav:{
+    flexDirection:"row",
+    textAlign:"left",
+    paddingBottom:80,
+  },
+  navText:{
+    marginRight:10,
+    fontWeight:"bold",
+    fontSize:18,
+    color:"gold",
+  }, 
+  navTextBlue:{
+    marginRight:10,
+    fontWeight:"bold",
+    fontSize:18,
+    color:"#0053C0",
+  },
+  navSymbol:{
+    width:30,
+    height:20,
+    resizeMode: "cover",
+
   },
   title: {
     fontSize: 22,
@@ -230,14 +261,14 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(1,1,1,1)",
   },
   captureButton: {
-    width: 6,
-    height: 60,
+    width: 20,
+    height: 20,
     borderRadius: 100,
     backgroundColor : "white",
-    padding:25,
+    padding:30,
     postion: "absolute",
-    left: 8,
-    top: 8,
+    left: 5,
+    top: 5,
   },
   backButton:{
     position: "absolute",
@@ -268,7 +299,7 @@ captureInner: {
   position: "absolute",
   bottom: 5,
   left: 5,
-  backgroundColor: "black",   // small white circle
+  backgroundColor: "black",  
 },
   permissionContainer: {
     flex: 1,

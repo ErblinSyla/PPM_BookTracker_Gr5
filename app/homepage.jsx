@@ -15,19 +15,18 @@ export default function TestPage() {
         paddingHorizontal: 30,
       }}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
-            <View style={{
-                
-                alignItems:"center",
-            }}>
-            <Text>Test</Text>
-        </View>
+            
         <View 
         style={{
-            flex:1,
-            paddingTop:50,
-            alignItems:"center",
+           // flex:1,
+           paddingTop:50,
+           // alignItems:"center",
         }}
         >
+          <View style={styles.nav}>
+            <Image source={require("../assets/homepage.png")} style={styles.navSymbol}/>
+            <Text style={styles.navText}>Home</Text>
+        </View>
             <Text style={styles.title}>Lista e Librave</Text>
             <TextInput
                 placeholder="Kerko Librin..."
@@ -78,7 +77,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingTop: 50,
     alignItems: "center",
+  }, 
+  nav:{
+    flexDirection:"row",
+    paddingBottom:60,
   },
+  navText:{
+    marginRight:10,
+    fontWeight:"bold",
+    fontSize:18,
+    color:"gold",
+  },
+  navSymbol:{
+    width:30,
+    height:20,
+    resizeMode: "cover",
+
+  }
+  ,
     title:{
         fontSize: 25,
         fontWeight: "bold",

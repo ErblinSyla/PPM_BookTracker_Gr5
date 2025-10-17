@@ -1,4 +1,6 @@
-import {
+"use client"
+
+import { 
   Text,
   TouchableOpacity,
   Image,
@@ -9,7 +11,7 @@ import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export const options = {
   headerShown: false,
@@ -18,137 +20,42 @@ export const options = {
 export default function Index() {
   const router = useRouter();
 
-  const fadeImage = useRef(new Animated.Value(0)).current;
-  const slideImage = useRef(new Animated.Value(30)).current;
-  const floatImage = useRef(new Animated.Value(0)).current;
-  
+  const fadeIn = (anim, delay = 0) => {
+    Animated.timing(anim, {
+      toValue: 1,
+      duration: 900,
+      delay,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const floatAnimLoop = (anim) => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(anim, { toValue: -8, duration: 3000, useNativeDriver: true }),
+        Animated.timing(anim, { toValue: 0, duration: 3000, useNativeDriver: true }),
+      ])
+    ).start();
+  };
+
+  const fadeLogo = useRef(new Animated.Value(0)).current;
   const fadeTitle = useRef(new Animated.Value(0)).current;
-  const slideTitle = useRef(new Animated.Value(30)).current;
   const fadeSubtitle = useRef(new Animated.Value(0)).current;
   const fadeQuote = useRef(new Animated.Value(0)).current;
-  const floatTitle = useRef(new Animated.Value(0)).current;
-  const floatSubtitle = useRef(new Animated.Value(0)).current;
-  const floatQuote = useRef(new Animated.Value(0)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeImage, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideImage, {
-        toValue: 0,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    setTimeout(() => {
-      Animated.parallel([
-        Animated.timing(fadeTitle, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideTitle, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, 200);
-
-    const subtitleTimer = setTimeout(() => {
-      Animated.timing(fadeSubtitle, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }).start();
-    }, 600);
-
-    const quoteTimer = setTimeout(() => {
-      Animated.timing(fadeQuote, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }).start();
-    }, 1000);
-
-    setTimeout(() => {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(floatImage, {
-            toValue: -4,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(floatImage, {
-            toValue: 0,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(floatTitle, {
-            toValue: -4,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(floatTitle, {
-            toValue: 0,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(floatSubtitle, {
-            toValue: 4,
-            duration: 2500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(floatSubtitle, {
-            toValue: 0,
-            duration: 2500,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-
-      setTimeout(() => {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(floatQuote, {
-              toValue: -3,
-              duration: 3000,
-              useNativeDriver: true,
-            }),
-            Animated.timing(floatQuote, {
-              toValue: 0,
-              duration: 3000,
-              useNativeDriver: true,
-            }),
-          ])
-        ).start();
-      }, 1000);
-    }, 1500);
-
-    return () => {
-      clearTimeout(subtitleTimer);
-      clearTimeout(quoteTimer);
-    };
+    fadeIn(fadeLogo, 0);
+    fadeIn(fadeTitle, 300);
+    fadeIn(fadeSubtitle, 700);
+    fadeIn(fadeQuote, 1000);
+    floatAnimLoop(floatAnim);
   }, []);
 
   const handlePressIn = () => {
     Animated.spring(buttonScale, {
-      toValue: 0.95,
+      toValue: 0.97,
       useNativeDriver: true,
     }).start();
   };
@@ -156,170 +63,107 @@ export default function Index() {
   const handlePressOut = () => {
     Animated.spring(buttonScale, {
       toValue: 1,
+      friction: 3,
       useNativeDriver: true,
     }).start();
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#522987' }} edges={[]}>
-      <StatusBar style="light" backgroundColor="transparent" translucent={true} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FAF0DC" }}>
+      <StatusBar style="dark" backgroundColor="transparent" translucent />
       <LinearGradient
-        colors={["#522987", "#4e56c0"]}
+        colors={["#FAF0DC", "#F2EBE2"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
-        style={{ flex: 1 }}
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          paddingHorizontal: 30,
+        }}
       >
-        <View
+        <Animated.Image
+          source={require("../assets/book4.png")}
+          resizeMode="contain"
           style={{
-            position: "absolute",
-            width: 200,
-            height: 200,
-            borderRadius: 100,
-            backgroundColor: "#ffffff20",
-            top: 100,
-            left: -50,
+            width: 140,
+            height: 140,
+            opacity: fadeLogo,
+            transform: [{ translateY: floatAnim }],
+            marginBottom: 20,
           }}
         />
-        <View
+        <Animated.Text
           style={{
-            position: "absolute",
-            width: 250,
-            height: 250,
-            borderRadius: 125,
-            backgroundColor: "#ffffff10",
-            bottom: 50,
-            right: -80,
+            opacity: fadeTitle,
+            fontSize: 28,
+            fontWeight: "800",
+            color: "#550000",
+            textAlign: "center",
+            marginBottom: 10,
+            letterSpacing: 1,
+            textTransform: "uppercase",
           }}
-        />
-        
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
-          <Animated.Image
-            source={require("../assets/book.png")}
-            style={[
-              {
-                opacity: fadeImage,
-                transform: [
-                  { translateY: slideImage },
-                  { translateY: floatImage },
-                ],
-                width: 60,
-                height: 60,
-                marginBottom: 20,
-              },
-            ]}
-            resizeMode="contain"
-          />
-
-          <Animated.Text
-            style={[
-              {
-                opacity: fadeTitle,
-                transform: [
-                  { translateY: slideTitle },
-                  { translateY: floatTitle },
-                ],
-                fontSize: 21,
-                fontWeight: "900",
-                letterSpacing: 1.2,
-                textTransform: "uppercase",
-                color: "#FFDD59",
-                marginBottom: 12,
-                textAlign: "center",
-              },
-            ]}
-          >
-            Welcome to BookTracker
-          </Animated.Text>
-
-          <Animated.Text
-            style={[
-              {
-                opacity: fadeSubtitle,
-                transform: [{ translateY: floatSubtitle }],
-                fontSize: 18,
-                color: "#FFFFFFCC",
-                textAlign: "center",
-                fontStyle: "italic",
-                lineHeight: 24,
-              },
-            ]}
-          >
-            Discover, read, and track your favorite books.
-          </Animated.Text>
-          
+        >
+          BookTracker
+        </Animated.Text>
+        <Animated.Text
+          style={{
+            opacity: fadeSubtitle,
+            fontSize: 16,
+            color: "#550000",
+            textAlign: "center",
+            lineHeight: 24,
+            marginBottom: 30,
+            fontWeight: "400",
+          }}
+        >
+          Dicover, read, and track your favorite books.
+        </Animated.Text>
+        <Animated.View style={{ transform: [{ scale: buttonScale }], width: "80%" }}>
           <TouchableOpacity
-            style={[
-              {
-                transform: [{ scale: buttonScale }],
-                backgroundColor: "#FFDD59",
-                paddingVertical: 14,
-                borderRadius: 30,
-                width: "80%",
-                maxWidth: 300,
-                shadowColor: "#000",
-                shadowOpacity: 0.3,
-                shadowRadius: 10,
-                elevation: 6,
-                marginTop: 20,
-                alignItems: "center",
-                justifyContent: "center",
-              },
-            ]}
             activeOpacity={0.9}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
             onPress={() => router.push("/signup")}
+            style={{
+              backgroundColor: "#550000",
+              paddingVertical: 16,
+              borderRadius: 30,
+              alignItems: "center",
+              justifyContent: "center",
+              shadowColor: "#550000",
+              shadowOpacity: 0.35,
+              shadowRadius: 8,
+              elevation: 6,
+            }}
           >
-            <Text
-              style={{
-                color: "#522987",
-                fontWeight: "bold",
-                fontSize: 16,
-                textAlign: "center",
-              }}
-            >
+            <Text style={{ color: "#FAF0DC", fontSize: 17, fontWeight: "700" }}>
               Get Started
             </Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={{ padding: 10 }}
-            onPress={() => router.push("/login")}
-          >
-            <Text
-              style={{
-                textAlign: "center",
-                fontStyle: "italic",
-                color: "#E0E0E0",
-              }}
-            >
-              Already have an account? Log in.
-            </Text>
-          </TouchableOpacity>
-        </View>
-        
-        <Animated.View style={{ 
-          alignItems: 'center', 
-          paddingBottom: 20, 
-          paddingLeft: 20, 
-          paddingRight: 20,
-          opacity: fadeQuote,
-          transform: [{ translateY: floatQuote }],
-        }}>
-          <TouchableOpacity style={{ padding: 10 }}>
-            <Text
-              style={{
-                color: "#FFFFFFB0",
-                fontSize: 14,
-                fontStyle: "italic",
-                textAlign: "center",
-                paddingBottom: 25,
-              }}
-            >
-              "A reader lives a thousand lives before he dies." — George R.R. Martin
-            </Text>
-          </TouchableOpacity>
         </Animated.View>
+        <TouchableOpacity onPress={() => router.push("/login")} style={{ marginTop: 18 }}>
+          <Text style={{ color: "#550000", fontSize: 15 }}>
+            Already have an account?{" "}
+            <Text style={{ color: "#550000", fontWeight: "600" }}>Log in</Text>
+          </Text>
+        </TouchableOpacity>
+        <Animated.Text
+          style={{
+            position: "absolute",
+            bottom: 30,
+            fontSize: 14,
+            color: "#550000",
+            fontStyle: "italic",
+            textAlign: "center",
+            transform: [{ translateY: floatAnim }],
+            lineHeight: 22,
+            width: "90%",
+          }}
+        >
+          “A reader lives a thousand lives before he dies.” — George R.R. Martin
+        </Animated.Text>
       </LinearGradient>
     </SafeAreaView>
   );

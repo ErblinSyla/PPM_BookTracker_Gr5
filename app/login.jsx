@@ -166,7 +166,7 @@ export default function Login() {
           </View>
 
           <TouchableOpacity
-            onPress={() => router.push("/home")}
+            onPress={() => router.push("/homepage")}
             style={{
               backgroundColor: "#550000",
               paddingVertical: 14,

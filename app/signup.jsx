@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Animated,
   StatusBar,
+  TouchableOpacity,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -39,6 +40,14 @@ export default function CreateAcc() {
         end={{ x: 0, y: 1 }}
         style={styles.gradient}
       >
+        {/* Butoni i kthimit mbrapa */}
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Text style={styles.backText}>← Back</Text>
+        </TouchableOpacity>
+
         <Animated.View
           style={{
             width: "100%",
@@ -50,6 +59,7 @@ export default function CreateAcc() {
           <Text style={styles.subtitle}>
             Join BookTracker and begin your elegant reading journey.
           </Text>
+
           <Pressable style={styles.buttonAlt}>
             <Text style={styles.buttonTextAlt}>Continue with Email</Text>
           </Pressable>
@@ -62,6 +72,7 @@ export default function CreateAcc() {
           <Pressable style={styles.buttonAlt}>
             <Text style={styles.buttonTextAlt}>Continue with SSO</Text>
           </Pressable>
+
           <Pressable onPress={() => router.push("/login")}>
             <Text style={styles.loginText}>
               Already have an account?{" "}
@@ -80,6 +91,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 30,
+  },
+  backButton: {
+    position: "absolute",
+    top: 50,
+    left: 25,
+    zIndex: 10,
+  },
+  backText: {
+    color: "#550000",
+    fontSize: 16,
+    fontWeight: "600",
   },
   title: {
     color: "#550000",

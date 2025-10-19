@@ -206,32 +206,6 @@ export default function Login() {
               </Text>
             </Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => router.push("/addNewBook")}
-            style={{
-              borderColor: "#550000",
-              borderWidth: 1.2,
-              borderRadius: 25,
-              paddingVertical: 14,
-              alignItems: "center",
-              backgroundColor: "#ffffff20",
-              shadowColor: "#550000",
-              shadowOpacity: 0.3,
-              shadowRadius: 6,
-              elevation: 5,
-            }}
-          >
-            <Text
-              style={{
-                color: "#550000",
-                fontWeight: "700",
-                fontSize: 16,
-              }}
-            >
-              Add New Book
-            </Text>
-          </TouchableOpacity>
         </Animated.View>
       </LinearGradient>
     </View>

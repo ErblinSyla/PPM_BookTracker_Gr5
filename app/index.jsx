@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { 
+import {
   Text,
   TouchableOpacity,
   Image,
@@ -20,6 +20,16 @@ export const options = {
 export default function Index() {
   const router = useRouter();
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(40)).current;
+  const fadeLogo = useRef(new Animated.Value(0)).current;
+  const fadeTitle = useRef(new Animated.Value(0)).current;
+  const fadeSubtitle = useRef(new Animated.Value(0)).current;
+  const fadeQuote = useRef(new Animated.Value(0)).current;
+  const floatAnimLogo = useRef(new Animated.Value(0)).current;
+  const floatAnimQuote = useRef(new Animated.Value(0)).current;
+  const buttonScale = useRef(new Animated.Value(1)).current;
+
   const fadeIn = (anim, delay = 0) => {
     Animated.timing(anim, {
       toValue: 1,
@@ -32,26 +42,42 @@ export default function Index() {
   const floatAnimLoop = (anim) => {
     Animated.loop(
       Animated.sequence([
-        Animated.timing(anim, { toValue: -8, duration: 3000, useNativeDriver: true }),
-        Animated.timing(anim, { toValue: 0, duration: 3000, useNativeDriver: true }),
+        Animated.timing(anim, {
+          toValue: -8,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(anim, {
+          toValue: 0,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
       ])
     ).start();
   };
 
-  const fadeLogo = useRef(new Animated.Value(0)).current;
-  const fadeTitle = useRef(new Animated.Value(0)).current;
-  const fadeSubtitle = useRef(new Animated.Value(0)).current;
-  const fadeQuote = useRef(new Animated.Value(0)).current;
-  const floatAnim = useRef(new Animated.Value(0)).current;
-  const buttonScale = useRef(new Animated.Value(1)).current;
-
   useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 900,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 900,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
     fadeIn(fadeLogo, 0);
     fadeIn(fadeTitle, 300);
     fadeIn(fadeSubtitle, 700);
     fadeIn(fadeQuote, 1000);
-    floatAnimLoop(floatAnim);
-  }, []);
+
+    floatAnimLoop(floatAnimLogo);
+    floatAnimLoop(floatAnimQuote);
+  }, [fadeAnim, slideAnim, fadeLogo, fadeTitle, fadeSubtitle, fadeQuote, floatAnimLogo, floatAnimQuote]);
 
   const handlePressIn = () => {
     Animated.spring(buttonScale, {
@@ -82,73 +108,82 @@ export default function Index() {
           paddingHorizontal: 30,
         }}
       >
-        <Animated.Image
-          source={require("../assets/book4.png")}
-          resizeMode="contain"
+        <Animated.View
           style={{
-            width: 140,
-            height: 140,
-            opacity: fadeLogo,
-            transform: [{ translateY: floatAnim }],
-            marginBottom: 20,
-          }}
-        />
-        <Animated.Text
-          style={{
-            opacity: fadeTitle,
-            fontSize: 28,
-            fontWeight: "800",
-            color: "#550000",
-            textAlign: "center",
-            marginBottom: 10,
-            letterSpacing: 1,
-            textTransform: "uppercase",
+            width: "100%",
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+            alignItems: "center",
           }}
         >
-          BookTracker
-        </Animated.Text>
-        <Animated.Text
-          style={{
-            opacity: fadeSubtitle,
-            fontSize: 16,
-            color: "#550000",
-            textAlign: "center",
-            lineHeight: 24,
-            marginBottom: 30,
-            fontWeight: "400",
-          }}
-        >
-          Dicover, read, and track your favorite books.
-        </Animated.Text>
-        <Animated.View style={{ transform: [{ scale: buttonScale }], width: "80%" }}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            onPress={() => router.push("/signup")}
+          <Animated.Image
+            source={require("../assets/book4.png")}
+            resizeMode="contain"
             style={{
-              backgroundColor: "#550000",
-              paddingVertical: 16,
-              borderRadius: 30,
-              alignItems: "center",
-              justifyContent: "center",
-              shadowColor: "#550000",
-              shadowOpacity: 0.35,
-              shadowRadius: 8,
-              elevation: 6,
+              width: 140,
+              height: 140,
+              marginBottom: 20,
+              opacity: fadeLogo,
+              transform: [{ translateY: floatAnimLogo }],
+            }}
+          />
+          <Animated.Text
+            style={{
+              opacity: fadeTitle,
+              fontSize: 28,
+              fontWeight: "800",
+              color: "#550000",
+              textAlign: "center",
+              marginBottom: 10,
+              letterSpacing: 1,
+              textTransform: "uppercase",
             }}
           >
-            <Text style={{ color: "#FAF0DC", fontSize: 17, fontWeight: "700" }}>
-              Get Started
+            BookTracker
+          </Animated.Text>
+          <Animated.Text
+            style={{
+              opacity: fadeSubtitle,
+              fontSize: 16,
+              color: "#550000",
+              textAlign: "center",
+              lineHeight: 24,
+              marginBottom: 30,
+              fontWeight: "400",
+            }}
+          >
+            Discover, read, and track your favorite books.
+          </Animated.Text>
+          <Animated.View style={{ transform: [{ scale: buttonScale }], width: "80%" }}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+              onPress={() => router.push("/signup")}
+              style={{
+                backgroundColor: "#550000",
+                paddingVertical: 16,
+                borderRadius: 30,
+                alignItems: "center",
+                justifyContent: "center",
+                shadowColor: "#550000",
+                shadowOpacity: 0.35,
+                shadowRadius: 8,
+                elevation: 6,
+              }}
+            >
+              <Text style={{ color: "#FAF0DC", fontSize: 17, fontWeight: "700" }}>
+                Get Started
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+          <TouchableOpacity onPress={() => router.push("/login")} style={{ marginTop: 18 }}>
+            <Text style={{ color: "#550000", fontSize: 15 }}>
+              Already have an account?{" "}
+              <Text style={{ color: "#550000", fontWeight: "600" }}>Log in</Text>
             </Text>
           </TouchableOpacity>
         </Animated.View>
-        <TouchableOpacity onPress={() => router.push("/login")} style={{ marginTop: 18 }}>
-          <Text style={{ color: "#550000", fontSize: 15 }}>
-            Already have an account?{" "}
-            <Text style={{ color: "#550000", fontWeight: "600" }}>Log in</Text>
-          </Text>
-        </TouchableOpacity>
         <Animated.Text
           style={{
             position: "absolute",
@@ -157,7 +192,8 @@ export default function Index() {
             color: "#550000",
             fontStyle: "italic",
             textAlign: "center",
-            transform: [{ translateY: floatAnim }],
+            opacity: fadeQuote,
+            transform: [{ translateY: floatAnimQuote }],
             lineHeight: 22,
             width: "90%",
           }}

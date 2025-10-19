@@ -92,7 +92,7 @@ export default function Homepage() {
           </Text>
           {item.dateAdded && (
             <Text style={styles.cardDate}>
-              Shtuar: {new Date(item.dateAdded).toLocaleDateString("sq-AL")}
+              Added: {new Date(item.dateAdded).toLocaleDateString("sq-AL")}
             </Text>
           )}
         </View>
@@ -102,46 +102,50 @@ export default function Homepage() {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>{searchQuery ? "Nuk u gjetën libra" : "Nuk ka libra"}</Text>
+      <Text style={styles.emptyTitle}>{searchQuery ? "No books found" : "No books existing"}</Text>
       <Text style={styles.emptySubtitle}>
-        {searchQuery ? "Provoni një term tjetër kërkimi." : "Shtoni librin e parë duke trokitur butonin + më poshtë."}
+        {searchQuery ? "Try a different searching word." : "Add the first book by pressing the + below."}
       </Text>
       <TouchableOpacity style={styles.emptyAddBtn} onPress={() => router.push("/addNewBook")}>
-        <Text style={styles.emptyAddText}>Shto Libër të Ri</Text>
+        <Text style={styles.emptyAddText}>Add new book</Text>
       </TouchableOpacity>
     </View>
   )
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar style="light" />
+ <SafeAreaView style={styles.safe}>
+      <StatusBar style="dark" backgroundColor="transparent" translucent />
       <LinearGradient
-        colors={["#522987", "#4e56c0"]}
+        colors={["#FAF0DC", "#F2EBE2"]}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 1 }}
         style={styles.container}
       >
+        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <View style={styles.logoRow}>
-              <Image source={require("../assets/homepage.png")} style={styles.logo} />
+              <Image
+                source={require("../assets/homepage.png")}
+                style={styles.logo}
+              />
               <Text style={styles.headerText}>Home</Text>
             </View>
 
             <TouchableOpacity
               style={styles.smallButton}
               onPress={() => router.push("/addNewBook")}
-              accessibilityLabel="Shto libër"
+              accessibilityLabel="Add new book"
             >
-              <Text style={styles.smallButtonText}>+ Shto</Text>
+              <Text style={styles.smallButtonText}>+ Add</Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.title}>Lista e Librave</Text>
+          <Text style={styles.title}>Book List</Text>
 
           <TextInput
-            placeholder="Kërko sipas titullit ose autorit..."
-            placeholderTextColor={"rgba(255,255,255,0.7)"}
+            placeholder="Search by the title or author..."
+            placeholderTextColor={"#55000070"}
             style={styles.searchInput}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -150,6 +154,7 @@ export default function Homepage() {
           />
         </View>
 
+        {/* List */}
         <FlatList
           data={filteredBooks}
           renderItem={renderBookItem}
@@ -161,34 +166,38 @@ export default function Homepage() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#FFDD59"
-              colors={["#FFDD59"]}
+              tintColor="#550000"
+              colors={["#550000"]}
             />
           }
         />
 
+        {/* Footer */}
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.primaryButton} onPress={() => router.push("/addNewBook")}>
-            <Text style={styles.primaryButtonText}>Shto libër të ri</Text>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => router.push("/addNewBook")}
+          >
+            <Text style={styles.primaryButtonText}>Add New Book</Text>
             <Text style={styles.primaryButtonIcon}>＋</Text>
           </TouchableOpacity>
         </View>
       </LinearGradient>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#522987",
+    backgroundColor: "#FAF0DC",
   },
   container: {
     flex: 1,
   },
   header: {
     paddingHorizontal: 24,
-    paddingTop: Platform.OS === "ios" ? 32 : 20,
+    paddingTop: Platform.OS === "ios" ? 40 : 28,
     paddingBottom: 12,
   },
   headerTop: {
@@ -207,25 +216,27 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   headerText: {
-    color: "#FFDD59",
-    fontWeight: "700",
-    fontSize: 16,
+    color: "#550000",
+    fontWeight: "800",
+    fontSize: 18,
   },
   title: {
-    marginTop: 14,
+    marginTop: 16,
     fontSize: 26,
     fontWeight: "800",
-    color: "#FFDD59",
+    color: "#550000",
     textAlign: "left",
+    letterSpacing: 0.5,
   },
   searchInput: {
     marginTop: 12,
     height: 48,
     borderRadius: 12,
     paddingHorizontal: 14,
-    borderWidth: 0,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    color: "white",
+    borderWidth: 1,
+    borderColor: "#55000050",
+    backgroundColor: "#ffffff40",
+    color: "#550000",
     fontSize: 16,
   },
   listContainer: {
@@ -236,16 +247,15 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.03)",
-    borderRadius: 12,
+    backgroundColor: "#ffffff40",
+    borderRadius: 14,
     marginBottom: 14,
     overflow: "hidden",
-    // subtle shadow (iOS) / elevation (Android)
-    shadowColor: "#000",
+    shadowColor: "#550000",
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 4,
   },
   cover: {
     width: 110,
@@ -257,11 +267,11 @@ const styles = StyleSheet.create({
     height: 150,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "#ffffff20",
   },
   coverInitials: {
     fontSize: 32,
-    color: "#FFDD59",
+    color: "#550000",
     fontWeight: "800",
   },
   cardContent: {
@@ -271,18 +281,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   cardTitle: {
-    color: "white",
+    color: "#550000",
     fontSize: 17,
     fontWeight: "700",
     marginBottom: 6,
   },
   cardAuthor: {
-    color: "rgba(255,255,255,0.82)",
+    color: "#550000aa",
     fontSize: 14,
     marginBottom: 6,
   },
   cardDate: {
-    color: "rgba(255,255,255,0.6)",
+    color: "#55000080",
     fontSize: 12,
   },
   footer: {
@@ -297,31 +307,37 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 320,
     maxWidth: "90%",
-    height: 60,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    height: 58,
+    borderRadius: 25,
+    backgroundColor: "#550000",
     justifyContent: "center",
     paddingHorizontal: 16,
     gap: 12,
+    shadowColor: "#550000",
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
   },
   primaryButtonText: {
-    color: "white",
+    color: "#FAF0DC",
     fontSize: 18,
     fontWeight: "700",
   },
   primaryButtonIcon: {
-    color: "#FFDD59",
+    color: "#FAF0DC",
     fontSize: 20,
     marginLeft: 8,
   },
   smallButton: {
     paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    backgroundColor: "#ffffff40",
+    borderWidth: 1,
+    borderColor: "#55000040",
   },
   smallButtonText: {
-    color: "#FFDD59",
+    color: "#550000",
     fontWeight: "700",
   },
   emptyContainer: {
@@ -330,24 +346,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   emptyTitle: {
-    color: "#FFDD59",
+    color: "#550000",
     fontSize: 18,
     fontWeight: "800",
     marginBottom: 8,
   },
   emptySubtitle: {
-    color: "rgba(255,255,255,0.8)",
+    color: "#550000aa",
     textAlign: "center",
     marginBottom: 16,
   },
   emptyAddBtn: {
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "#ffffff30",
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 12,
+    borderColor: "#55000030",
+    borderWidth: 1,
   },
   emptyAddText: {
-    color: "white",
+    color: "#550000",
     fontWeight: "700",
   },
-})
+});

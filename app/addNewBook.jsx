@@ -67,7 +67,7 @@ export default function AddNewBook() {
 
   const saveBook = async () => {
     if (!title.trim() || !author.trim()) {
-      Alert.alert("Gabim", "Ju lutemi plotësoni të paktën titullin dhe autorin.")
+      Alert.alert("Error", "Please fill at least the title and author section.")
       return
     }
 
@@ -95,7 +95,7 @@ export default function AddNewBook() {
         await AsyncStorage.setItem("books", JSON.stringify(booksArray))
       }
 
-      Alert.alert("Sukses", isEditing ? "Libri u përditësua me sukses." : "Libri u shtua me sukses.")
+      Alert.alert("Success", isEditing ? "The book has been updated successfully." : "The book has been added successfully.")
       router.push("/homepage")
     } catch (error) {
       console.error("Error saving book:", error)
@@ -117,34 +117,34 @@ export default function AddNewBook() {
               <Text style={styles.backBtn}>←</Text>
             </TouchableOpacity>
             <Text style={styles.headerTitle}>
-              {isEditing ? "Përditëso Librin" : "Shto Libër të Ri"}
+              {isEditing ? "Update Book" : "Add new book"}
             </Text>
             <View style={{ width: 28 }} />
           </View>
 
           <View style={styles.form}>
-            <Text style={styles.label}>Titulli</Text>
+            <Text style={styles.label}>Title</Text>
             <TextInput
               style={styles.input}
-              placeholder="Shkruaj titullin e librit"
+              placeholder="Book title"
               placeholderTextColor="rgba(255,255,255,0.6)"
               value={title}
               onChangeText={setTitle}
             />
 
-            <Text style={styles.label}>Autori</Text>
+            <Text style={styles.label}>Author</Text>
             <TextInput
               style={styles.input}
-              placeholder="Shkruaj emrin e autorit"
+              placeholder="Author's name"
               placeholderTextColor="rgba(255,255,255,0.6)"
               value={author}
               onChangeText={setAuthor}
             />
 
-            <Text style={styles.label}>Përshkrimi</Text>
+            <Text style={styles.label}>Description</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="Shto një përshkrim të shkurtër..."
+              placeholder="Add a short description"
               placeholderTextColor="rgba(255,255,255,0.6)"
               value={description}
               onChangeText={setDescription}
@@ -153,12 +153,12 @@ export default function AddNewBook() {
 
             <TouchableOpacity style={styles.imageBtn} onPress={pickImage}>
               <Text style={styles.imageBtnText}>
-                {cover ? "📚 Ndrysho kopertinën" : "📘 Zgjidh një kopertinë"}
+                {cover ? "📚 Change book cover" : "📘 Choose a book cover"}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.saveBtn} onPress={saveBook}>
-              <Text style={styles.saveText}>{isEditing ? "Ruaj Ndryshimet" : "Shto Librin"}</Text>
+              <Text style={styles.saveText}>{isEditing ? "Save changes" : "Add book"}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -170,7 +170,6 @@ export default function AddNewBook() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#522987",
   },
   container: {
     flex: 1,

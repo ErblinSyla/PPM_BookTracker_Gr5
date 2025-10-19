@@ -41,10 +41,10 @@ export default function BookDetails() {
   }, [bookId])
 
   const deleteBook = async () => {
-    Alert.alert("Konfirmim", "A jeni i sigurt që doni ta fshini këtë libër?", [
-      { text: "Anulo", style: "cancel" },
+    Alert.alert("Confirm", "Are you sure that you want to delete this book?", [
+      { text: "Cancel", style: "cancel" },
       {
-        text: "Fshi",
+        text: "Delete",
         style: "destructive",
         onPress: async () => {
           try {
@@ -72,7 +72,7 @@ export default function BookDetails() {
         style={styles.loadingContainer}
       >
         <StatusBar style="light" />
-        <Text style={styles.loadingText}>Duke ngarkuar...</Text>
+        <Text style={styles.loadingText}>Loading...</Text>
       </LinearGradient>
     )
   }
@@ -86,19 +86,19 @@ export default function BookDetails() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" backgroundColor="transparent" translucent />
       <LinearGradient
-        colors={["#522987", "#4e56c0"]}
+        colors={["#FAF0DC", "#F2EBE2"]}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 1 }}
         style={styles.container}
       >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.backBtn}>←</Text>
+            <Text style={styles.backBtn}>← Back</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Detajet e Librit</Text>
-          <View style={{ width: 28 }} /> 
+          <Text style={styles.headerTitle}>Book Details</Text>
+          <View style={{ width: 40 }} />
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll}>
@@ -113,17 +113,19 @@ export default function BookDetails() {
 
             <View style={styles.info}>
               <Text style={styles.bookTitle}>{book.title}</Text>
-              <Text style={styles.bookAuthor}>nga {book.author}</Text>
+              <Text style={styles.bookAuthor}>from {book.author}</Text>
+
               {book.dateAdded && (
                 <Text style={styles.bookDate}>
-                  Shtuar më: {new Date(book.dateAdded).toLocaleDateString("sq-AL")}
+                  Added on: {new Date(book.dateAdded).toLocaleDateString("sq-AL")}
                 </Text>
               )}
+
               {book.description ? (
                 <Text style={styles.bookDescription}>{book.description}</Text>
               ) : (
                 <Text style={styles.bookDescriptionMuted}>
-                  Ky libër nuk ka përshkrim.
+                  This book has no description.
                 </Text>
               )}
             </View>
@@ -132,110 +134,121 @@ export default function BookDetails() {
           <View style={styles.actions}>
             <TouchableOpacity
               style={styles.editButton}
-              onPress={() => router.push({ pathname: "/addNewBook", params: { editId: book.id } })}
+              onPress={() =>
+                router.push({ pathname: "/addNewBook", params: { editId: book.id } })
+              }
             >
-              <Text style={styles.editText}>✏️ Përditëso</Text>
+              <Text style={styles.editText}>✏️ Update</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.deleteButton} onPress={deleteBook}>
-              <Text style={styles.deleteText}>🗑️ Fshi</Text>
+              <Text style={styles.deleteText}>🗑️ Delete</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
       </LinearGradient>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#522987",
+    backgroundColor: "#FAF0DC",
   },
   container: {
     flex: 1,
   },
   header: {
-    paddingTop: 20,
-    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingHorizontal: 25,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
   backBtn: {
-    color: "#FFDD59",
-    fontSize: 26,
-    fontWeight: "700",
+    color: "#550000",
+    fontSize: 16,
+    fontWeight: "600",
   },
   headerTitle: {
-    color: "#FFDD59",
-    fontSize: 18,
-    fontWeight: "700",
+    color: "#550000",
+    fontSize: 20,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   scroll: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 25,
     paddingBottom: 100,
   },
   bookCard: {
     marginTop: 30,
-    backgroundColor: "rgba(255,255,255,0.05)",
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: "#ffffff40",
+    borderRadius: 20,
+    padding: 25,
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: "#550000",
     shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 8,
+    elevation: 6,
   },
   cover: {
-    width: 150,
-    height: 210,
-    borderRadius: 12,
+    width: 160,
+    height: 220,
+    borderRadius: 14,
     marginBottom: 20,
+    shadowColor: "#550000",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   coverPlaceholder: {
-    width: 150,
-    height: 210,
-    borderRadius: 12,
+    width: 160,
+    height: 220,
+    borderRadius: 14,
     marginBottom: 20,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.07)",
+    backgroundColor: "#ffffff30",
+    borderWidth: 1,
+    borderColor: "#55000040",
   },
   coverInitials: {
     fontSize: 40,
-    color: "#FFDD59",
+    color: "#550000",
     fontWeight: "800",
   },
   info: {
     alignItems: "center",
   },
   bookTitle: {
-    color: "white",
+    color: "#550000",
     fontSize: 22,
     fontWeight: "800",
     marginBottom: 6,
     textAlign: "center",
   },
   bookAuthor: {
-    color: "rgba(255,255,255,0.8)",
+    color: "#550000bb",
     fontSize: 16,
     marginBottom: 8,
+    fontStyle: "italic",
   },
   bookDate: {
-    color: "rgba(255,255,255,0.6)",
-    fontSize: 12,
+    color: "#55000080",
+    fontSize: 13,
     marginBottom: 16,
   },
   bookDescription: {
-    color: "white",
+    color: "#550000",
     fontSize: 15,
     lineHeight: 22,
     textAlign: "center",
   },
   bookDescriptionMuted: {
-    color: "rgba(255,255,255,0.6)",
+    color: "#55000080",
     fontSize: 15,
     textAlign: "center",
     fontStyle: "italic",
@@ -246,35 +259,35 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   editButton: {
-    backgroundColor: "rgba(255,255,255,0.06)",
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 22,
+    backgroundColor: "#550000",
+    borderRadius: 25,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    shadowColor: "#550000",
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   editText: {
-    color: "#FFDD59",
+    color: "#FAF0DC",
     fontWeight: "700",
     fontSize: 16,
   },
   deleteButton: {
-    backgroundColor: "rgba(255,255,255,0.06)",
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 22,
+    backgroundColor: "#ffffff30",
+    borderRadius: 25,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderWidth: 1,
+    borderColor: "#55000050",
+    shadowColor: "#550000",
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   deleteText: {
-    color: "#ff7b7b",
+    color: "#A22B2B",
     fontWeight: "700",
     fontSize: 16,
   },
-  loadingContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loadingText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "700",
-  },
-})
+});

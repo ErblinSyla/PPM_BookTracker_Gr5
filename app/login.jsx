@@ -4,42 +4,41 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   Animated,
+  StatusBar,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 
 export default function Login() {
   const router = useRouter();
   const [isChecked, setChecked] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current;
+  const slideAnim = useRef(new Animated.Value(40)).current;
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 800,
+        duration: 900,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 800,
+        duration: 900,
         useNativeDriver: true,
       }),
     ]).start();
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <StatusBar style="light" />
+    <View style={{ flex: 1, backgroundColor: "#FAF0DC" }}>
+      <StatusBar style="dark" backgroundColor="transparent" translucent />
       <LinearGradient
-        colors={["#522987", "#4e56c0"]}
+        colors={["#FAF0DC", "#F2EBE2"]}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 1 }}
         style={{
           flex: 1,
           justifyContent: "center",
@@ -47,38 +46,11 @@ export default function Login() {
           paddingHorizontal: 30,
         }}
       >
-        <View
-          style={{
-            position: "absolute",
-            width: 200,
-            height: 200,
-            borderRadius: 100,
-            backgroundColor: "#ffffff20",
-            top: 100,
-            left: -50,
-          }}
-        />
-        <View
-          style={{
-            position: "absolute",
-            width: 250,
-            height: 250,
-            borderRadius: 125,
-            backgroundColor: "#ffffff10",
-            bottom: 50,
-            right: -80,
-          }}
-        />
-
         <TouchableOpacity
           onPress={() => router.back()}
-          style={{
-            position: "absolute",
-            top: 50,
-            left: 20,
-          }}
+          style={{ position: "absolute", top: 50, left: 25 }}
         >
-          <Text style={{ color: "#FFDD59", fontSize: 16 }}>← Back</Text>
+          <Text style={{ color: "#550000", fontSize: 16 }}>← Back</Text>
         </TouchableOpacity>
 
         <Animated.View
@@ -90,75 +62,79 @@ export default function Login() {
         >
           <Text
             style={{
-              fontSize: 28,
-              fontWeight: "700",
-              color: "#FFDD59",
+              fontSize: 30,
+              fontWeight: "800",
+              color: "#550000",
               textAlign: "center",
               marginBottom: 8,
+              textTransform: "uppercase",
+              letterSpacing: 1,
             }}
           >
-            Login to your{"\n"}account
+            Welcome Back
           </Text>
 
           <Text
             style={{
-              color: "#FFFFFFCC",
-              marginBottom: 25,
+              color: "#550000",
+              marginBottom: 30,
               textAlign: "center",
               fontStyle: "italic",
             }}
           >
-            Hello, welcome back to your account
+            Log in to continue your reading journey
           </Text>
 
           <Text
             style={{
               alignSelf: "flex-start",
-              color: "#FFDD59",
+              color: "#550000",
               marginBottom: 5,
+              fontWeight: "600",
             }}
           >
             E-mail
           </Text>
           <TextInput
             placeholder="example@email.com"
-            placeholderTextColor="#ddd"
+            placeholderTextColor="#55000070"
             style={{
               width: "100%",
               height: 50,
               borderWidth: 1,
-              borderColor: "#ffffff40",
-              borderRadius: 10,
-              paddingLeft: 12,
+              borderColor: "#55000050",
+              borderRadius: 12,
+              paddingLeft: 14,
               marginBottom: 15,
-              color: "#fff",
-              backgroundColor: "#ffffff15",
+              color: "#550000",
+              backgroundColor: "#ffffff20",
             }}
           />
 
           <Text
             style={{
               alignSelf: "flex-start",
-              color: "#FFDD59",
+              color: "#550000",
               marginBottom: 5,
+              fontWeight: "600",
             }}
           >
             Password
           </Text>
           <TextInput
             placeholder="Your Password"
-            placeholderTextColor="#ddd"
+            placeholderTextColor="#55000070"
             secureTextEntry
             style={{
               width: "100%",
               height: 50,
               borderWidth: 1,
-              borderColor: "#ffffff40",
-              borderRadius: 10,
-              paddingLeft: 12,
-              marginBottom: 10,
-              color: "#fff",
-              backgroundColor: "#ffffff15",
+              borderColor: "#55000050",
+              borderRadius: 12,
+              paddingLeft: 14,
+              marginBottom: 15,
+              color: "#550000",
+              backgroundColor: "#ffffff20",
             }}
           />
 
@@ -175,15 +151,15 @@ export default function Login() {
               <Checkbox
                 value={isChecked}
                 onValueChange={setChecked}
-                color={isChecked ? "#FFDD59" : undefined}
+                color={isChecked ? "#550000" : undefined}
               />
-              <Text style={{ marginLeft: 8, color: "#FFFFFFB0" }}>
+              <Text style={{ marginLeft: 8, color: "#550000" }}>
                 Remember me
               </Text>
             </View>
 
             <TouchableOpacity>
-              <Text style={{ color: "#FFDD59", fontWeight: "500" }}>
+              <Text style={{ color: "#550000", fontWeight: "500" }}>
                 Forgot Password?
               </Text>
             </TouchableOpacity>
@@ -192,60 +168,72 @@ export default function Login() {
           <TouchableOpacity
             onPress={() => router.push("/homepage")}
             style={{
-              backgroundColor: "#FFDD59",
+              backgroundColor: "#550000",
               paddingVertical: 14,
-              borderRadius: 10,
+              borderRadius: 25,
               width: "100%",
-              marginBottom: 15,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 4,
-              elevation: 6,
+              shadowColor: "#550000",
+              shadowOpacity: 0.4,
+              shadowRadius: 8,
+              elevation: 8,
+              marginBottom: 18,
             }}
           >
             <Text
               style={{
                 textAlign: "center",
-                color: "#522987",
+                color: "#FAF0DC",
                 fontWeight: "700",
-                fontSize: 16,
+                fontSize: 17,
               }}
             >
-              Login
+              Log In
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => router.push("/signup")}>
-            <Text style={{ color: "#FFFFFFCC", textAlign: "center", marginBottom: 15 }}>
+            <Text
+              style={{
+                color: "#550000",
+                textAlign: "center",
+                fontSize: 15,
+                marginBottom: 25,
+              }}
+            >
               Don’t have an account?{" "}
-              <Text style={{ fontWeight: "700", color: "#FFDD59" }}>Sign Up</Text>
+              <Text style={{ fontWeight: "700", color: "#550000" }}>
+                Sign Up
+              </Text>
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => router.push("/addNewBook")}
             style={{
-              backgroundColor: "#FFDD59",
+              borderColor: "#550000",
+              borderWidth: 1.2,
+              borderRadius: 25,
               paddingVertical: 14,
-              borderRadius: 10,
-              width: "100%",
+              alignItems: "center",
+              backgroundColor: "#ffffff20",
+              shadowColor: "#550000",
+              shadowOpacity: 0.3,
+              shadowRadius: 6,
+              elevation: 5,
             }}
           >
             <Text
-    style={{
-      textAlign: "center",
-      color: "#522987", 
-      fontWeight: "700",
-      fontSize: 16,
-    }}
-  >
-              Go to Book List
+              style={{
+                color: "#550000",
+                fontWeight: "700",
+                fontSize: 16,
+              }}
+            >
+              Add New Book
             </Text>
           </TouchableOpacity>
-
         </Animated.View>
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 }

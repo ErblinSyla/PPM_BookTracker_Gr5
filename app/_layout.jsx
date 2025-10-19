@@ -1,12 +1,13 @@
-import { Stack } from "expo-router";
-import { Pressable, Text } from "react-native";
-import { useRouter } from "expo-router";
+"use client"
+
+import { Stack } from "expo-router"
+import { useRouter } from "expo-router"
 
 export default function RootLayout() {
-    const router = useRouter();
-    return ( 
-        <Stack>
-            <Stack.Screen 
+  const router = useRouter()
+  return (
+    <Stack>
+      <Stack.Screen
         name="index"
         options={{
           headerShown: false,
@@ -16,7 +17,7 @@ export default function RootLayout() {
         }}
       />
 
-        <Stack.Screen 
+      <Stack.Screen
         name="login"
         options={{
           headerShown: false,
@@ -25,24 +26,30 @@ export default function RootLayout() {
           headerTintColor: "#fff",
         }}
       />
-        <Stack.Screen 
+      <Stack.Screen
         name="signup"
         options={{
           headerShown: false,
         }}
       />
-      <Stack.Screen 
+      <Stack.Screen
         name="addNewBook"
         options={{
           headerShown: false,
         }}
       />
-        <Stack.Screen 
+      <Stack.Screen
         name="homepage"
         options={{
-         headerShown: false,
+          headerShown: false,
         }}
       />
-        </Stack>
-    );
+      <Stack.Screen
+        name="bookDetails"
+        options={{
+          headerShown: false,
+        }}
+      />
+    </Stack>
+  )
 }

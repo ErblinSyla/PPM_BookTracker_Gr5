@@ -1,90 +1,126 @@
-import { View, Text, Pressable, StyleSheet, StatusBar } from "react-native";
+import React, { useRef, useEffect } from "react";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  Animated,
+  StatusBar,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 
 export default function CreateAcc() {
   const router = useRouter();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(40)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 900,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 900,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0d1b2a" />
-
-      <Text style={styles.title}>Create an Account</Text>
-      <Text style={styles.subtitle}>
-        Join BookTrack and start organizing your reading journey.
-      </Text>
-
-      <Pressable style={styles.button}>
-        <Text style={styles.buttonText}>Continue with Email</Text>
-      </Pressable>
-
-      <Pressable style={styles.button}>
-        <Text style={styles.buttonText}>Continue with Google</Text>
-      </Pressable>
-
-      <Pressable style={styles.button}>
-        <Text style={styles.buttonText}>Continue with Apple</Text>
-      </Pressable>
-
-      <Pressable style={styles.button}>
-        <Text style={styles.buttonText}>Continue with SSO</Text>
-      </Pressable>
-
-      <Pressable onPress={() => router.push("/login")}>
-        <Text style={styles.loginText}>
-          Already have an account?{" "}
-          <Text style={styles.loginLink}>Log in</Text>
-        </Text>
-      </Pressable>
+    <View style={{ flex: 1, backgroundColor: "#FAF0DC" }}>
+      <StatusBar style="dark" backgroundColor="transparent" translucent />
+      <LinearGradient
+        colors={["#FAF0DC", "#F2EBE2"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.gradient}
+      >
+        <Animated.View
+          style={{
+            width: "100%",
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          }}
+        >
+          <Text style={styles.title}>Create an Account</Text>
+          <Text style={styles.subtitle}>
+            Join BookTracker and begin your elegant reading journey.
+          </Text>
+          <Pressable style={styles.buttonAlt}>
+            <Text style={styles.buttonTextAlt}>Continue with Email</Text>
+          </Pressable>
+          <Pressable style={styles.buttonAlt}>
+            <Text style={styles.buttonTextAlt}>Continue with Google</Text>
+          </Pressable>
+          <Pressable style={styles.buttonAlt}>
+            <Text style={styles.buttonTextAlt}>Continue with Apple</Text>
+          </Pressable>
+          <Pressable style={styles.buttonAlt}>
+            <Text style={styles.buttonTextAlt}>Continue with SSO</Text>
+          </Pressable>
+          <Pressable onPress={() => router.push("/login")}>
+            <Text style={styles.loginText}>
+              Already have an account?{" "}
+              <Text style={styles.loginLink}>Log In</Text>
+            </Text>
+          </Pressable>
+        </Animated.View>
+      </LinearGradient>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  gradient: {
     flex: 1,
-    backgroundColor: "#0d1b2a", 
     justifyContent: "center",
     alignItems: "center",
-    padding: 24,
+    paddingHorizontal: 30,
   },
   title: {
-    color: "#ffffff",
+    color: "#550000",
     fontSize: 30,
-    fontWeight: "700",
+    fontWeight: "800",
     marginBottom: 10,
-    letterSpacing: 0.5,
+    letterSpacing: 1,
     textAlign: "center",
+    textTransform: "uppercase",
   },
   subtitle: {
-    color: "#aab4be",
+    color: "#550000",
     fontSize: 15,
     marginBottom: 40,
     textAlign: "center",
     lineHeight: 22,
+    fontStyle: "italic",
   },
-  button: {
-    borderColor: "#ffffff",
+  buttonAlt: {
+    borderColor: "#55000060",
     borderWidth: 1,
-    borderRadius: 30,
+    borderRadius: 25,
     width: "100%",
     paddingVertical: 15,
     marginBottom: 16,
-    backgroundColor: "transparent",
+    backgroundColor: "#ffffff20",
   },
-  buttonText: {
-    color: "#ffffff",
+  buttonTextAlt: {
+    color: "#550000",
     textAlign: "center",
     fontSize: 16,
-    fontWeight: "500",
-    letterSpacing: 0.3,
+    fontWeight: "600",
   },
   loginText: {
-    color: "#aab4be",
+    color: "#550000",
     marginTop: 25,
     fontSize: 14,
+    textAlign: "center",
   },
   loginLink: {
-    color: "#ffb300", 
+    color: "#550000",
     fontWeight: "700",
   },
 });

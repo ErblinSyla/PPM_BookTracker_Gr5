@@ -86,7 +86,7 @@ export default function AddNewBook() {
 
   const saveBook = async () => {
     if (!title.trim() || !author.trim()) {
-      Alert.alert("Gabim", "Ju lutemi plotësoni të paktën titullin dhe autorin.")
+      Alert.alert("Error", "Please fill in at least the title and author.")
       return
     }
 
@@ -112,7 +112,7 @@ export default function AddNewBook() {
         await AsyncStorage.setItem("books", JSON.stringify(booksArray))
       }
 
-      Alert.alert("Sukses", isEditing ? "Libri u përditësua me sukses." : "Libri u shtua me sukses.")
+      Alert.alert("Success", isEditing ? "Book updated successfully." : "Book added successfully.")
       router.push("/homepage")
     } catch (error) {
       console.error("Error saving book:", error)
@@ -180,7 +180,7 @@ export default function AddNewBook() {
               <Text style={styles.backBtn}>←</Text>
             </TouchableOpacity>
             <Text style={styles.headerTitle}>
-              {isEditing ? "Përditëso Librin" : "Shto Libër të Ri"}
+              {isEditing ? "Update Book" : "Add New Book"}
             </Text>
             <View style={{ width: 28 }} />
           </View>
@@ -189,8 +189,8 @@ export default function AddNewBook() {
             <Text style={styles.label}>Title</Text>
             <TextInput
               style={styles.input}
-              placeholder="Shkruaj titullin e librit"
-              placeholderTextColor="rgba(255,255,255,0.6)"
+              placeholder="Enter book title"
+              placeholderTextColor="#55000070"
               value={title}
               onChangeText={setTitle}
             />
@@ -198,8 +198,8 @@ export default function AddNewBook() {
             <Text style={styles.label}>Author</Text>
             <TextInput
               style={styles.input}
-              placeholder="Shkruaj emrin e autorit"
-              placeholderTextColor="rgba(255,255,255,0.6)"
+              placeholder="Enter author name"
+              placeholderTextColor="#55000070"
               value={author}
               onChangeText={setAuthor}
             />
@@ -207,21 +207,35 @@ export default function AddNewBook() {
             <Text style={styles.label}>Description</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="Shto një përshkrim të shkurtër..."
-              placeholderTextColor="rgba(255,255,255,0.6)"
+              placeholder="Add a short description..."
+              placeholderTextColor="#55000070"
               value={description}
               onChangeText={setDescription}
               multiline
             />
 
-            <TouchableOpacity style={styles.imageBtn} onPress={pickImage}>
-              <Text style={styles.imageBtnText}>
-                {cover ? "📚 Ndrysho kopertinën" : "📘 Zgjidh një kopertinë"}
-              </Text>
+            <TouchableOpacity
+              style={styles.imageBtn}
+              onPress={() => {
+                Alert.alert(
+                  "Upload Photo",
+                  "Choose an option:",
+                  [
+                    { text: "Take a Photo", onPress: () => setShowCamera(true) },
+                    { text: "Choose from Gallery", onPress: () => ChooseFromGallery() },
+                    { text: "Cancel", style: "cancel" },
+                  ],
+                  { cancelable: true }
+                )
+              }}
+            >
+              <Text style={styles.imageBtnText}>Upload Cover</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.saveBtn} onPress={saveBook}>
-              <Text style={styles.saveText}>{isEditing ? "Ruaj Ndryshimet" : "Shto Librin"}</Text>
+              <Text style={styles.saveText}>
+                {isEditing ? "Save Changes" : "Add Book"}
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -233,14 +247,14 @@ export default function AddNewBook() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#522987",
+    backgroundColor: "#FAF0DC",
   },
-  container: { 
-    flex: 1 
+  container: {
+    flex: 1,
   },
-  scroll: { 
-    paddingHorizontal: 24, 
-    paddingBottom: 60 
+  scroll: {
+    paddingHorizontal: 24,
+    paddingBottom: 60,
   },
   header: {
     marginTop: 20,
@@ -249,15 +263,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
   },
-  backBtn: { 
-    color: "#550000", 
-    fontSize: 26, 
-    fontWeight: "700" 
+  backBtn: {
+    color: "#550000",
+    fontSize: 26,
+    fontWeight: "700",
   },
-  headerTitle: { 
-    color: "#550000", 
-    fontSize: 18, 
-    fontWeight: "700" 
+  headerTitle: {
+    color: "#550000",
+    fontSize: 18,
+    fontWeight: "700",
   },
   form: {
     backgroundColor: "#ffffff40",
@@ -286,9 +300,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#55000050",
   },
-  textArea: { 
-    height: 100, 
-    textAlignVertical: "top" 
+  textArea: {
+    height: 100,
+    textAlignVertical: "top",
   },
   imageBtn: {
     marginTop: 20,
@@ -319,16 +333,16 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
-  saveText: { 
-    color: "white", 
-    fontSize: 17, 
-    fontWeight: "700" 
+  saveText: {
+    color: "white",
+    fontSize: 17,
+    fontWeight: "700",
   },
-  cameraContainer: { 
-    flex: 1 
+  cameraContainer: {
+    flex: 1,
   },
-  camera: { 
-    flex: 1 
+  camera: {
+    flex: 1,
   },
   cameraButtons: {
     flexDirection: "row",

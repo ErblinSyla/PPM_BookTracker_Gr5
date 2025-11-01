@@ -195,6 +195,15 @@ export default function Index() {
               </Text>
             </Text>
           </TouchableOpacity>
+          {/* THJESHT SA PER TESTIM, PER ME HY NE MODIFY BOOK PAGE, DO TE LARGOHET NE FUND */}
+          <TouchableOpacity
+            style={{ padding: 16, backgroundColor: "#550000", borderRadius: 8 }}
+            onPress={() => router.push("/modifyBook")}
+          >
+            <Text style={{ color: "#FAF0DC", fontWeight: "700" }}>
+              Open Update Page
+            </Text>
+          </TouchableOpacity>
         </Animated.View>
         <Animated.Text
           style={{

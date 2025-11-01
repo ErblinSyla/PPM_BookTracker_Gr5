@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Text,
-  TouchableOpacity,
-  Image,
-  View,
-  Animated,
-} from "react-native";
+import { Text, TouchableOpacity, Image, View, Animated } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -77,7 +71,16 @@ export default function Index() {
 
     floatAnimLoop(floatAnimLogo);
     floatAnimLoop(floatAnimQuote);
-  }, [fadeAnim, slideAnim, fadeLogo, fadeTitle, fadeSubtitle, fadeQuote, floatAnimLogo, floatAnimQuote]);
+  }, [
+    fadeAnim,
+    slideAnim,
+    fadeLogo,
+    fadeTitle,
+    fadeSubtitle,
+    fadeQuote,
+    floatAnimLogo,
+    floatAnimQuote,
+  ]);
 
   const handlePressIn = () => {
     Animated.spring(buttonScale, {
@@ -154,7 +157,9 @@ export default function Index() {
           >
             Discover, read, and track your favorite books.
           </Animated.Text>
-          <Animated.View style={{ transform: [{ scale: buttonScale }], width: "80%" }}>
+          <Animated.View
+            style={{ transform: [{ scale: buttonScale }], width: "80%" }}
+          >
             <TouchableOpacity
               activeOpacity={0.9}
               onPressIn={handlePressIn}
@@ -172,15 +177,22 @@ export default function Index() {
                 elevation: 6,
               }}
             >
-              <Text style={{ color: "#FAF0DC", fontSize: 17, fontWeight: "700" }}>
+              <Text
+                style={{ color: "#FAF0DC", fontSize: 17, fontWeight: "700" }}
+              >
                 Get Started
               </Text>
             </TouchableOpacity>
           </Animated.View>
-          <TouchableOpacity onPress={() => router.push("/login")} style={{ marginTop: 18 }}>
+          <TouchableOpacity
+            onPress={() => router.push("/login")}
+            style={{ marginTop: 18 }}
+          >
             <Text style={{ color: "#550000", fontSize: 15 }}>
               Already have an account?{" "}
-              <Text style={{ color: "#550000", fontWeight: "600" }}>Log in</Text>
+              <Text style={{ color: "#550000", fontWeight: "600" }}>
+                Log in
+              </Text>
             </Text>
           </TouchableOpacity>
         </Animated.View>

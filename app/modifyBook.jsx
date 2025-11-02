@@ -22,6 +22,7 @@ import * as Progress from "react-native-progress";
 
 export default function UpdateBookDetails() {
   const router = useRouter();
+  // const { editId } = useLocalSearchParams();
   const [book, setBook] = useState(null);
 
   const [status, setStatus] = useState("to-read");
@@ -32,6 +33,33 @@ export default function UpdateBookDetails() {
   const [notes, setNotes] = useState("");
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(0);
+
+  // useEffect(() => {
+  //   const loadBook = async () => {
+  //     if (!editId) return;
+  //     try {
+  //       const stored = await AsyncStorage.getItem("books");
+  //       if (stored) {
+  //         const books = JSON.parse(stored);
+  //         const found = books.find((b) => b.id === editId);
+  //         if (found) {
+  //           setBook(found);
+  //           // Pre-fill form
+  //           setStatus(found.status || "to-read");
+  //           setPagesRead(found.pagesRead?.toString() || "");
+  //           setTotalPages(found.totalPages?.toString() || "");
+  //           setFinishDate(found.finishDate ? new Date(found.finishDate) : null);
+  //           setNotes(found.notes || "");
+  //           setReview(found.review || "");
+  //           setRating(found.rating || 0);
+  //         }
+  //       }
+  //     } catch (err) {
+  //       console.error("Failed to load book:", err);
+  //     }
+  //   };
+  //   loadBook();
+  // }, [editId]);
 
   const demoBook = {
     id: "demo-123",
@@ -48,6 +76,36 @@ export default function UpdateBookDetails() {
     totalPages && pagesRead
       ? Math.min(parseInt(pagesRead) / parseInt(totalPages), 1)
       : 0;
+
+  // const saveBook = async () => {
+  //   if (!book) return;
+
+  //   const updatedBook = {
+  //     ...book,
+  //     status,
+  //     pagesRead: pagesRead ? parseInt(pagesRead) : null,
+  //     totalPages: totalPages ? parseInt(totalPages) : null,
+  //     finishDate: finishDate ? finishDate.toISOString() : null,
+  //     notes: notes.trim(),
+  //     review: review.trim(),
+  //     rating,
+  //   };
+
+  //   try {
+  //     const stored = await AsyncStorage.getItem("books");
+  //     const books = stored ? JSON.parse(stored) : [];
+  //     const index = books.findIndex((b) => b.id === editId);
+  //     if (index !== -1) {
+  //       books[index] = updatedBook;
+  //       await AsyncStorage.setItem("books", JSON.stringify(books));
+  //       Alert.alert("Success", "Book updated successfully!", [
+  //         { text: "OK", onPress: () => router.back() },
+  //       ]);
+  //     }
+  //   } catch (err) {
+  //     Alert.alert("Error", "Failed to save changes.");
+  //   }
+  // };
 
   const saveBook = () => {
     Alert.alert(

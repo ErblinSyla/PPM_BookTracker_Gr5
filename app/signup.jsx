@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,14 +8,46 @@ import {
   Animated,
   StatusBar,
   TouchableOpacity,
+  TextInput,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 
 export default function CreateAcc() {
   const router = useRouter();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
+
+  const handleSignUp = async () => {
+  // Validimi i inputeve
+  if (name.trim() === "" || email.trim() === "" || password.trim() === "") {
+    setError("Please fill all fields!");
+    return;
+  }
+
+  if (password.length < 6) {
+    setError("Password must be at least 6 characters!");
+    return;
+  }
+
+  setError(""); // Pastron errorin nese gjithçka eshte mire
+
+  try {
+    const userData = { name, email, password };
+    await AsyncStorage.setItem("user", JSON.stringify(userData));
+    alert("Account created successfully!");
+    router.push("/login");
+  } catch (error) {
+    console.error("Error saving user:", error);
+    setError("Something went wrong while saving!");
+  }
+};
 
   useEffect(() => {
     Animated.parallel([
@@ -59,10 +92,40 @@ export default function CreateAcc() {
           <Text style={styles.subtitle}>
             Join BookTracker and begin your elegant reading journey.
           </Text>
+          
+          <TextInput
+           style={styles.input}
+           placeholder="Full Name"
+           placeholderTextColor="#55000080"
+           value={name}
+           onChangeText={setName}
+          />
+          <TextInput
+           style={styles.input}
+           placeholder="Email"
+           placeholderTextColor="#55000080"
+           value={email}
+           onChangeText={setEmail}
+           keyboardType="email-address"
+           autoCapitalize="none"
+          />
+         <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="#55000080"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          autoCapitalize="none"
+         />
 
-          <Pressable style={styles.buttonAlt}>
+         {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          
+          <Pressable style={styles.buttonAlt} onPress={handleSignUp}>
             <Text style={styles.buttonTextAlt}>Continue with Email</Text>
           </Pressable>
+
           <Pressable style={styles.buttonAlt}>
             <Text style={styles.buttonTextAlt}>Continue with Google</Text>
           </Pressable>
@@ -145,4 +208,22 @@ const styles = StyleSheet.create({
     color: "#550000",
     fontWeight: "700",
   },
+  input: {
+  borderWidth: 1,
+  borderColor: "#55000060",
+  borderRadius: 25,
+  width: "100%",
+  paddingVertical: 12,
+  paddingHorizontal: 20,
+  marginBottom: 16,
+  backgroundColor: "#ffffff40",
+  color: "#550000",
+},
+error: {
+  color: "red",
+  marginBottom: 10,
+  textAlign: "center",
+  fontWeight: "600",
+},
+
 });

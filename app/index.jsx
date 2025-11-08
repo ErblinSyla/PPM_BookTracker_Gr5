@@ -1,11 +1,15 @@
 "use client";
 
-import { Text, TouchableOpacity, Image, View, Animated } from "react-native";
+import { View, Animated, TouchableOpacity, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 
 import BackgroundGradient from "./components/BackgroundGradient";
 import PrimaryButton from "./components/PrimaryButton";
+import AnimatedLogo from "./components/AnimatedLogo";
+import AnimatedTitle from "./components/AnimatedTitle";
+import AnimatedSubtitle from "./components/AnimatedSubtitle";
+import AnimatedQuote from "./components/AnimatedQuote";
 
 export const options = { headerShown: false };
 
@@ -104,48 +108,9 @@ export default function Index() {
             alignItems: "center",
           }}
         >
-          <Animated.View
-            style={{
-              opacity: fadeLogo,
-              transform: [{ translateY: floatAnimLogo }],
-              marginBottom: 20,
-            }}
-          >
-            <Image
-              source={require("../assets/book4.png")}
-              resizeMode="contain"
-              style={{ width: 140, height: 140 }}
-            />
-          </Animated.View>
-
-          <Animated.Text
-            style={{
-              opacity: fadeTitle,
-              fontSize: 28,
-              fontWeight: "800",
-              color: "#550000",
-              textAlign: "center",
-              marginBottom: 10,
-              letterSpacing: 1,
-              textTransform: "uppercase",
-            }}
-          >
-            BookTracker
-          </Animated.Text>
-
-          <Animated.Text
-            style={{
-              opacity: fadeSubtitle,
-              fontSize: 16,
-              color: "#550000",
-              textAlign: "center",
-              lineHeight: 24,
-              marginBottom: 30,
-              fontWeight: "400",
-            }}
-          >
-            Discover, read, and track your favorite books.
-          </Animated.Text>
+          <AnimatedLogo fadeAnim={fadeLogo} floatAnim={floatAnimLogo} />
+          <AnimatedTitle fadeAnim={fadeTitle} />
+          <AnimatedSubtitle fadeAnim={fadeSubtitle} />
 
           <Animated.View
             style={{ transform: [{ scale: buttonScale }], width: "80%" }}
@@ -163,6 +128,7 @@ export default function Index() {
               padding: 16,
               backgroundColor: "#550000",
               borderRadius: 8,
+              marginTop: 20,
             }}
             onPress={() => router.push("/signup")}
           >
@@ -184,22 +150,7 @@ export default function Index() {
           </TouchableOpacity>
         </Animated.View>
 
-        <Animated.Text
-          style={{
-            position: "absolute",
-            bottom: 30,
-            fontSize: 14,
-            color: "#550000",
-            fontStyle: "italic",
-            textAlign: "center",
-            opacity: fadeQuote,
-            transform: [{ translateY: floatAnimQuote }],
-            lineHeight: 22,
-            width: "90%",
-          }}
-        >
-          “A reader lives a thousand lives before he dies.” — George R.R. Martin
-        </Animated.Text>
+        <AnimatedQuote fadeAnim={fadeQuote} floatAnim={floatAnimQuote} />
       </View>
     </BackgroundGradient>
   );

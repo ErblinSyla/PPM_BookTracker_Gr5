@@ -120,22 +120,9 @@ export default function Index() {
               onPressIn={handlePressIn}
               onPressOut={handlePressOut}
               onPress={() => router.push("/signup")}
+              style={{ maxWidth: 300 }}
             />
           </Animated.View>
-
-          <TouchableOpacity
-            style={{
-              padding: 16,
-              backgroundColor: "#550000",
-              borderRadius: 8,
-              marginTop: 20,
-            }}
-            onPress={() => router.push("/signup")}
-          >
-            <Text style={{ color: "#FAF0DC", fontWeight: "700" }}>
-              Join BookTracker
-            </Text>
-          </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => router.push("/login")}

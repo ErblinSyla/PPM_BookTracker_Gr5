@@ -1,19 +1,27 @@
-import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
-import { StatusBar } from "expo-status-bar";
+import { TouchableOpacity, Text, StyleSheet } from "react-native";
 
-export default function BackgroundGradient({ children }) {
+export default function PrimaryButton({ title, onPress, style }) {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FAF0DC" }}>
-      <StatusBar style="dark" backgroundColor="transparent" translucent />
-      <LinearGradient
-        colors={["#FAF0DC", "#F2EBE2"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={{ flex: 1 }}
-      >
-        {children}
-      </LinearGradient>
-    </SafeAreaView>
+    <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+      <Text style={styles.text}>{title}</Text>
+    </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: "#550000",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    width: "100%",
+    maxWidth: 500,
+    alignSelf: "center",
+  },
+  text: {
+    color: "#FAF0DC",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+});

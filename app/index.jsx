@@ -1,15 +1,13 @@
 "use client";
 
 import { Text, TouchableOpacity, Image, View, Animated } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-export const options = {
-  headerShown: false,
-};
+import BackgroundGradient from "./components/BackgroundGradient";
+import PrimaryButton from "./components/PrimaryButton";
+
+export const options = { headerShown: false };
 
 export default function Index() {
   const router = useRouter();
@@ -71,16 +69,7 @@ export default function Index() {
 
     floatAnimLoop(floatAnimLogo);
     floatAnimLoop(floatAnimQuote);
-  }, [
-    fadeAnim,
-    slideAnim,
-    fadeLogo,
-    fadeTitle,
-    fadeSubtitle,
-    fadeQuote,
-    floatAnimLogo,
-    floatAnimQuote,
-  ]);
+  }, []);
 
   const handlePressIn = () => {
     Animated.spring(buttonScale, {
@@ -98,12 +87,8 @@ export default function Index() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FAF0DC" }}>
-      <StatusBar style="dark" backgroundColor="transparent" translucent />
-      <LinearGradient
-        colors={["#FAF0DC", "#F2EBE2"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
+    <BackgroundGradient>
+      <View
         style={{
           flex: 1,
           justifyContent: "center",
@@ -119,17 +104,20 @@ export default function Index() {
             alignItems: "center",
           }}
         >
-          <Animated.Image
-            source={require("../assets/book4.png")}
-            resizeMode="contain"
+          <Animated.View
             style={{
-              width: 140,
-              height: 140,
-              marginBottom: 20,
               opacity: fadeLogo,
               transform: [{ translateY: floatAnimLogo }],
+              marginBottom: 20,
             }}
-          />
+          >
+            <Image
+              source={require("../assets/book4.png")}
+              resizeMode="contain"
+              style={{ width: 140, height: 140 }}
+            />
+          </Animated.View>
+
           <Animated.Text
             style={{
               opacity: fadeTitle,
@@ -144,6 +132,7 @@ export default function Index() {
           >
             BookTracker
           </Animated.Text>
+
           <Animated.Text
             style={{
               opacity: fadeSubtitle,
@@ -157,33 +146,31 @@ export default function Index() {
           >
             Discover, read, and track your favorite books.
           </Animated.Text>
+
           <Animated.View
             style={{ transform: [{ scale: buttonScale }], width: "80%" }}
           >
-            <TouchableOpacity
-              activeOpacity={0.9}
+            <PrimaryButton
+              title="Get Started"
               onPressIn={handlePressIn}
               onPressOut={handlePressOut}
               onPress={() => router.push("/signup")}
-              style={{
-                backgroundColor: "#550000",
-                paddingVertical: 16,
-                borderRadius: 30,
-                alignItems: "center",
-                justifyContent: "center",
-                shadowColor: "#550000",
-                shadowOpacity: 0.35,
-                shadowRadius: 8,
-                elevation: 6,
-              }}
-            >
-              <Text
-                style={{ color: "#FAF0DC", fontSize: 17, fontWeight: "700" }}
-              >
-                Get Started
-              </Text>
-            </TouchableOpacity>
+            />
           </Animated.View>
+
+          <TouchableOpacity
+            style={{
+              padding: 16,
+              backgroundColor: "#550000",
+              borderRadius: 8,
+            }}
+            onPress={() => router.push("/signup")}
+          >
+            <Text style={{ color: "#FAF0DC", fontWeight: "700" }}>
+              Join BookTracker
+            </Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => router.push("/login")}
             style={{ marginTop: 18 }}
@@ -195,16 +182,8 @@ export default function Index() {
               </Text>
             </Text>
           </TouchableOpacity>
-          {/* THJESHT SA PER TESTIM, PER ME HY NE MODIFY BOOK PAGE, DO TE LARGOHET NE FUND */}
-          <TouchableOpacity
-            style={{ padding: 16, backgroundColor: "#550000", borderRadius: 8 }}
-            onPress={() => router.push("/modifyBook")}
-          >
-            <Text style={{ color: "#FAF0DC", fontWeight: "700" }}>
-              Open Update Page
-            </Text>
-          </TouchableOpacity>
         </Animated.View>
+
         <Animated.Text
           style={{
             position: "absolute",
@@ -221,7 +200,7 @@ export default function Index() {
         >
           “A reader lives a thousand lives before he dies.” — George R.R. Martin
         </Animated.Text>
-      </LinearGradient>
-    </SafeAreaView>
+      </View>
+    </BackgroundGradient>
   );
 }

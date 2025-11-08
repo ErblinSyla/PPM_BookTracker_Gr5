@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { Stack } from "expo-router"
-import { useRouter } from "expo-router"
+import { Stack } from "expo-router";
+import { useRouter } from "expo-router";
 
 export default function RootLayout() {
-  const router = useRouter()
+  const router = useRouter();
   return (
     <Stack>
       <Stack.Screen
@@ -50,6 +50,12 @@ export default function RootLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="modifyBook"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
-  )
+  );
 }

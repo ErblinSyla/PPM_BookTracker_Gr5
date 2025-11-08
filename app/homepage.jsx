@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState, useCallback } from "react"
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,57 +12,57 @@ import {
   SafeAreaView,
   RefreshControl,
   Platform,
-} from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { useRouter } from "expo-router"
-import { LinearGradient } from "expo-linear-gradient"
-import AsyncStorage from "@react-native-async-storage/async-storage"
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Homepage() {
-  const router = useRouter()
+  const router = useRouter();
 
-  const [searchQuery, setSearchQuery] = useState("")
-  const [refreshing, setRefreshing] = useState(false)
-  const [books, setBooks] = useState([])
+  const [searchQuery, setSearchQuery] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [books, setBooks] = useState([]);
 
   useEffect(() => {
-    loadBooks()
-  }, [])
+    loadBooks();
+  }, []);
 
   const loadBooks = async () => {
     try {
-      const storedBooks = await AsyncStorage.getItem("books")
+      const storedBooks = await AsyncStorage.getItem("books");
       if (storedBooks) {
-        setBooks(JSON.parse(storedBooks))
+        setBooks(JSON.parse(storedBooks));
       } else {
-        setBooks([])
+        setBooks([]);
       }
     } catch (error) {
-      console.error("Error loading books:", error)
+      console.error("Error loading books:", error);
     }
-  }
+  };
 
   const onRefresh = useCallback(async () => {
-    setRefreshing(true)
-    await loadBooks()
-    setRefreshing(false)
-  }, [])
+    setRefreshing(true);
+    await loadBooks();
+    setRefreshing(false);
+  }, []);
 
   const filteredBooks = books.filter((book) => {
-    const q = searchQuery.trim().toLowerCase()
-    if (!q) return true
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return true;
     return (
       (book.title || "").toLowerCase().includes(q) ||
       (book.author || "").toLowerCase().includes(q)
-    )
-  })
+    );
+  });
 
   const goToDetails = (id) => {
     router.push({
       pathname: "/bookDetails",
       params: { bookId: id },
-    })
-  }
+    });
+  };
 
   const renderBookItem = ({ item }) => {
     // get initials from title for placeholder
@@ -71,10 +71,13 @@ export default function Homepage() {
       .map((p) => p[0])
       .slice(0, 2)
       .join("")
-      .toUpperCase()
+      .toUpperCase();
 
     return (
-      <TouchableOpacity style={styles.card} onPress={() => goToDetails(item.id)}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => goToDetails(item.id)}
+      >
         {item.cover ? (
           <Image source={{ uri: item.cover }} style={styles.cover} />
         ) : (
@@ -97,23 +100,30 @@ export default function Homepage() {
           )}
         </View>
       </TouchableOpacity>
-    )
-  }
+    );
+  };
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>{searchQuery ? "No books found" : "No books existing"}</Text>
-      <Text style={styles.emptySubtitle}>
-        {searchQuery ? "Try a different searching word." : "Add the first book by pressing the + below."}
+      <Text style={styles.emptyTitle}>
+        {searchQuery ? "No books found" : "No books existing"}
       </Text>
-      <TouchableOpacity style={styles.emptyAddBtn} onPress={() => router.push("/addNewBook")}>
+      <Text style={styles.emptySubtitle}>
+        {searchQuery
+          ? "Try a different searching word."
+          : "Add the first book by pressing the + below."}
+      </Text>
+      <TouchableOpacity
+        style={styles.emptyAddBtn}
+        onPress={() => router.push("/addNewBook")}
+      >
         <Text style={styles.emptyAddText}>Add new book</Text>
       </TouchableOpacity>
     </View>
-  )
+  );
 
   return (
- <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" backgroundColor="transparent" translucent />
       <LinearGradient
         colors={["#FAF0DC", "#F2EBE2"]}
@@ -180,6 +190,19 @@ export default function Homepage() {
           >
             <Text style={styles.primaryButtonText}>Add New Book</Text>
             <Text style={styles.primaryButtonIcon}>＋</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              padding: 16,
+              backgroundColor: "#550000",
+              borderRadius: 8,
+              marginTop: 20,
+            }}
+            onPress={() => router.push("/modifyBook")}
+          >
+            <Text style={{ color: "#FAF0DC", fontWeight: "700" }}>
+              Open Update Page (Per testim, e largoj ne fund)
+            </Text>
           </TouchableOpacity>
         </View>
       </LinearGradient>

@@ -10,7 +10,9 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
 import BackgroundGradient from "./components/BackgroundGradient";
 import BackButton from "./components/BackButton";
@@ -26,6 +28,7 @@ import RatingField from "./components/RatingField";
 
 export default function UpdateBookDetails() {
   const router = useRouter();
+  const { editId } = useLocalSearchParams();
   const [book, setBook] = useState(null);
 
   const [status, setStatus] = useState("to-read");
@@ -39,37 +42,81 @@ export default function UpdateBookDetails() {
 
   const demoBook = {
     id: "demo-123",
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
+    title: "Demo Book",
+    author: "Demo Author",
     cover: null,
   };
 
   useEffect(() => {
-    setBook(demoBook);
-  }, []);
+    const loadBook = async () => {
+      if (!editId) {
+        setBook(demoBook);
+        return;
+      }
+      try {
+        const bookRef = doc(db, "books", editId);
+        const bookSnap = await getDoc(bookRef);
+        if (bookSnap.exists()) {
+          const found = { id: bookSnap.id, ...bookSnap.data() };
+          setBook(found);
+          setStatus(found.status || "to-read");
+          setPagesRead(found.pagesRead?.toString() || "");
+          setTotalPages(found.totalPages?.toString() || "");
+          setFinishDate(found.finishDate ? new Date(found.finishDate) : null);
+          setNotes(found.notes || "");
+          setReview(found.review || "");
+          setRating(found.rating || 0);
+        } else {
+          console.log("No such book in Firestore!");
+          setBook(demoBook);
+        }
+      } catch (err) {
+        console.error("Failed to load book:", err);
+        setBook(demoBook);
+      }
+    };
+
+    loadBook();
+  }, [editId]);
 
   const progress =
     totalPages && pagesRead
       ? Math.min(parseInt(pagesRead) / parseInt(totalPages), 1)
       : 0;
 
-  const saveBook = () => {
-    if (Platform.OS === "web") {
-      window.alert(
-        "Saved (demo)\n" +
-          `Status: ${status}\n` +
-          `Pages: ${pagesRead}/${totalPages}\n` +
-          `Rating: ${rating} stars`
-      );
-    } else {
-      Alert.alert(
-        "Saved (demo)",
-        `Status: ${status}\nPages: ${pagesRead}/${totalPages}\nRating: ${rating} stars`,
-        [{ text: "OK", onPress: () => router.push("/homepage") }]
-      );
-    }
+  const saveBook = async () => {
+    if (!book) return;
 
-    router.push("/homepage");
+    const updatedBook = {
+      ...book,
+      status,
+      pagesRead: pagesRead ? parseInt(pagesRead) : null,
+      totalPages: totalPages ? parseInt(totalPages) : null,
+      finishDate: finishDate ? finishDate.toISOString() : null,
+      notes: notes.trim(),
+      review: review.trim(),
+      rating,
+    };
+
+    try {
+      await setDoc(doc(db, "books", book.id), updatedBook);
+      const message = `Status: ${status}\nPages: ${pagesRead}/${totalPages}\nRating: ${rating} stars`;
+      if (Platform.OS === "web") {
+        window.alert("Book updated successfully!\n" + message);
+      } else {
+        Alert.alert("Success", "Book updated successfully!", [
+          { text: "OK", onPress: () => router.push("/homepage") },
+        ]);
+      }
+      router.push("/homepage");
+    } catch (err) {
+      console.error("Failed to save book:", err);
+      if (Platform.OS === "web") {
+        window.alert("Failed to save changes.");
+      } else {
+        Alert.alert("Error", "Failed to save changes.");
+      }
+    }
   };
 
   if (!book) {

@@ -204,6 +204,19 @@ export default function Homepage() {
               Open Update Page (Per testim, e largoj ne fund)
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              padding: 16,
+              backgroundColor: "#550000",
+              borderRadius: 8,
+              marginTop: 20,
+            }}
+            onPress={() => router.push("/modifyBook?editId=test-book-1")}
+          >
+            <Text style={{ color: "#FAF0DC", fontWeight: "700" }}>
+              Open Update Page For Actual Book (Per testim, e largoj ne fund)
+            </Text>
+          </TouchableOpacity>
         </View>
       </LinearGradient>
     </SafeAreaView>

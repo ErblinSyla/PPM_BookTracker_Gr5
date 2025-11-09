@@ -10,10 +10,13 @@ import {
 import Checkbox from "expo-checkbox";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
   const router = useRouter();
   const [isChecked, setChecked] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
 
@@ -30,7 +33,37 @@ export default function Login() {
         useNativeDriver: true,
       }),
     ]).start();
+
+    const loadData = async () => {
+      try {
+        const savedEmail = await AsyncStorage.getItem("email");
+        const savedPassword = await AsyncStorage.getItem("password");
+        if (savedEmail && savedPassword) {
+          setEmail(savedEmail);
+          setPassword(savedPassword);
+          setChecked(true);
+        }
+      } catch (e) {
+        console.log("Error loading saved credentials", e);
+      }
+    };
+    loadData();
   }, []);
+
+  const handleLogin = async () => {
+    try {
+      if (isChecked) {
+        await AsyncStorage.setItem("email", email);
+        await AsyncStorage.setItem("password", password);
+      } else {
+        await AsyncStorage.removeItem("email");
+        await AsyncStorage.removeItem("password");
+      }
+      router.push("/homepage");
+    } catch (e) {
+      console.log("Error saving login info", e);
+    }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FAF0DC" }}>
@@ -96,6 +129,8 @@ export default function Login() {
             E-mail
           </Text>
           <TextInput
+            value={email}
+            onChangeText={setEmail}
             placeholder="example@email.com"
             placeholderTextColor="#55000070"
             style={{
@@ -122,6 +157,8 @@ export default function Login() {
             Password
           </Text>
           <TextInput
+            value={password}
+            onChangeText={setPassword}
             placeholder="Your Password"
             placeholderTextColor="#55000070"
             secureTextEntry
@@ -166,7 +203,7 @@ export default function Login() {
           </View>
 
           <TouchableOpacity
-            onPress={() => router.push("/homepage")}
+            onPress={handleLogin}
             style={{
               backgroundColor: "#550000",
               paddingVertical: 14,

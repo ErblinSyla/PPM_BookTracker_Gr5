@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: 28,
+    width: 20,
     height: 20,
     resizeMode: "cover",
     marginRight: 10,

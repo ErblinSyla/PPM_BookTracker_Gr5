@@ -21,6 +21,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
 
@@ -150,7 +151,6 @@ export default function Login() {
             Log in to continue your reading journey
           </Text>
 
-          {/* Email */}
           <Text
             style={{
               alignSelf: "flex-start",
@@ -178,7 +178,6 @@ export default function Login() {
             }}
           />
 
-          {/* Password */}
           <Text
             style={{
               alignSelf: "flex-start",
@@ -190,23 +189,42 @@ export default function Login() {
           >
             Password
           </Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Your Password"
-            placeholderTextColor="#55000070"
-            secureTextEntry
+          <View
             style={{
               width: "100%",
-              height: 50,
+              flexDirection: "row",
+              alignItems: "center",
               borderWidth: 1,
               borderColor: "#55000050",
               borderRadius: 12,
-              paddingLeft: 14,
-              color: "#550000",
               backgroundColor: "#ffffff20",
+              height: 50,
+              paddingHorizontal: 10,
             }}
-          />
+          >
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Your Password"
+              placeholderTextColor="#55000070"
+              secureTextEntry={!showPassword}
+              style={{
+                flex: 1,
+                color: "#550000",
+              }}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Text
+                style={{
+                  color: "#550000",
+                  fontWeight: "600",
+                  fontSize: 14,
+                }}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           {errorMessage ? (
             <Text

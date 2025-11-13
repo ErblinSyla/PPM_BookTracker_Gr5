@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,16 +7,11 @@ import {
   Animated,
   StatusBar,
 } from "react-native";
-import Checkbox from "expo-checkbox";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter, Stack } from "expo-router";
 
-export default function Login() {
+export default function ForgotPassword() {
   const router = useRouter();
-  const [isChecked, setChecked] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
 
@@ -33,40 +28,13 @@ export default function Login() {
         useNativeDriver: true,
       }),
     ]).start();
-
-    const loadData = async () => {
-      try {
-        const savedEmail = await AsyncStorage.getItem("email");
-        const savedPassword = await AsyncStorage.getItem("password");
-        if (savedEmail && savedPassword) {
-          setEmail(savedEmail);
-          setPassword(savedPassword);
-          setChecked(true);
-        }
-      } catch (e) {
-        console.log("Error loading saved credentials", e);
-      }
-    };
-    loadData();
   }, []);
-
-  const handleLogin = async () => {
-    try {
-      if (isChecked) {
-        await AsyncStorage.setItem("email", email);
-        await AsyncStorage.setItem("password", password);
-      } else {
-        await AsyncStorage.removeItem("email");
-        await AsyncStorage.removeItem("password");
-      }
-      router.push("/homepage");
-    } catch (e) {
-      console.log("Error saving login info", e);
-    }
-  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FAF0DC" }}>
+      {/* Heq shiritin e bardh dhe titullin "Forgot password" nalt */}
+      <Stack.Screen options={{ headerShown: false }} />
+
       <StatusBar style="dark" backgroundColor="transparent" translucent />
       <LinearGradient
         colors={["#FAF0DC", "#F2EBE2"]}
@@ -104,7 +72,7 @@ export default function Login() {
               letterSpacing: 1,
             }}
           >
-            Welcome Back
+            Forgot Password
           </Text>
 
           <Text
@@ -115,7 +83,7 @@ export default function Login() {
               fontStyle: "italic",
             }}
           >
-            Log in to continue your reading journey
+            Enter your email to reset your password
           </Text>
 
           <Text
@@ -129,8 +97,6 @@ export default function Login() {
             E-mail
           </Text>
           <TextInput
-            value={email}
-            onChangeText={setEmail}
             placeholder="example@email.com"
             placeholderTextColor="#55000070"
             style={{
@@ -140,70 +106,13 @@ export default function Login() {
               borderColor: "#55000050",
               borderRadius: 12,
               paddingLeft: 14,
-              marginBottom: 15,
-              color: "#550000",
-              backgroundColor: "#ffffff20",
-            }}
-          />
-
-          <Text
-            style={{
-              alignSelf: "flex-start",
-              color: "#550000",
-              marginBottom: 5,
-              fontWeight: "600",
-            }}
-          >
-            Password
-          </Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Your Password"
-            placeholderTextColor="#55000070"
-            secureTextEntry
-            style={{
-              width: "100%",
-              height: 50,
-              borderWidth: 1,
-              borderColor: "#55000050",
-              borderRadius: 12,
-              paddingLeft: 14,
-              marginBottom: 15,
-              color: "#550000",
-              backgroundColor: "#ffffff20",
-            }}
-          />
-
-          <View
-            style={{
-              width: "100%",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
               marginBottom: 25,
+              color: "#550000",
+              backgroundColor: "#ffffff20",
             }}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Checkbox
-                value={isChecked}
-                onValueChange={setChecked}
-                color={isChecked ? "#550000" : undefined}
-              />
-              <Text style={{ marginLeft: 8, color: "#550000" }}>
-                Remember me
-              </Text>
-            </View>
-
-            <TouchableOpacity onPress={() => router.push("/ForgotPassword")}>
-              <Text style={{ color: "#550000", fontWeight: "500" }}>
-                Forgot Password?
-              </Text>
-            </TouchableOpacity>
-          </View>
+          />
 
           <TouchableOpacity
-            onPress={handleLogin}
             style={{
               backgroundColor: "#550000",
               paddingVertical: 14,
@@ -224,11 +133,11 @@ export default function Login() {
                 fontSize: 17,
               }}
             >
-              Log In
+              Send Reset Email
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => router.push("/signup")}>
+          <TouchableOpacity onPress={() => router.push("/login")}>
             <Text
               style={{
                 color: "#550000",
@@ -237,9 +146,9 @@ export default function Login() {
                 marginBottom: 25,
               }}
             >
-              Don’t have an account?{" "}
+              Remembered your password?{" "}
               <Text style={{ fontWeight: "700", color: "#550000" }}>
-                Sign Up
+                Log In
               </Text>
             </Text>
           </TouchableOpacity>

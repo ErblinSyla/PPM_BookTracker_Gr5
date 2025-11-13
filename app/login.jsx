@@ -12,7 +12,7 @@ import Checkbox from "expo-checkbox";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 
 export default function Login() {
@@ -71,6 +71,13 @@ export default function Login() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+
+      // Kontrollo nëse email-i është verifikuar
+      if (!user.emailVerified) {
+        setErrorMessage("Please verify your email first! Check your inbox for the verification link.");
+        await signOut(auth); // Ndalo login-in
+        return;
+      }
 
       if (isChecked) {
         await AsyncStorage.setItem("email", email);
@@ -151,16 +158,7 @@ export default function Login() {
             Log in to continue your reading journey
           </Text>
 
-          <Text
-            style={{
-              alignSelf: "flex-start",
-              color: "#550000",
-              marginBottom: 5,
-              fontWeight: "600",
-            }}
-          >
-            E-mail
-          </Text>
+          <Text style={{ alignSelf: "flex-start", color: "#550000", marginBottom: 5, fontWeight: "600" }}>E-mail</Text>
           <TextInput
             value={email}
             onChangeText={setEmail}
@@ -178,17 +176,7 @@ export default function Login() {
             }}
           />
 
-          <Text
-            style={{
-              alignSelf: "flex-start",
-              color: "#550000",
-              marginBottom: 5,
-              fontWeight: "600",
-              marginTop: 15,
-            }}
-          >
-            Password
-          </Text>
+          <Text style={{ alignSelf: "flex-start", color: "#550000", marginBottom: 5, fontWeight: "600", marginTop: 15 }}>Password</Text>
           <View
             style={{
               width: "100%",
@@ -208,48 +196,22 @@ export default function Login() {
               placeholder="Your Password"
               placeholderTextColor="#55000070"
               secureTextEntry={!showPassword}
-              style={{
-                flex: 1,
-                color: "#550000",
-              }}
+              style={{ flex: 1, color: "#550000" }}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Text
-                style={{
-                  color: "#550000",
-                  fontWeight: "600",
-                  fontSize: 14,
-                }}
-              >
+              <Text style={{ color: "#550000", fontWeight: "600", fontSize: 14 }}>
                 {showPassword ? "Hide" : "Show"}
               </Text>
             </TouchableOpacity>
           </View>
 
           {errorMessage ? (
-            <Text
-              style={{
-                color: "red",
-                textAlign: "center",
-                marginTop: 10,
-                marginBottom: 10,
-                fontWeight: "500",
-              }}
-            >
+            <Text style={{ color: "red", textAlign: "center", marginTop: 10, marginBottom: 10, fontWeight: "500" }}>
               {errorMessage}
             </Text>
           ) : null}
 
-          <View
-            style={{
-              width: "100%",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 25,
-              marginTop: 10,
-            }}
-          >
+          <View style={{ width: "100%", flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 25, marginTop: 10 }}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Checkbox
                 value={isChecked}
@@ -260,9 +222,7 @@ export default function Login() {
             </View>
 
             <TouchableOpacity onPress={() => router.push("/ForgotPassword")}>
-              <Text style={{ color: "#550000", fontWeight: "500" }}>
-                Forgot Password?
-              </Text>
+              <Text style={{ color: "#550000", fontWeight: "500" }}>Forgot Password?</Text>
             </TouchableOpacity>
           </View>
 
@@ -280,31 +240,13 @@ export default function Login() {
               marginBottom: 18,
             }}
           >
-            <Text
-              style={{
-                textAlign: "center",
-                color: "#FAF0DC",
-                fontWeight: "700",
-                fontSize: 17,
-              }}
-            >
-              Log In
-            </Text>
+            <Text style={{ textAlign: "center", color: "#FAF0DC", fontWeight: "700", fontSize: 17 }}>Log In</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => router.push("/signup")}>
-            <Text
-              style={{
-                color: "#550000",
-                textAlign: "center",
-                fontSize: 15,
-                marginBottom: 25,
-              }}
-            >
+            <Text style={{ color: "#550000", textAlign: "center", fontSize: 15, marginBottom: 25 }}>
               Don’t have an account?{" "}
-              <Text style={{ fontWeight: "700", color: "#550000" }}>
-                Sign Up
-              </Text>
+              <Text style={{ fontWeight: "700", color: "#550000" }}>Sign Up</Text>
             </Text>
           </TouchableOpacity>
         </Animated.View>

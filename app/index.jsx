@@ -135,8 +135,8 @@ export default function Index() {
               </Text>
             </Text>
           </TouchableOpacity>
-          <Text onPress={() => router.push("/homepage")}>
-            Quick homepage access (temporary)
+          <Text onPress={() => router.push("/profile")}>
+            Quick Profile page access (temporary)
           </Text>
         </Animated.View>
 

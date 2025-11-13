@@ -144,7 +144,7 @@ export default function Homepage() {
 
             <TouchableOpacity
               style={styles.smallButton}
-              onPress={() => router.push("/profile")}//addNewBook
+              onPress={() => router.push("/profile")}
               accessibilityLabel="Add new book"
             >
               <Text style={styles.smallButtonText}>+ Add</Text>

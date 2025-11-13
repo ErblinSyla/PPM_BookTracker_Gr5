@@ -166,14 +166,15 @@ export default function AddNewBook() {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar style="light" />
-      <LinearGradient
+     <LinearGradient
         colors={["#FAF0DC", "#F2EBE2"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.container}
       >
+    <SafeAreaView style={styles.safe}>
+      <StatusBar style="light" />
+     
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()}>
@@ -239,8 +240,9 @@ export default function AddNewBook() {
             </TouchableOpacity>
           </View>
         </ScrollView>
-      </LinearGradient>
+     
     </SafeAreaView>
+     </LinearGradient>
   )
 }
 

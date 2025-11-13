@@ -21,14 +21,15 @@ import { LinearGradient } from "expo-linear-gradient"
 export default function Profile(){
     const router = useRouter();
 return (
-<SafeAreaView style={styles.safe}>
-      <StatusBar style="light" />
-      <LinearGradient
+    <LinearGradient
         colors={["#FAF0DC", "#F2EBE2"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.container}
       >
+<SafeAreaView style={styles.safe}>
+      <StatusBar style="light" />
+      
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.push("/homepage")}>
@@ -44,24 +45,30 @@ return (
                 <Text style={styles.avatar__email}>cooper33@hotmail.com</Text>
             </View>
             <View style={styles.book__stats}>
-                <View style={styles.book__active}>
+                <TouchableOpacity 
+                    onPress={()=>router.push("/homepage")}
+                    style={styles.book__active}>
                     <Text style={styles.active__num}>14</Text>
                     <Text style={styles.active__desc}>Active</Text>
-                </View>
-                <View style={styles.book__pending}>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    onPress={()=>router.push("/homepage")}
+                    style={styles.book__pending}>
                     <Text style={styles.pending__num}>06</Text>
                     <Text style={styles.pending__desc}>Pending</Text>
-                </View>
-                <View style={styles.book__completed}>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    onPress={()=>router.push("/homepage")}
+                    style={styles.book__completed}>
                     <Text style={styles.completed__num}>25</Text>
                     <Text style={styles.completed__desc}>Complete</Text>
-                </View>
+                </TouchableOpacity>
             </View>
             <View style={styles.profile__options}>
-                <View style={styles.profile__option}>
+                <TouchableOpacity style={styles.profile__option}>
                     <View style={styles.option__icon}>
                         <Image
-                         source={require("../assets/profile-image-test.png")}   
+                         source={require("../assets/profile_username-icon.png")}   
                         style={styles.option__image}/>
                         <View style={styles.option__info}>
                             <Text style={styles.info__title}>Username</Text>
@@ -70,13 +77,16 @@ return (
                     </View>
                     
                     <View style={styles.option__nav}>
-                        <Text style={styles.nav__arrow}>{'>'}</Text>
+                        <Image 
+                            source={require("../assets/profile_arrow-right-icon.png")}
+                            style={styles.nav__arrow}
+                        />
                     </View>
-                </View>
-                <View style={styles.profile__option}>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.profile__option}>
                     <View style={styles.option__icon}>
                         <Image
-                         source={require("../assets/profile-image-test.png")}   
+                         source={require("../assets/profile_notification-icon.png")}   
                         style={styles.option__image}/>  
                         <View style={styles.option__info}>
                             <Text style={styles.info__title}>Notifications</Text>
@@ -85,13 +95,16 @@ return (
                         </View>
                     
                     <View style={styles.option__nav}>
-                        <Text style={styles.nav__arrow}>{'>'}</Text>
+                        <Image 
+                            source={require("../assets/profile_arrow-right-icon.png")}
+                            style={styles.nav__arrow}
+                        />
                     </View>
-                </View>
-                <View style={[styles.profile__option, styles.profile__option__end]}>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.profile__option, styles.profile__option__end]}>
                     <View style={styles.option__icon}>
                         <Image
-                         source={require("../assets/profile-image-test.png")}   
+                         source={require("../assets/profile_settings-icon.png")}   
                         style={styles.option__image}/>
                         <View style={styles.option__info}>
                             <Text style={styles.info__title}>Settings</Text>
@@ -100,14 +113,18 @@ return (
                     </View>
                     
                     <View style={styles.option__nav}>
-                        <Text style={styles.nav__arrow}>{'>'}</Text>
+                        <Image 
+                            source={require("../assets/profile_arrow-right-icon.png")}
+                            style={styles.nav__arrow}
+                        />
                     </View>
-                </View>
+                </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
-      </LinearGradient>
+      
     </SafeAreaView>
+    </LinearGradient>
 )
 }
 const styles = StyleSheet.create({
@@ -249,8 +266,8 @@ const styles = StyleSheet.create({
     gap:15,
   },
   option__image:{
-    width:50,
-    height:50,
+    width:40,
+    height:40,
   },
   option__info:{
     gap:5,
@@ -268,9 +285,8 @@ const styles = StyleSheet.create({
     fontWeight:"500",
    },
    nav__arrow:{
-    color: "#550000",
-    fontSize: 26,
-    fontWeight: "700",
+    width:25,
+    height:25,
    },
    profile__option__end:{
     borderBottomWidth:0,

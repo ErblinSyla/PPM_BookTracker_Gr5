@@ -6,17 +6,21 @@ import {
   TouchableOpacity,
   Animated,
   StatusBar,
+  Alert,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebaseConfig";
 
 export default function Login() {
   const router = useRouter();
   const [isChecked, setChecked] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
 
@@ -51,7 +55,22 @@ export default function Login() {
   }, []);
 
   const handleLogin = async () => {
+    setErrorMessage("");
+
+    if (email.trim() === "") {
+      setErrorMessage("Please enter your email.");
+      return;
+    }
+
+    if (password.trim() === "") {
+      setErrorMessage("Please enter your password.");
+      return;
+    }
+
     try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
       if (isChecked) {
         await AsyncStorage.setItem("email", email);
         await AsyncStorage.setItem("password", password);
@@ -59,9 +78,22 @@ export default function Login() {
         await AsyncStorage.removeItem("email");
         await AsyncStorage.removeItem("password");
       }
+
+      await AsyncStorage.setItem("userUID", user.uid);
+      Alert.alert("Success", "You have logged in successfully!");
       router.push("/homepage");
-    } catch (e) {
-      console.log("Error saving login info", e);
+    } catch (error) {
+      console.log("Firebase login error:", error);
+
+      if (error.code === "auth/user-not-found") {
+        setErrorMessage("This user does not exist. Please sign up first!");
+      } else if (error.code === "auth/wrong-password") {
+        setErrorMessage("Incorrect password. Please try again!");
+      } else if (error.code === "auth/invalid-email") {
+        setErrorMessage("Invalid email format!");
+      } else {
+        setErrorMessage("Something went wrong. Please try again!");
+      }
     }
   };
 
@@ -118,6 +150,7 @@ export default function Login() {
             Log in to continue your reading journey
           </Text>
 
+          {/* Email */}
           <Text
             style={{
               alignSelf: "flex-start",
@@ -140,18 +173,19 @@ export default function Login() {
               borderColor: "#55000050",
               borderRadius: 12,
               paddingLeft: 14,
-              marginBottom: 15,
               color: "#550000",
               backgroundColor: "#ffffff20",
             }}
           />
 
+          {/* Password */}
           <Text
             style={{
               alignSelf: "flex-start",
               color: "#550000",
               marginBottom: 5,
               fontWeight: "600",
+              marginTop: 15,
             }}
           >
             Password
@@ -169,11 +203,24 @@ export default function Login() {
               borderColor: "#55000050",
               borderRadius: 12,
               paddingLeft: 14,
-              marginBottom: 15,
               color: "#550000",
               backgroundColor: "#ffffff20",
             }}
           />
+
+          {errorMessage ? (
+            <Text
+              style={{
+                color: "red",
+                textAlign: "center",
+                marginTop: 10,
+                marginBottom: 10,
+                fontWeight: "500",
+              }}
+            >
+              {errorMessage}
+            </Text>
+          ) : null}
 
           <View
             style={{
@@ -182,6 +229,7 @@ export default function Login() {
               justifyContent: "space-between",
               alignItems: "center",
               marginBottom: 25,
+              marginTop: 10,
             }}
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -190,9 +238,7 @@ export default function Login() {
                 onValueChange={setChecked}
                 color={isChecked ? "#550000" : undefined}
               />
-              <Text style={{ marginLeft: 8, color: "#550000" }}>
-                Remember me
-              </Text>
+              <Text style={{ marginLeft: 8, color: "#550000" }}>Remember me</Text>
             </View>
 
             <TouchableOpacity onPress={() => router.push("/ForgotPassword")}>

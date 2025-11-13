@@ -135,6 +135,9 @@ export default function Index() {
               </Text>
             </Text>
           </TouchableOpacity>
+          <Text onPress={() => router.push("/homepage")}>
+            Quick homepage access (temporary)
+          </Text>
         </Animated.View>
 
         <AnimatedQuote fadeAnim={fadeQuote} floatAnim={floatAnimQuote} />

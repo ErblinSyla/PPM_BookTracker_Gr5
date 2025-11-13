@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,14 +6,19 @@ import {
   TouchableOpacity,
   Animated,
   StatusBar,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, Stack } from "expo-router";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../firebaseConfig";
 
 export default function ForgotPassword() {
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     Animated.parallel([
@@ -30,12 +35,33 @@ export default function ForgotPassword() {
     ]).start();
   }, []);
 
+  const handleResetPassword = async () => {
+    setError("");
+    if (!email) {
+      setError("Please enter your email!");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      Alert.alert(
+        "Check your email",
+        "A password reset link has been sent to your email. Please verify and follow the instructions."
+      );
+      router.push("/login"); // opsionale, mund me lene userin në të njëjtën faq
+    } catch (err) {
+      console.error(err);
+      if (err.code === "auth/user-not-found") setError("No user found with this email!");
+      else if (err.code === "auth/invalid-email") setError("Invalid email address!");
+      else setError("Something went wrong. Please try again!");
+    }
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "#FAF0DC" }}>
-      {/* Heq shiritin e bardh dhe titullin "Forgot password" nalt */}
       <Stack.Screen options={{ headerShown: false }} />
-
       <StatusBar style="dark" backgroundColor="transparent" translucent />
+
       <LinearGradient
         colors={["#FAF0DC", "#F2EBE2"]}
         start={{ x: 0, y: 0 }}
@@ -106,11 +132,21 @@ export default function ForgotPassword() {
               borderColor: "#55000050",
               borderRadius: 12,
               paddingLeft: 14,
-              marginBottom: 25,
+              marginBottom: 8,
               color: "#550000",
               backgroundColor: "#ffffff20",
             }}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
+
+          {error ? (
+            <Text style={{ color: "red", marginBottom: 10, textAlign: "center" }}>
+              {error}
+            </Text>
+          ) : null}
 
           <TouchableOpacity
             style={{
@@ -124,6 +160,7 @@ export default function ForgotPassword() {
               elevation: 8,
               marginBottom: 18,
             }}
+            onPress={handleResetPassword}
           >
             <Text
               style={{
@@ -147,9 +184,7 @@ export default function ForgotPassword() {
               }}
             >
               Remembered your password?{" "}
-              <Text style={{ fontWeight: "700", color: "#550000" }}>
-                Log In
-              </Text>
+              <Text style={{ fontWeight: "700", color: "#550000" }}>Log In</Text>
             </Text>
           </TouchableOpacity>
         </Animated.View>

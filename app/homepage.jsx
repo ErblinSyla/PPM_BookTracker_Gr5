@@ -13,6 +13,7 @@ import {
   RefreshControl,
   Alert,
   Platform,
+  Modal,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
@@ -34,6 +35,9 @@ export default function Homepage() {
   const [refreshing, setRefreshing] = useState(false);
   const [books, setBooks] = useState([]);
   const [userEmail, setUserEmail] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const [modalData, setModalData] = useState({});
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -62,7 +66,7 @@ export default function Homepage() {
       setBooks(booksList);
     } catch (error) {
       console.error("Error loading books:", error);
-      Alert.alert("Error", "Could not load your books.");
+      showAlert("Error", "Could not load your books.");
     }
   }, [userEmail]);
 
@@ -74,6 +78,14 @@ export default function Homepage() {
     setRefreshing(true);
     loadBooks().finally(() => setRefreshing(false));
   }, [loadBooks]);
+
+  const showAlert = (title, message) => {
+    if (Platform.OS === "web") {
+      window.alert(`${title}: ${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
 
   const filteredBooks = books.filter((book) => {
     const q = searchQuery.trim().toLowerCase();
@@ -91,37 +103,71 @@ export default function Homepage() {
     });
   };
 
-  const deleteBook = (id, title) => {
-    Alert.alert("Delete Book", `Delete "${title || "this book"}"?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await deleteDoc(doc(db, "books", id));
-            await loadBooks();
-            Alert.alert("Deleted", "Book removed.");
-          } catch (error) {
-            Alert.alert("Error", "Failed to delete.");
-          }
+  const showDeleteConfirmation = (id, title) => {
+    if (Platform.OS === "web") {
+      setModalType("delete");
+      setModalData({ id, title });
+      setModalVisible(true);
+    } else {
+      Alert.alert("Delete Book", `Delete "${title || "this book"}"?`, [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            await performDeleteBook(id);
+          },
         },
-      },
-    ]);
+      ]);
+    }
   };
 
-  const handleLogout = async () => {
-    Alert.alert("Logout", "Are you sure?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: async () => {
-          await signOut(auth);
-          router.replace("/");
+  const showLogoutConfirmation = () => {
+    if (Platform.OS === "web") {
+      setModalType("logout");
+      setModalData({});
+      setModalVisible(true);
+    } else {
+      Alert.alert("Logout", "Are you sure?", [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            await performLogout();
+          },
         },
-      },
-    ]);
+      ]);
+    }
+  };
+
+  const performDeleteBook = async (id) => {
+    try {
+      await deleteDoc(doc(db, "books", id));
+      await loadBooks();
+      showAlert("Deleted", "Book removed.");
+    } catch (error) {
+      showAlert("Error", "Failed to delete.");
+    }
+  };
+
+  const performLogout = async () => {
+    await signOut(auth);
+    router.replace("/");
+  };
+
+  const handleModalConfirm = async () => {
+    setModalVisible(false);
+
+    if (modalType === "delete") {
+      await performDeleteBook(modalData.id);
+    } else if (modalType === "logout") {
+      await performLogout();
+    }
+  };
+
+  const handleModalCancel = () => {
+    setModalVisible(false);
   };
 
   const renderBookItem = ({ item }) => {
@@ -138,7 +184,6 @@ export default function Homepage() {
           style={styles.card}
           onPress={() => openBook(item.id)}
           activeOpacity={0.8}
-          onStartShouldSetResponder={() => true}
         >
           {item.cover ? (
             <Image source={{ uri: item.cover }} style={styles.cover} />
@@ -167,7 +212,7 @@ export default function Homepage() {
 
         <TouchableOpacity
           style={styles.deleteBtn}
-          onPress={() => deleteBook(item.id, item.title)}
+          onPress={() => showDeleteConfirmation(item.id, item.title)}
           activeOpacity={0.7}
         >
           <Text style={styles.deleteBtnText}>Delete</Text>
@@ -175,6 +220,44 @@ export default function Homepage() {
       </View>
     );
   };
+
+  const renderModal = () => (
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={handleModalCancel}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>
+            {modalType === "logout" ? "Logout" : "Delete Book"}
+          </Text>
+          <Text style={styles.modalMessage}>
+            {modalType === "logout"
+              ? "Are you sure you want to logout?"
+              : `Delete "${modalData.title || "this book"}"?`}
+          </Text>
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={[styles.modalButton, styles.cancelButton]}
+              onPress={handleModalCancel}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalButton, styles.confirmButton]}
+              onPress={handleModalConfirm}
+            >
+              <Text style={styles.confirmButtonText}>
+                {modalType === "logout" ? "Logout" : "Delete"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   if (!userEmail) {
     return (
@@ -204,7 +287,10 @@ export default function Homepage() {
               />
               <Text style={styles.headerText}>My Library</Text>
             </View>
-            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+            <TouchableOpacity
+              style={styles.logoutBtn}
+              onPress={showLogoutConfirmation}
+            >
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -255,9 +341,11 @@ export default function Homepage() {
             onPress={() => router.push("/addNewBook")}
           >
             <Text style={styles.primaryButtonText}>Add New Book</Text>
-            <Text style={styles.primaryButtonIcon}>Plus</Text>
+            <Text style={styles.primaryButtonIcon}>+</Text>
           </TouchableOpacity>
         </View>
+
+        {renderModal()}
       </LinearGradient>
     </SafeAreaView>
   );
@@ -381,4 +469,60 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   emptyAddText: { color: "#FAF0DC", fontWeight: "700" },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 24,
+    width: "100%",
+    maxWidth: 400,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#550000",
+    marginBottom: 12,
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: "#550000",
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+  },
+  modalButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    minWidth: 80,
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: "#f0f0f0",
+  },
+  confirmButton: {
+    backgroundColor: "#ff4444",
+  },
+  cancelButtonText: {
+    color: "#550000",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  confirmButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 16,
+  },
 });

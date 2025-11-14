@@ -10,6 +10,7 @@ import {
   Alert,
   Platform,
   SafeAreaView,
+  Modal,
 } from "react-native";
 import { StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
@@ -28,14 +29,25 @@ export default function AddNewBook() {
   const [description, setDescription] = useState("");
   const [cover, setCover] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const [modalData, setModalData] = useState({});
 
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
 
+  const showAlert = (title, message) => {
+    if (Platform.OS === "web") {
+      window.alert(`${title}: ${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
   const pickFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Please allow access to your photos.");
+      showAlert("Permission needed", "Please allow access to your photos.");
       return;
     }
 
@@ -58,9 +70,37 @@ export default function AddNewBook() {
     setShowCamera(false);
   };
 
+  const showImagePickerOptions = () => {
+    if (Platform.OS === "web") {
+      setModalType("imagePicker");
+      setModalVisible(true);
+    } else {
+      Alert.alert("Upload Cover", "Choose how to add a cover:", [
+        { text: "Take Photo", onPress: () => setShowCamera(true) },
+        { text: "Choose from Gallery", onPress: pickFromGallery },
+        { text: "Cancel", style: "cancel" },
+      ]);
+    }
+  };
+
+  const handleImagePickerChoice = (choice) => {
+    setModalVisible(false);
+    if (choice === "camera") {
+      setShowCamera(true);
+    } else if (choice === "gallery") {
+      pickFromGallery();
+    }
+  };
+
   const saveBook = async () => {
     if (!title.trim() || !author.trim()) {
-      Alert.alert("Required", "Please enter both title and author.");
+      if (Platform.OS === "web") {
+        setModalType("required");
+        setModalData({ message: "Please enter both title and author." });
+        setModalVisible(true);
+      } else {
+        Alert.alert("Required", "Please enter both title and author.");
+      }
       return;
     }
 
@@ -83,13 +123,123 @@ export default function AddNewBook() {
 
       await addDoc(collection(db, "books"), newBook);
 
-      Alert.alert("Success!", "Book added to your library.", [
-        { text: "OK", onPress: () => router.replace("/homepage") },
-      ]);
+      if (Platform.OS === "web") {
+        setModalType("success");
+        setModalVisible(true);
+      } else {
+        Alert.alert("Success!", "Book added to your library.", [
+          { text: "OK", onPress: () => router.replace("/homepage") },
+        ]);
+      }
     } catch (error) {
       console.error("Error adding book:", error);
-      Alert.alert("Error", "Could not save book. Try again.");
+      showAlert("Error", "Could not save book. Try again.");
     }
+  };
+
+  const handleSuccessConfirm = () => {
+    setModalVisible(false);
+    router.replace("/homepage");
+  };
+
+  const renderModal = () => {
+    if (modalType === "imagePicker") {
+      return (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Upload Cover</Text>
+              <Text style={styles.modalMessage}>
+                Choose how to add a cover:
+              </Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.optionButton]}
+                  onPress={() => handleImagePickerChoice("camera")}
+                >
+                  <Text style={styles.optionButtonText}>Take Photo</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.optionButton]}
+                  onPress={() => handleImagePickerChoice("gallery")}
+                >
+                  <Text style={styles.optionButtonText}>
+                    Choose from Gallery
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      );
+    }
+
+    if (modalType === "required") {
+      return (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Required</Text>
+              <Text style={styles.modalMessage}>{modalData.message}</Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.confirmButton]}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={styles.confirmButtonText}>OK</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      );
+    }
+
+    if (modalType === "success") {
+      return (
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={handleSuccessConfirm}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Success!</Text>
+              <Text style={styles.modalMessage}>
+                Book added to your library.
+              </Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.confirmButton]}
+                  onPress={handleSuccessConfirm}
+                >
+                  <Text style={styles.confirmButtonText}>OK</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      );
+    }
+
+    return null;
   };
 
   if (!permission?.granted) {
@@ -117,7 +267,7 @@ export default function AddNewBook() {
             style={styles.backBtn}
             onPress={() => setShowCamera(false)}
           >
-            <Text style={{ fontSize: 24 }}>Back</Text>
+            <Text style={{ fontSize: 24, color: "white" }}>Back</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={takePhoto}>
             <View style={styles.captureBtn} />
@@ -170,13 +320,7 @@ export default function AddNewBook() {
 
             <TouchableOpacity
               style={styles.imageBtn}
-              onPress={() =>
-                Alert.alert("Upload Cover", "Choose how to add a cover:", [
-                  { text: "Take Photo", onPress: () => setShowCamera(true) },
-                  { text: "Choose from Gallery", onPress: pickFromGallery },
-                  { text: "Cancel", style: "cancel" },
-                ])
-              }
+              onPress={showImagePickerOptions}
             >
               <Text style={styles.imageBtnText}>
                 {cover ? "Change Cover" : "Upload Cover"}
@@ -188,6 +332,8 @@ export default function AddNewBook() {
             </TouchableOpacity>
           </View>
         </ScrollView>
+
+        {renderModal()}
       </SafeAreaView>
     </LinearGradient>
   );
@@ -261,6 +407,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
   captureBtn: {
     width: 70,
@@ -291,4 +439,68 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   permissionBtnText: { color: "#FAF0DC", fontWeight: "700" },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 24,
+    width: "100%",
+    maxWidth: 400,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#550000",
+    marginBottom: 12,
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: "#550000",
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  modalButtons: {
+    gap: 12,
+  },
+  modalButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  optionButton: {
+    backgroundColor: "#550000",
+  },
+  cancelButton: {
+    backgroundColor: "#f0f0f0",
+    marginTop: 8,
+  },
+  confirmButton: {
+    backgroundColor: "#550000",
+    alignSelf: "flex-end",
+    minWidth: 80,
+  },
+  optionButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  cancelButtonText: {
+    color: "#550000",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  confirmButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 16,
+  },
 });

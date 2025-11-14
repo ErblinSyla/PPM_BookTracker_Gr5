@@ -118,7 +118,7 @@ export default function Homepage() {
         style: "destructive",
         onPress: async () => {
           await signOut(auth);
-          router.replace("/login");
+          router.replace("/");
         },
       },
     ]);

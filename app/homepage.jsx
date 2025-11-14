@@ -265,10 +265,16 @@ export default function Homepage() {
                 <Text style={styles.headerText}>My Library</Text>
               </View>
               <TouchableOpacity
-                style={styles.logoutBtn}
-                onPress={showLogoutConfirmation}
-              >
-                <Text style={styles.logoutText}>Logout</Text>
+                style={styles.profileBtn}
+                onPress={()=>router.push("/profile")}
+              > 
+
+
+                <Image 
+                  source={require("../assets/profile_username-icon.png")}
+                  style={styles.profileIcon}
+                />
+                <Text style={styles.profileText}>Profile</Text>
               </TouchableOpacity>
             </View>
 

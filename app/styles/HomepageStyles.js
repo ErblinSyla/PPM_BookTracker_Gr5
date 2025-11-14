@@ -27,13 +27,21 @@ export const styles = StyleSheet.create({
   logoRow: { flexDirection: "row", alignItems: "center" },
   logo: { width: 24, height: 24, marginRight: 10 },
   headerText: { color: "#550000", fontSize: 20, fontWeight: "800" },
-  logoutBtn: {
-    backgroundColor: "#550000",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+  profileBtn: {
+   // backgroundColor: "#550000",
+   // paddingHorizontal: 16,
+    //paddingVertical: 8,
+   // borderRadius: 20,
+   flexDirection:"row",
+   alignItems:"center",
+   justifyContent:"center",
+   gap:10,
   },
-  logoutText: { color: "#FAF0DC", fontWeight: "700", fontSize: 14 },
+  profileIcon:{
+    width:32,
+    height:32,
+  },
+  profileText: { color: "#550000", fontWeight: "700", fontSize: 14 },
 
   title: {
     fontSize: 28,

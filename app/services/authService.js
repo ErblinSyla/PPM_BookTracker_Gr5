@@ -1,6 +1,6 @@
 // app/services/authService.js
 import { createUserWithEmailAndPassword, signInWithCredential } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc,getDoc } from "firebase/firestore";
 // Kontrollo rastin e shkronjës C (Capital C) dhe shto .js
 import { auth, db } from "../../firebaseConfig.js";
  // dy nivele lart sepse services është brenda app
@@ -64,4 +64,11 @@ export const signInWithApple = async (identityToken, fullName) => {
     console.error("Gabim Apple Sign-In:", error);
     throw error;
   }
+};
+
+//Profile get Username and Email
+export const getUserData = async (uid) => {
+  const snap = await getDoc(doc(db, "users", uid));
+  if (!snap.exists()) return null;
+  return snap.data();
 };

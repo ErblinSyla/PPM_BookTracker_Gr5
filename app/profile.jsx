@@ -14,9 +14,51 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getUserData } from "../app/services/authService";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
 export default function Profile() {
   const router = useRouter();
+
+  const [counts, setCounts] = useState({
+    reading: 0,
+    toRead: 0,
+    finished: 0,
+  });
+
+  const [userData, setUserData] = useState({ name: "", email: "" });
+
+useEffect(() => {
+  const loadUser = async () => {
+    const uid = await AsyncStorage.getItem("userUID");
+    if (!uid) return;
+
+    const data = await getUserData(uid);
+    if (!data) return;
+
+    setUserData(data);
+
+    const q = query(
+      collection(db, "books"),
+      where("userEmail", "==", data.email)
+    );
+
+    const snap = await getDocs(q);
+    const books = snap.docs.map(d => d.data());
+
+    setCounts({
+      reading: books.filter(b => b.status === "reading").length,
+      toRead: books.filter(b => b.status === "to-read").length,
+      finished: books.filter(b => b.status === "finished").length,
+    });
+  };
+
+  loadUser();
+}, []);
+
   return (
     <LinearGradient
       colors={["#FAF0DC", "#F2EBE2"]}
@@ -39,30 +81,30 @@ export default function Profile() {
                 source={require("../assets/profile-image-test.png")}
                 style={styles.avatar__image}
               />
-              <Text style={styles.avatar__name}>Bessie Cooper</Text>
-              <Text style={styles.avatar__email}>cooper33@hotmail.com</Text>
+              <Text style={styles.avatar__name}>{userData.name}</Text>
+              <Text style={styles.avatar__email}>{userData.email}</Text>
             </View>
             <View style={styles.book__stats}>
               <TouchableOpacity
                 onPress={() => router.push("/homepage")}
                 style={styles.book__active}
               >
-                <Text style={styles.active__num}>14</Text>
-                <Text style={styles.active__desc}>Active</Text>
+                <Text style={styles.active__num}>{counts.reading}</Text>
+                <Text style={styles.active__desc}>Reading</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push("/homepage")}
                 style={styles.book__pending}
               >
-                <Text style={styles.pending__num}>06</Text>
-                <Text style={styles.pending__desc}>Pending</Text>
+                <Text style={styles.pending__num}>{counts.toRead}</Text>
+                <Text style={styles.pending__desc}>To Read</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push("/homepage")}
                 style={styles.book__completed}
               >
-                <Text style={styles.completed__num}>25</Text>
-                <Text style={styles.completed__desc}>Complete</Text>
+                <Text style={styles.completed__num}>{counts.finished}</Text>
+                <Text style={styles.completed__desc}>Finished</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.profile__options}>
@@ -74,7 +116,7 @@ export default function Profile() {
                   />
                   <View style={styles.option__info}>
                     <Text style={styles.info__title}>Username</Text>
-                    <Text style={styles.info__desc}>@cooper_bessie</Text>
+                    <Text style={styles.info__desc}>@{userData.name?.toLowerCase().replace(/ /g, "_")}</Text>
                   </View>
                 </View>
 

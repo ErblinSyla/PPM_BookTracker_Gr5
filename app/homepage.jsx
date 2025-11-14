@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   Image,
@@ -28,6 +27,7 @@ import {
 } from "firebase/firestore";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../firebaseConfig";
+import { styles } from "./styles/HomepageStyles";
 
 export default function Homepage() {
   const router = useRouter();
@@ -52,7 +52,6 @@ export default function Homepage() {
 
   const loadBooks = useCallback(async () => {
     if (!userEmail) return;
-
     try {
       const q = query(
         collection(db, "books"),
@@ -97,10 +96,7 @@ export default function Homepage() {
   });
 
   const openBook = (id) => {
-    router.push({
-      pathname: "/modifyBook",
-      params: { editId: id },
-    });
+    router.push({ pathname: "/modifyBook", params: { editId: id } });
   };
 
   const showDeleteConfirmation = (id, title) => {
@@ -114,9 +110,7 @@ export default function Homepage() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: async () => {
-            await performDeleteBook(id);
-          },
+          onPress: () => performDeleteBook(id),
         },
       ]);
     }
@@ -125,18 +119,11 @@ export default function Homepage() {
   const showLogoutConfirmation = () => {
     if (Platform.OS === "web") {
       setModalType("logout");
-      setModalData({});
       setModalVisible(true);
     } else {
       Alert.alert("Logout", "Are you sure?", [
         { text: "Cancel", style: "cancel" },
-        {
-          text: "Logout",
-          style: "destructive",
-          onPress: async () => {
-            await performLogout();
-          },
-        },
+        { text: "Logout", style: "destructive", onPress: performLogout },
       ]);
     }
   };
@@ -158,16 +145,8 @@ export default function Homepage() {
 
   const handleModalConfirm = async () => {
     setModalVisible(false);
-
-    if (modalType === "delete") {
-      await performDeleteBook(modalData.id);
-    } else if (modalType === "logout") {
-      await performLogout();
-    }
-  };
-
-  const handleModalCancel = () => {
-    setModalVisible(false);
+    if (modalType === "delete") await performDeleteBook(modalData.id);
+    if (modalType === "logout") await performLogout();
   };
 
   const renderBookItem = ({ item }) => {
@@ -192,7 +171,6 @@ export default function Homepage() {
               <Text style={styles.coverInitials}>{initials || "LB"}</Text>
             </View>
           )}
-
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle} numberOfLines={1}>
               {item.title || "Untitled"}
@@ -209,11 +187,9 @@ export default function Homepage() {
             )}
           </View>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={styles.deleteBtn}
           onPress={() => showDeleteConfirmation(item.id, item.title)}
-          activeOpacity={0.7}
         >
           <Text style={styles.deleteBtnText}>Delete</Text>
         </TouchableOpacity>
@@ -226,7 +202,7 @@ export default function Homepage() {
       animationType="fade"
       transparent={true}
       visible={modalVisible}
-      onRequestClose={handleModalCancel}
+      onRequestClose={() => setModalVisible(false)}
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
@@ -241,7 +217,7 @@ export default function Homepage() {
           <View style={styles.modalButtons}>
             <TouchableOpacity
               style={[styles.modalButton, styles.cancelButton]}
-              onPress={handleModalCancel}
+              onPress={() => setModalVisible(false)}
             >
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
@@ -278,62 +254,64 @@ export default function Homepage() {
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
       <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <View style={styles.logoRow}>
-              <Image
-                source={require("../assets/homepage.png")}
-                style={styles.logo}
-              />
-              <Text style={styles.headerText}>My Library</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.logoutBtn}
-              onPress={showLogoutConfirmation}
-            >
-              <Text style={styles.logoutText}>Logout</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.title}>My Books</Text>
-
-          <TextInput
-            placeholder="Search your books..."
-            placeholderTextColor="#55000070"
-            style={styles.searchInput}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
-
-        <FlatList
-          data={filteredBooks}
-          renderItem={renderBookItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyTitle}>
-                {searchQuery ? "No books found" : "Your library is empty"}
-              </Text>
-              <Text style={styles.emptySubtitle}>
-                {searchQuery
-                  ? "Try different keywords"
-                  : "Add your first book!"}
-              </Text>
+        <View style={styles.webWrapper}>
+          <View style={styles.header}>
+            <View style={styles.headerTop}>
+              <View style={styles.logoRow}>
+                <Image
+                  source={require("../assets/homepage.png")}
+                  style={styles.logo}
+                />
+                <Text style={styles.headerText}>My Library</Text>
+              </View>
               <TouchableOpacity
-                style={styles.emptyAddBtn}
-                onPress={() => router.push("/addNewBook")}
+                style={styles.logoutBtn}
+                onPress={showLogoutConfirmation}
               >
-                <Text style={styles.emptyAddText}>Add Book</Text>
+                <Text style={styles.logoutText}>Logout</Text>
               </TouchableOpacity>
             </View>
-          }
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        />
+
+            <Text style={styles.title}>My Books</Text>
+
+            <TextInput
+              placeholder="Search your books..."
+              placeholderTextColor="#55000070"
+              style={styles.searchInput}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+
+          <FlatList
+            data={filteredBooks}
+            renderItem={renderBookItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyTitle}>
+                  {searchQuery ? "No books found" : "Your library is empty"}
+                </Text>
+                <Text style={styles.emptySubtitle}>
+                  {searchQuery
+                    ? "Try different keywords"
+                    : "Add your first book!"}
+                </Text>
+                <TouchableOpacity
+                  style={styles.emptyAddBtn}
+                  onPress={() => router.push("/addNewBook")}
+                >
+                  <Text style={styles.emptyAddText}>Add Book</Text>
+                </TouchableOpacity>
+              </View>
+            }
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          />
+        </View>
 
         <View style={styles.footer}>
           <TouchableOpacity
@@ -341,7 +319,6 @@ export default function Homepage() {
             onPress={() => router.push("/addNewBook")}
           >
             <Text style={styles.primaryButtonText}>Add New Book</Text>
-            <Text style={styles.primaryButtonIcon}>+</Text>
           </TouchableOpacity>
         </View>
 
@@ -350,179 +327,3 @@ export default function Homepage() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#FAF0DC" },
-  container: { flex: 1 },
-  loading: { flex: 1, justifyContent: "center", alignItems: "center" },
-  loadingText: { fontSize: 18, color: "#550000" },
-  header: {
-    paddingHorizontal: 24,
-    paddingTop: Platform.OS === "ios" ? 50 : 30,
-    paddingBottom: 10,
-  },
-  headerTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  logoRow: { flexDirection: "row", alignItems: "center" },
-  logo: { width: 24, height: 24, marginRight: 10 },
-  headerText: { color: "#550000", fontSize: 20, fontWeight: "800" },
-  logoutBtn: {
-    backgroundColor: "#550000",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  logoutText: { color: "#FAF0DC", fontWeight: "700", fontSize: 14 },
-  title: { fontSize: 28, fontWeight: "800", color: "#550000" },
-  searchInput: {
-    marginTop: 14,
-    height: 50,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    backgroundColor: "#ffffff50",
-    borderWidth: 1,
-    borderColor: "#55000040",
-    color: "#550000",
-    fontSize: 16,
-  },
-  listContainer: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 120 },
-
-  cardWrapper: {
-    marginBottom: 18,
-    backgroundColor: "#ffffff50",
-    borderRadius: 16,
-    overflow: "hidden",
-    elevation: 5,
-  },
-  card: { flexDirection: "row", padding: 14 },
-  cover: { width: 100, height: 140, borderRadius: 8 },
-  coverPlaceholder: {
-    width: 100,
-    height: 140,
-    backgroundColor: "#ffffff40",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 8,
-  },
-  coverInitials: { fontSize: 32, fontWeight: "800", color: "#550000" },
-  cardContent: { flex: 1, paddingLeft: 14, justifyContent: "center" },
-  cardTitle: { fontSize: 18, fontWeight: "700", color: "#550000" },
-  cardAuthor: { fontSize: 14, color: "#550000aa", marginTop: 4 },
-  statusBadge: {
-    marginTop: 8,
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#550000",
-    backgroundColor: "#55000020",
-    alignSelf: "flex-start",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  deleteBtn: {
-    backgroundColor: "#ff4444",
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  deleteBtnText: { color: "white", fontWeight: "700" },
-
-  footer: {
-    position: "absolute",
-    bottom: 20,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-  },
-  primaryButton: {
-    flexDirection: "row",
-    backgroundColor: "#550000",
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderRadius: 30,
-    alignItems: "center",
-    elevation: 10,
-  },
-  primaryButtonText: { color: "#FAF0DC", fontSize: 18, fontWeight: "700" },
-  primaryButtonIcon: { color: "#FAF0DC", fontSize: 24, marginLeft: 8 },
-
-  emptyContainer: { padding: 40, alignItems: "center" },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#550000",
-    marginBottom: 10,
-  },
-  emptySubtitle: {
-    fontSize: 15,
-    color: "#550000aa",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  emptyAddBtn: {
-    backgroundColor: "#550000",
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 25,
-  },
-  emptyAddText: { color: "#FAF0DC", fontWeight: "700" },
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 24,
-    width: "100%",
-    maxWidth: 400,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#550000",
-    marginBottom: 12,
-  },
-  modalMessage: {
-    fontSize: 16,
-    color: "#550000",
-    marginBottom: 24,
-    lineHeight: 22,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 12,
-  },
-  modalButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
-    minWidth: 80,
-    alignItems: "center",
-  },
-  cancelButton: {
-    backgroundColor: "#f0f0f0",
-  },
-  confirmButton: {
-    backgroundColor: "#ff4444",
-  },
-  cancelButtonText: {
-    color: "#550000",
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  confirmButtonText: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 16,
-  },
-});

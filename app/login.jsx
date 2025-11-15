@@ -19,18 +19,15 @@ import { auth } from "../firebaseConfig";
 export default function Login() {
   const router = useRouter();
 
-  // States
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isChecked, setChecked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Animations
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
 
-  // Load saved credentials and start animations
   useEffect(() => {
     startAnimations();
     loadSavedCredentials();
@@ -65,7 +62,6 @@ export default function Login() {
     }
   };
 
-  // Handle login
   const handleLogin = async () => {
     setErrorMessage("");
 
@@ -73,14 +69,20 @@ export default function Login() {
       setErrorMessage("Please enter your email.");
       return;
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMessage("Please enter a valid email.");
+      return;
+    }
+
     if (!password.trim()) {
       setErrorMessage("Please enter your password.");
       return;
     }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      await signInWithEmailAndPassword(auth, email, password);
 
       if (isChecked) {
         await AsyncStorage.setItem("email", email);
@@ -90,28 +92,11 @@ export default function Login() {
         await AsyncStorage.removeItem("password");
       }
 
-      await AsyncStorage.setItem("userUID", user.uid);
       Alert.alert("Success", "You have logged in successfully!");
       router.push("/homepage");
     } catch (error) {
-      handleFirebaseError(error);
-    }
-  };
-
-  const handleFirebaseError = (error) => {
-    console.log("Firebase login error:", error);
-    switch (error.code) {
-      case "auth/user-not-found":
-        setErrorMessage("This user does not exist. Please sign up first!");
-        break;
-      case "auth/wrong-password":
-        setErrorMessage("Incorrect password. Please try again!");
-        break;
-      case "auth/invalid-email":
-        setErrorMessage("Invalid email format!");
-        break;
-      default:
-        setErrorMessage("Something went wrong. Please try again!");
+      console.log("Firebase login error:", error);
+      setErrorMessage("Invalid credentials.");
     }
   };
 
@@ -121,9 +106,19 @@ export default function Login() {
       <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.gradient}>
         <BackButton router={router} />
 
-        <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <Animated.View
+          style={[
+            styles.formContainer,
+            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+          ]}
+        >
           <Header />
-          <Input label="E-mail" value={email} onChangeText={setEmail} placeholder="example@email.com" />
+          <Input
+            label="E-mail"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="example@email.com"
+          />
           <PasswordInput
             label="Password"
             value={password}
@@ -132,7 +127,9 @@ export default function Login() {
             setShowPassword={setShowPassword}
           />
 
-          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+          {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          ) : null}
 
           <Options isChecked={isChecked} setChecked={setChecked} router={router} />
 
@@ -144,7 +141,6 @@ export default function Login() {
   );
 }
 
-// --- Components ---
 const BackButton = ({ router }) => (
   <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
     <Text style={styles.backText}>← Back</Text>
@@ -193,7 +189,11 @@ const PasswordInput = ({ label, value, onChangeText, showPassword, setShowPasswo
 const Options = ({ isChecked, setChecked, router }) => (
   <View style={styles.optionsContainer}>
     <View style={{ flexDirection: "row", alignItems: "center" }}>
-      <Checkbox value={isChecked} onValueChange={setChecked} color={isChecked ? "#550000" : undefined} />
+      <Checkbox
+        value={isChecked}
+        onValueChange={setChecked}
+        color={isChecked ? "#550000" : undefined}
+      />
       <Text style={{ marginLeft: 8, color: "#550000" }}>Remember me</Text>
     </View>
     <TouchableOpacity onPress={() => router.push("/ForgotPassword")}>
@@ -216,13 +216,12 @@ const SignupRedirect = ({ router }) => (
   </TouchableOpacity>
 );
 
-// --- Styles ---
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FAF0DC" },
   gradient: { flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 30 },
   backButton: { position: "absolute", top: 50, left: 25 },
   backText: { color: "#550000", fontSize: 16 },
-  formContainer: { width: "100%" },
+  formContainer: { width: "85%", maxWidth: 360, alignSelf: "center", alignItems: "center" },
   title: { fontSize: 30, fontWeight: "800", color: "#550000", textAlign: "center", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 },
   subtitle: { color: "#550000", marginBottom: 30, textAlign: "center", fontStyle: "italic" },
   inputLabel: { alignSelf: "flex-start", color: "#550000", marginBottom: 5, fontWeight: "600" },

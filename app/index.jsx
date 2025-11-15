@@ -135,9 +135,6 @@ export default function Index() {
               </Text>
             </Text>
           </TouchableOpacity>
-          <Text onPress={() => router.push("/profile")}>
-            Quick Profile page access (temporary)
-          </Text>
         </Animated.View>
 
         <AnimatedQuote fadeAnim={fadeQuote} floatAnim={floatAnimQuote} />

@@ -15,7 +15,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
-// Ndrysho ../services/ në ./services/
 import { registerUserWithEmail, signInWithGoogle, signInWithApple } from "./services/authService";
 import { GoogleAuthProvider } from "firebase/auth";
 

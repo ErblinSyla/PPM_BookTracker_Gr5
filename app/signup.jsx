@@ -45,18 +45,34 @@ export default function Signup() {
   }, []);
 
   const handleSignUpEmail = async () => {
-    if (name.trim() === "" || email.trim() === "" || password.trim() === "") {
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    // Validim fushash bosh
+    if (!trimmedName || !trimmedEmail || !trimmedPassword) {
       setError("Please fill all fields!");
       return;
     }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters!");
+
+    // Validim email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setError("Invalid email address!");
       return;
     }
-    setError("");
+
+    // Validim passwordit
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+    if (!strongPasswordRegex.test(trimmedPassword)) {
+      setError("Password must be at least 8 characters, include uppercase, lowercase, number, and special character!");
+      return;
+    }
+
+    setError(""); 
 
     try {
-      const user = await registerUserWithEmail(email, password, name);
+      const user = await registerUserWithEmail(trimmedEmail, trimmedPassword, trimmedName);
       await AsyncStorage.setItem("userUID", user.uid);
       alert("Account created successfully!");
       router.push("/login");
@@ -112,9 +128,31 @@ export default function Signup() {
           <Text style={styles.title}>Create an Account</Text>
           <Text style={styles.subtitle}>Join BookTracker and begin your elegant reading journey.</Text>
 
-          <TextInput style={styles.input} placeholder="Full Name" placeholderTextColor="#55000080" value={name} onChangeText={setName} />
-          <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#55000080" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-          <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#55000080" secureTextEntry value={password} onChangeText={setPassword} autoCapitalize="none" />
+          <TextInput
+            style={styles.input}
+            placeholder="Full Name"
+            placeholderTextColor="#55000080"
+            value={name}
+            onChangeText={setName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#55000080"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#55000080"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+            autoCapitalize="none"
+          />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 

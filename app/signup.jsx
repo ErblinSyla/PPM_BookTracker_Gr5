@@ -14,11 +14,11 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { registerUserWithEmail, signInWithApple, signInWithGitHub } from "./services/authService";
+import { registerUserWithEmail, signInWithApple } from "./services/authService";
+import GitHubLogin from "./GitHubLogin";
 
 export default function Signup() {
   const router = useRouter();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,28 +57,15 @@ export default function Signup() {
     }
 
     setError("");
-
     try {
       const user = await registerUserWithEmail(trimmedEmail, trimmedPassword, trimmedName);
       await AsyncStorage.setItem("userUID", user.uid);
-      alert("Account created successfully!");
-      router.push("/login");
+      router.push("/home");
     } catch (err) {
       if (err.code === "auth/email-already-in-use") setError("Email is already in use!");
       else if (err.code === "auth/invalid-email") setError("Invalid email address!");
       else if (err.code === "auth/weak-password") setError("Password is too weak!");
       else setError("Something went wrong! Try again.");
-      console.error(err);
-    }
-  };
-
-  const handleGitHubSignIn = async () => {
-    try {
-      const user = await signInWithGitHub();
-      await AsyncStorage.setItem("userUID", user.uid);
-      router.push("/home");
-    } catch (err) {
-      setError("GitHub Sign-In failed!");
       console.error(err);
     }
   };
@@ -104,7 +91,7 @@ export default function Signup() {
   return (
     <View style={{ flex: 1, backgroundColor: "#FAF0DC" }}>
       <StatusBar style="dark" backgroundColor="transparent" translucent />
-      <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={styles.gradient}>
+      <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.gradient}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
@@ -145,16 +132,14 @@ export default function Signup() {
             <Text style={styles.buttonTextAlt}>Continue with Email</Text>
           </Pressable>
 
-          <Pressable style={styles.buttonAlt} onPress={handleGitHubSignIn}>
-            <Text style={styles.buttonTextAlt}>Continue with GitHub</Text>
-          </Pressable>
+          <GitHubLogin /> {/* Login me GitHub */}
 
           {Platform.OS === "ios" && (
             <AppleAuthentication.AppleAuthenticationButton
               buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP}
               buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
               cornerRadius={25}
-              style={{ width: '100%', height: 50, marginBottom: 16 }}
+              style={{ width: '100%', height: 50, marginTop: 16 }}
               onPress={handleAppleSignIn}
             />
           )}

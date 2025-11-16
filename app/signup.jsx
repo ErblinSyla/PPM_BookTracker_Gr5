@@ -13,10 +13,8 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { registerUserWithEmail, signInWithGoogle, signInWithApple } from "./services/authService";
-import { GoogleAuthProvider } from "firebase/auth";
+import { registerUserWithEmail, signInWithApple, signInWithGitHub } from "./services/authService";
 
 export default function Signup() {
   const router = useRouter();
@@ -28,14 +26,6 @@ export default function Signup() {
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
-
-  // Google Auth
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: "<YOUR_EXPO_CLIENT_ID>",
-    iosClientId: "<YOUR_IOS_CLIENT_ID>",
-    androidClientId: "<YOUR_ANDROID_CLIENT_ID>",
-    webClientId: "<YOUR_WEB_CLIENT_ID>",
-  });
 
   useEffect(() => {
     Animated.parallel([
@@ -49,27 +39,24 @@ export default function Signup() {
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
 
-    // Validim fushash bosh
     if (!trimmedName || !trimmedEmail || !trimmedPassword) {
       setError("Please fill all fields!");
       return;
     }
 
-    // Validim email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
       setError("Invalid email address!");
       return;
     }
 
-    // Validim passwordit
     const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
     if (!strongPasswordRegex.test(trimmedPassword)) {
       setError("Password must be at least 8 characters, include uppercase, lowercase, number, and special character!");
       return;
     }
 
-    setError(""); 
+    setError("");
 
     try {
       const user = await registerUserWithEmail(trimmedEmail, trimmedPassword, trimmedName);
@@ -85,18 +72,16 @@ export default function Signup() {
     }
   };
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithGoogle(credential)
-        .then(user => {
-          AsyncStorage.setItem("userUID", user.uid);
-          router.push("/home");
-        })
-        .catch(() => setError("Google Sign-In failed!"));
+  const handleGitHubSignIn = async () => {
+    try {
+      const user = await signInWithGitHub();
+      await AsyncStorage.setItem("userUID", user.uid);
+      router.push("/home");
+    } catch (err) {
+      setError("GitHub Sign-In failed!");
+      console.error(err);
     }
-  }, [response]);
+  };
 
   const handleAppleSignIn = async () => {
     try {
@@ -160,8 +145,8 @@ export default function Signup() {
             <Text style={styles.buttonTextAlt}>Continue with Email</Text>
           </Pressable>
 
-          <Pressable style={styles.buttonAlt} onPress={() => promptAsync()}>
-            <Text style={styles.buttonTextAlt}>Continue with Google</Text>
+          <Pressable style={styles.buttonAlt} onPress={handleGitHubSignIn}>
+            <Text style={styles.buttonTextAlt}>Continue with GitHub</Text>
           </Pressable>
 
           {Platform.OS === "ios" && (

@@ -9,6 +9,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth } from "../firebaseConfig";
+import { useRouter } from "expo-router";
 
 WebBrowser.maybeCompleteAuthSession();
 

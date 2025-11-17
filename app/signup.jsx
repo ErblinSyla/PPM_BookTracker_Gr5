@@ -60,7 +60,7 @@ setError("");
 try {
 const user = await registerUserWithEmail(trimmedEmail, trimmedPassword, trimmedName);
 await AsyncStorage.setItem("userUID", user.uid);
-router.push("/home");
+router.push("/homepage");
 } catch (err) {
 if (err.code === "auth/email-already-in-use") setError("Email is already in use!");
 else if (err.code === "auth/invalid-email") setError("Invalid email address!");

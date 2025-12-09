@@ -12,8 +12,9 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "../firebaseConfig";
+import { db, auth } from "../firebaseConfig";
 import { styles } from "./styles/UpdateBookDetails.styles";
+import { onAuthStateChanged } from "firebase/auth";
 
 import BackgroundGradient from "./components/BackgroundGradient";
 import BackButton from "./components/BackButton";
@@ -47,6 +48,17 @@ export default function UpdateBookDetails() {
     author: "Demo Author",
     cover: null,
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserEmail(user.email);
+      } else {
+        router.replace("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
 
   useEffect(() => {
     const loadBook = async () => {

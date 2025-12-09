@@ -21,7 +21,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserData } from "../app/services/authService";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { signOut } from "firebase/auth";
-import { db, auth } from "../firebaseConfig";
+import { db, auth } from "../firebase/firebaseConfig";
 
 export default function Profile() {
   const router = useRouter();
@@ -66,16 +66,16 @@ export default function Profile() {
   }, []);
 
   const showLogoutConfirmation = () => {
-      if (Platform.OS === "web") {
-        setModalType("logout");
-        setModalVisible(true);
-      } else {
-        Alert.alert("Logout", "Are you sure?", [
-          { text: "Cancel", style: "cancel" },
-          { text: "Logout", style: "destructive", onPress: performLogout },
-        ]);
-      }
-    };
+    if (Platform.OS === "web") {
+      setModalType("logout");
+      setModalVisible(true);
+    } else {
+      Alert.alert("Logout", "Are you sure?", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Logout", style: "destructive", onPress: performLogout },
+      ]);
+    }
+  };
 
   const performLogout = async () => {
     await signOut(auth);
@@ -87,7 +87,7 @@ export default function Profile() {
     if (modalType === "logout") await performLogout();
   };
 
-const renderModal = () => (
+  const renderModal = () => (
     <Modal
       animationType="fade"
       transparent={true}
@@ -124,8 +124,6 @@ const renderModal = () => (
       </View>
     </Modal>
   );
-
-
 
   return (
     <LinearGradient
@@ -246,7 +244,10 @@ const renderModal = () => (
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.logoutBtn} onPress={showLogoutConfirmation}>
+            <TouchableOpacity
+              style={styles.logoutBtn}
+              onPress={showLogoutConfirmation}
+            >
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>

@@ -1,14 +1,21 @@
 // app/services/authService.js
-import { createUserWithEmailAndPassword, signInWithCredential } from "firebase/auth";
-import { doc, setDoc,getDoc } from "firebase/firestore";
+import {
+  createUserWithEmailAndPassword,
+  signInWithCredential,
+} from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 // Kontrollo rastin e shkronjës C (Capital C) dhe shto .js
-import { auth, db } from "../../firebaseConfig.js";
- // dy nivele lart sepse services është brenda app
+import { auth, db } from "../../firebase/firebaseConfig.js";
+// dy nivele lart sepse services është brenda app
 
 // Email SignUp
 export const registerUserWithEmail = async (email, password, name) => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     const user = userCredential.user;
 
     await setDoc(doc(db, "users", user.uid), {
@@ -30,11 +37,15 @@ export const signInWithGoogle = async (credential) => {
     const userCredential = await signInWithCredential(auth, credential);
     const user = userCredential.user;
 
-    await setDoc(doc(db, "users", user.uid), {
-      name: user.displayName || "Google User",
-      email: user.email,
-      createdAt: new Date(),
-    }, { merge: true });
+    await setDoc(
+      doc(db, "users", user.uid),
+      {
+        name: user.displayName || "Google User",
+        email: user.email,
+        createdAt: new Date(),
+      },
+      { merge: true }
+    );
 
     return user;
   } catch (error) {
@@ -53,11 +64,15 @@ export const signInWithApple = async (identityToken, fullName) => {
     const userCredential = await signInWithCredential(auth, credential);
     const user = userCredential.user;
 
-    await setDoc(doc(db, "users", user.uid), {
-      name: fullName || "Apple User",
-      email: user.email,
-      createdAt: new Date(),
-    }, { merge: true });
+    await setDoc(
+      doc(db, "users", user.uid),
+      {
+        name: fullName || "Apple User",
+        email: user.email,
+        createdAt: new Date(),
+      },
+      { merge: true }
+    );
 
     return user;
   } catch (error) {

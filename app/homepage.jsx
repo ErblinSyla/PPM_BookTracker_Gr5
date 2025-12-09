@@ -26,7 +26,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { signOut, onAuthStateChanged } from "firebase/auth";
-import { db, auth } from "../firebaseConfig";
+import { db, auth } from "../firebase/firebaseConfig";
 import { styles } from "./styles/HomepageStyles";
 
 export default function Homepage() {
@@ -266,11 +266,9 @@ export default function Homepage() {
               </View>
               <TouchableOpacity
                 style={styles.profileBtn}
-                onPress={()=>router.push("/profile")}
-              > 
-
-
-                <Image 
+                onPress={() => router.push("/profile")}
+              >
+                <Image
                   source={require("../assets/profile_username-icon.png")}
                   style={styles.profileIcon}
                 />

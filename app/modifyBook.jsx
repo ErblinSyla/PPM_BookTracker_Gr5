@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db, auth } from "../firebaseConfig";
+import { db, auth } from "../firebase/firebaseConfig";
 import { styles } from "./styles/UpdateBookDetails.styles";
 import { onAuthStateChanged } from "firebase/auth";
 

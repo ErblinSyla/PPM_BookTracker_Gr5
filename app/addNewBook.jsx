@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { collection, addDoc } from "firebase/firestore";
-import { db, auth } from "../firebaseConfig";
+import { db, auth } from "../firebase/firebaseConfig";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";

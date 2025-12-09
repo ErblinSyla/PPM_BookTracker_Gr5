@@ -32,6 +32,7 @@ export default function UpdateBookDetails() {
   const router = useRouter();
   const { editId } = useLocalSearchParams();
   const [book, setBook] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
 
   const [status, setStatus] = useState("to-read");
   const [pagesRead, setPagesRead] = useState("");

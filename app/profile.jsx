@@ -20,11 +20,12 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserData } from "../app/services/authService";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../firebase/firebaseConfig";
 
 export default function Profile() {
   const router = useRouter();
+  const [userEmail, setUserEmail] = useState(null);
 
   const [counts, setCounts] = useState({
     reading: 0,
@@ -36,6 +37,17 @@ export default function Profile() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState({});
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserEmail(user.email);
+      } else {
+        router.replace("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -137,7 +149,7 @@ export default function Profile() {
 
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.push("/")}>
+            <TouchableOpacity onPress={() => router.push("/homepage")}>
               <Text style={styles.backBtn}>←</Text>
             </TouchableOpacity>
           </View>

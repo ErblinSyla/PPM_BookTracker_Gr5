@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -19,10 +19,13 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
+import { onAuthStateChanged } from "firebase/auth";
 import styles from "./styles/AddNewBookStyles";
 
 export default function AddNewBook() {
   const router = useRouter();
+
+  const [userEmail, setUserEmail] = useState(null);
 
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -35,6 +38,17 @@ export default function AddNewBook() {
 
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserEmail(user.email);
+      } else {
+        router.replace("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
 
   const showAlert = (title, message) => {
     if (Platform.OS === "web") window.alert(`${title}: ${message}`);

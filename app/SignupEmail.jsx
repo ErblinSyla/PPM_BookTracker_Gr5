@@ -48,7 +48,7 @@ export default function SignupEmail() {
       await AsyncStorage.setItem("userUID", userCredential.user.uid);
       await sendEmailVerification(userCredential.user);
 
-       // Shfaq modal
+      // Shfaq modal
       setModalVisible(true);
 
       console.log("Verification email sent to:", userCredential.user.email);
@@ -65,7 +65,7 @@ export default function SignupEmail() {
     router.push("/login");
   };
 
-   return (
+  return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up with Email</Text>
 
@@ -104,3 +104,35 @@ export default function SignupEmail() {
         onChangeText={setRetypePassword}
       />
 
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+
+      <TouchableOpacity style={styles.button} onPress={handleSignup}>
+        <Text style={styles.buttonText}>Create Account</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => router.back()}>
+        <Text style={styles.backText}>← Back</Text>
+      </TouchableOpacity>
+
+      {/* Modal per Verify Email */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={handleModalOk}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Verify your email</Text>
+            <Text style={styles.modalMessage}>
+              We’ve sent a verification link to your email address. Please verify before logging in.
+            </Text>
+            <TouchableOpacity style={styles.modalButton} onPress={handleModalOk}>
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+}

@@ -23,7 +23,7 @@ export default function GitHubLogin() {
         .then((result) => {
           if (result?.user) {
             Alert.alert("Sukses!", `Mirë se erdhe ${result.user.displayName}`);
-            router.replace("/home");
+            router.replace("/homepage");
           }
         })
         .catch((error) => {

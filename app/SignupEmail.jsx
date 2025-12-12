@@ -64,3 +64,43 @@ export default function SignupEmail() {
     setModalVisible(false);
     router.push("/login");
   };
+
+   return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Sign Up with Email</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="First Name"
+        value={firstName}
+        onChangeText={setFirstName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Last Name"
+        value={lastName}
+        onChangeText={setLastName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Retype Password"
+        secureTextEntry
+        value={retypePassword}
+        onChangeText={setRetypePassword}
+      />
+

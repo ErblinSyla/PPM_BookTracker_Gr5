@@ -47,3 +47,20 @@ export default function SignupEmail() {
       await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
       await AsyncStorage.setItem("userUID", userCredential.user.uid);
       await sendEmailVerification(userCredential.user);
+
+       // Shfaq modal
+      setModalVisible(true);
+
+      console.log("Verification email sent to:", userCredential.user.email);
+    } catch (err) {
+      console.error(err);
+      if (err.code === "auth/email-already-in-use") setError("Email is already in use!");
+      else if (err.code === "auth/invalid-email") setError("Invalid email address!");
+      else setError("Something went wrong. Please try again!");
+    }
+  };
+
+  const handleModalOk = () => {
+    setModalVisible(false);
+    router.push("/login");
+  };

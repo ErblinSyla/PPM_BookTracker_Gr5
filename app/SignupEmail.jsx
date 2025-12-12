@@ -26,3 +26,24 @@ export default function SignupEmail() {
   const [retypePassword, setRetypePassword] = useState("");
   const [error, setError] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+
+  const handleSignup = async () => {
+    setError("");
+    if (!firstName || !lastName || !email || !password || !retypePassword) {
+      setError("Please fill all fields!");
+      return;
+    }
+    if (password !== retypePassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters!");
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
+      await AsyncStorage.setItem("userUID", userCredential.user.uid);
+      await sendEmailVerification(userCredential.user);

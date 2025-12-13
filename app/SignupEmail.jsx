@@ -114,7 +114,7 @@ export default function SignupEmail() {
         <Text style={styles.backText}>← Back</Text>
       </TouchableOpacity>
 
-      {/* Modal per Verify Email */}
+      {/* Modal për Verify Email */}
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -136,3 +136,52 @@ export default function SignupEmail() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", padding: 30, backgroundColor: "#FAF0DC" },
+  title: { fontSize: 26, fontWeight: "700", color: "#550000", marginBottom: 30, textAlign: "center" },
+  input: { borderWidth: 1, borderColor: "#55000060", borderRadius: 25, padding: 12, marginBottom: 16, backgroundColor: "#ffffff40", color: "#550000" },
+  button: { backgroundColor: "#ffffff40", borderWidth: 1, borderColor: "#55000070", borderRadius: 25, paddingVertical: 15, marginBottom: 16 },
+  buttonText: { textAlign: "center", color: "#550000", fontWeight: "600", fontSize: 16 },
+  error: { color: "red", textAlign: "center", marginBottom: 10 },
+  backText: { color: "#550000", marginTop: 20, textAlign: "center" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 24,
+    width: "100%",
+    maxWidth: 400,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#550000",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: "#550000",
+    marginBottom: 24,
+    textAlign: "center",
+  },
+  modalButton: {
+    backgroundColor: "#550000",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  modalButtonText: {
+    color: "#FAF0DC",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+});

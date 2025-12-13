@@ -82,8 +82,18 @@ export default function Login() {
     }
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
+      // Kontrollo nëse emaili është verifikuar
+      if (!user.emailVerified) {
+        setErrorMessage(
+          "Please verify your email first. Check your inbox for the verification link."
+        );
+        return;
+      }
+
+      // Ruaj credentials në AsyncStorage nëse është checked
       if (isChecked) {
         await AsyncStorage.setItem("email", email);
         await AsyncStorage.setItem("password", password);
@@ -91,6 +101,9 @@ export default function Login() {
         await AsyncStorage.removeItem("email");
         await AsyncStorage.removeItem("password");
       }
+
+      // Ruaj UID për përdorim tek Profile.jsx
+      await AsyncStorage.setItem("userUID", user.uid);
 
       Alert.alert("Success", "You have logged in successfully!");
       router.push("/homepage");

@@ -26,6 +26,7 @@ import FinishDateField from "./components/FinishDateField";
 import NotesField from "./components/NotesField";
 import ReviewField from "./components/ReviewField";
 import RatingField from "./components/RatingField";
+import Spinner from "./components/Spinner";
 
 export default function UpdateBookDetails() {
   const router = useRouter();
@@ -133,13 +134,7 @@ export default function UpdateBookDetails() {
   };
 
   if (!book) {
-    return (
-      <BackgroundGradient>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading book...</Text>
-        </View>
-      </BackgroundGradient>
-    );
+    return <Spinner />;
   }
 
   return (

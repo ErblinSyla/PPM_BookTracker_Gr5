@@ -234,7 +234,7 @@ export default function Profile() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => router.push("/homepage")}
+                onPress={() => router.push("/settings")}
                 style={[styles.profile__option, styles.profile__option__end]}
               >
                 <View style={styles.option__icon}>

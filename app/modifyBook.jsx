@@ -12,7 +12,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebaseConfig";
-import { styles } from "./styles/ModifyBookStyles";
+import styles from "./styles/ModifyBookStyles";
 import { onAuthStateChanged } from "firebase/auth";
 
 import BackgroundGradient from "./components/BackgroundGradient";

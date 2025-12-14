@@ -14,7 +14,8 @@ import {
   sendEmailVerification,
   updateProfile,
 } from "firebase/auth";
-import { auth } from "../firebase/firebaseConfig";
+import { auth, db } from "../firebase/firebaseConfig";
+import { doc, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SignupEmail() {
@@ -43,10 +44,22 @@ export default function SignupEmail() {
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, { displayName: `${firstName} ${lastName}` });
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      await updateProfile(userCredential.user, {
+        displayName: `${firstName} ${lastName}`,
+      });
       await AsyncStorage.setItem("userUID", userCredential.user.uid);
       await sendEmailVerification(userCredential.user);
+
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        name: `${firstName.trim()} ${lastName.trim()}`,
+        email: email.toLowerCase(),
+        createdAt: new Date().toISOString(), // optional, nice to have
+      });
 
       // Shfaq modal
       setModalVisible(true);
@@ -54,8 +67,10 @@ export default function SignupEmail() {
       console.log("Verification email sent to:", userCredential.user.email);
     } catch (err) {
       console.error(err);
-      if (err.code === "auth/email-already-in-use") setError("Email is already in use!");
-      else if (err.code === "auth/invalid-email") setError("Invalid email address!");
+      if (err.code === "auth/email-already-in-use")
+        setError("Email is already in use!");
+      else if (err.code === "auth/invalid-email")
+        setError("Invalid email address!");
       else setError("Something went wrong. Please try again!");
     }
   };
@@ -125,9 +140,13 @@ export default function SignupEmail() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Verify your email</Text>
             <Text style={styles.modalMessage}>
-              We’ve sent a verification link to your email address. Please verify before logging in.
+              We’ve sent a verification link to your email address. Please
+              verify before logging in.
             </Text>
-            <TouchableOpacity style={styles.modalButton} onPress={handleModalOk}>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleModalOk}
+            >
               <Text style={styles.modalButtonText}>OK</Text>
             </TouchableOpacity>
           </View>
@@ -138,11 +157,42 @@ export default function SignupEmail() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 30, backgroundColor: "#FAF0DC" },
-  title: { fontSize: 26, fontWeight: "700", color: "#550000", marginBottom: 30, textAlign: "center" },
-  input: { borderWidth: 1, borderColor: "#55000060", borderRadius: 25, padding: 12, marginBottom: 16, backgroundColor: "#ffffff40", color: "#550000" },
-  button: { backgroundColor: "#ffffff40", borderWidth: 1, borderColor: "#55000070", borderRadius: 25, paddingVertical: 15, marginBottom: 16 },
-  buttonText: { textAlign: "center", color: "#550000", fontWeight: "600", fontSize: 16 },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 30,
+    backgroundColor: "#FAF0DC",
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "700",
+    color: "#550000",
+    marginBottom: 30,
+    textAlign: "center",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#55000060",
+    borderRadius: 25,
+    padding: 12,
+    marginBottom: 16,
+    backgroundColor: "#ffffff40",
+    color: "#550000",
+  },
+  button: {
+    backgroundColor: "#ffffff40",
+    borderWidth: 1,
+    borderColor: "#55000070",
+    borderRadius: 25,
+    paddingVertical: 15,
+    marginBottom: 16,
+  },
+  buttonText: {
+    textAlign: "center",
+    color: "#550000",
+    fontWeight: "600",
+    fontSize: 16,
+  },
   error: { color: "red", textAlign: "center", marginBottom: 10 },
   backText: { color: "#550000", marginTop: 20, textAlign: "center" },
   modalOverlay: {

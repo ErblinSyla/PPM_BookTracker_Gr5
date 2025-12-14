@@ -5,11 +5,14 @@ import {
   GithubAuthProvider,
   signInWithRedirect,
   getRedirectResult,
+  signInWithPopup,
   signOut as firebaseSignOut,
   onAuthStateChanged,
 } from "firebase/auth";
-import { auth } from "../firebase/firebaseConfig";
+import { auth, db } from "../firebase/firebaseConfig";
 import { useRouter } from "expo-router";
+import { doc, setDoc } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -17,11 +20,28 @@ export default function GitHubLogin() {
   const router = useRouter();
   const isWeb = Platform.OS === "web";
 
+  // Funksioni për ruajtjen e userit
+  const saveUserData = async (user) => {
+    try {
+      // Ruaj UID në AsyncStorage
+      await AsyncStorage.setItem("userUID", user.uid);
+
+      // Ruaj userin në Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        name: user.displayName || "",
+        email: user.email || "",
+      });
+    } catch (error) {
+      console.error("Error saving user data:", error);
+    }
+  };
+
   useEffect(() => {
     if (!isWeb) {
       getRedirectResult(auth)
-        .then((result) => {
+        .then(async (result) => {
           if (result?.user) {
+            await saveUserData(result.user);
             Alert.alert("Sukses!", `Mirë se erdhe ${result.user.displayName}`);
             router.replace("/homepage");
           }
@@ -35,8 +55,9 @@ export default function GitHubLogin() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        await saveUserData(user);
         router.replace("/homepage");
       }
     });
@@ -51,8 +72,12 @@ export default function GitHubLogin() {
       provider.addScope("read:user user:email");
 
       if (isWeb) {
-        const { signInWithPopup } = await import("firebase/auth");
-        await signInWithPopup(auth, provider);
+        await signInWithPopup(auth, provider).then(async (result) => {
+          if (result?.user) {
+            await saveUserData(result.user);
+            router.replace("/homepage");
+          }
+        });
       } else {
         await signInWithRedirect(auth, provider);
       }

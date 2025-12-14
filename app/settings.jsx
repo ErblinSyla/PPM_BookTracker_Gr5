@@ -5,16 +5,16 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   SafeAreaView,
   ScrollView,
   Switch,
-  Platform,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
+
+import styles from "./styles/SettingsStyles";
 
 export default function Settings() {
   const router = useRouter();
@@ -38,17 +38,15 @@ export default function Settings() {
           <StatusBar style="light" />
 
           <ScrollView contentContainerStyle={styles.scroll}>
-            {/* Header with Back Button */}
             <View style={styles.header}>
               <TouchableOpacity onPress={() => router.push("/profile")}>
                 <Text style={styles.backBtn}>←</Text>
               </TouchableOpacity>
               <Text style={styles.pageTitle}>Settings</Text>
-              <View style={{ width: 30 }} /> {/* Spacer for centering title */}
+              <View style={{ width: 30 }} />
             </View>
 
             <View style={styles.contentContainer}>
-              {/* Dark Mode Toggle */}
               <View style={styles.settingItem}>
                 <View style={styles.settingInfo}>
                   <Text style={styles.settingTitle}>Dark Mode</Text>
@@ -63,7 +61,6 @@ export default function Settings() {
                 />
               </View>
 
-              {/* Change Password Section */}
               <View style={styles.passwordSection}>
                 <Text style={styles.sectionTitle}>Change Password</Text>
 

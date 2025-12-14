@@ -25,3 +25,12 @@ export default function SignupOptions() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#FAF0DC", padding: 30 },
+  title: { fontSize: 28, fontWeight: "700", color: "#550000", marginBottom: 8 },
+  subtitle: { fontSize: 15, color: "#550000", marginBottom: 40 },
+  button: { backgroundColor: "#ffffff40", borderWidth: 1, borderColor: "#55000070", borderRadius: 25, paddingVertical: 15, width: "100%", marginBottom: 16 },
+  buttonText: { textAlign: "center", color: "#550000", fontWeight: "600", fontSize: 16 },
+  loginText: { marginTop: 20, color: "#550000" },
+});

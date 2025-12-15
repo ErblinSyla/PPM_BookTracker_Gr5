@@ -130,8 +130,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "rgba(85,0,0,0.1)",
   },
+  profile__option__user:{
+    flexDirection: "row",
+    gap:105
+  },
   profile__option__end: {
     borderBottomWidth: 0,
+    gap:82,
   },
   option__icon: {
     flexDirection: "row",

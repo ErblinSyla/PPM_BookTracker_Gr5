@@ -200,7 +200,7 @@ export default function Profile() {
             </View>
 
             <View style={styles.profile__options}>
-              <TouchableOpacity style={styles.profile__option}>
+              <TouchableOpacity style={[styles.profile__option, styles.profile__option__user]}>
                 <View style={styles.option__icon}>
                   <Image
                     source={require("../assets/profile_username-icon.png")}

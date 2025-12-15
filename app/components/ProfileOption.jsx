@@ -1,0 +1,38 @@
+import React from "react";
+import { View, Text, TouchableOpacity, Image } from "react-native";
+import styles from "../styles/ProfileStyles";
+
+const ProfileOption = React.memo(function ProfileOption({
+  icon,
+  title,
+  desc,
+  onPress,
+  end = false,
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[
+        styles.profile__option,
+        end && styles.profile__option__end,
+      ]}
+    >
+      <View style={styles.option__icon}>
+        <Image source={icon} style={styles.option__image} />
+        <View style={styles.option__info}>
+          <Text style={styles.info__title}>{title}</Text>
+          <Text style={styles.info__desc}>{desc}</Text>
+        </View>
+      </View>
+
+      <View style={styles.option__nav}>
+        <Image
+          source={require("../assets/profile_arrow-right-icon.png")}
+          style={styles.nav__arrow}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+});
+
+export default ProfileOption;

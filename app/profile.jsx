@@ -24,6 +24,84 @@ import styles from "./styles/ProfileStyles";
 
 import Spinner from "./components/Spinner";
 
+const ProfileOption = React.memo(function ProfileOption({
+  icon,
+  title,
+  desc,
+  onPress,
+  end = false,
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[
+        styles.profile__option,
+        end && styles.profile__option__end,
+      ]}
+    >
+      <View style={styles.option__icon}>
+        <Image source={icon} style={styles.option__image} />
+        <View style={styles.option__info}>
+          <Text style={styles.info__title}>{title}</Text>
+          <Text style={styles.info__desc}>{desc}</Text>
+        </View>
+      </View>
+
+      <View style={styles.option__nav}>
+        <Image
+          source={require("../assets/profile_arrow-right-icon.png")}
+          style={styles.nav__arrow}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+});
+
+const ConfirmModal = React.memo(function ConfirmModal({
+  visible,
+  type,
+  data,
+  onCancel,
+  onConfirm,
+}) {
+  return (
+    <Modal transparent visible={visible} animationType="fade">
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>
+            {type === "logout" ? "Logout" : "Delete Book"}
+          </Text>
+          <Text style={styles.modalMessage}>
+            {type === "logout"
+              ? "Are you sure you want to logout?"
+              : `Delete "${data.title || "this book"}"?`}
+          </Text>
+
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={[styles.modalButton, styles.cancelButton]}
+              onPress={onCancel}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.modalButton, styles.confirmButton]}
+              onPress={onConfirm}
+            >
+              <Text style={styles.confirmButtonText}>
+                {type === "logout" ? "Logout" : "Delete"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+});
+
+
+
 export default function Profile() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState(null);
@@ -116,47 +194,6 @@ export default function Profile() {
     if (modalType === "logout") await performLogout();
   }, [modalType, performLogout]);
 
-  const renderModal = useCallback(
-    () => (
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {modalType === "logout" ? "Logout" : "Delete Book"}
-            </Text>
-            <Text style={styles.modalMessage}>
-              {modalType === "logout"
-                ? "Are you sure you want to logout?"
-                : `Delete "${modalData.title || "this book"}"?`}
-            </Text>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.confirmButton]}
-                onPress={handleModalConfirm}
-              >
-                <Text style={styles.confirmButtonText}>
-                  {modalType === "logout" ? "Logout" : "Delete"}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    ),
-    [modalVisible, modalType, modalData.title, handleModalConfirm]
-  );
-
   if (isLoading) {
     return <Spinner />;
   }
@@ -215,70 +252,25 @@ export default function Profile() {
             </View>
 
             <View style={styles.profile__options}>
-              <TouchableOpacity style={[styles.profile__option, styles.profile__option__user]}>
-                <View style={styles.option__icon}>
-                  <Image
-                    source={require("../assets/profile_username-icon.png")}
-                    style={styles.option__image}
-                  />
-                  <View style={styles.option__info}>
-                    <Text style={styles.info__title}>Username</Text>
-                    <Text style={styles.info__desc}>
-                      @{userData.name?.toLowerCase().replace(/ /g, "_")}
-                    </Text>
-                  </View>
-                </View>
+              <ProfileOption
+                icon={require("../assets/profile_username-icon.png")}
+                title="Username"
+                desc={`@${userData.name?.toLowerCase().replace(/ /g, "_")}`}
+              />
 
-                <View style={styles.option__nav}>
-                  <Image
-                    source={require("../assets/profile_arrow-right-icon.png")}
-                    style={styles.nav__arrow}
-                  />
-                </View>
-              </TouchableOpacity>
+              <ProfileOption
+                icon={require("../assets/profile_notification-icon.png")}
+                title="Notifications"
+                desc="Mute, Push, Email"
+              />
 
-              <TouchableOpacity style={styles.profile__option}>
-                <View style={styles.option__icon}>
-                  <Image
-                    source={require("../assets/profile_notification-icon.png")}
-                    style={styles.option__image}
-                  />
-                  <View style={styles.option__info}>
-                    <Text style={styles.info__title}>Notifications</Text>
-                    <Text style={styles.info__desc}>Mute, Push, Email</Text>
-                  </View>
-                </View>
-
-                <View style={styles.option__nav}>
-                  <Image
-                    source={require("../assets/profile_arrow-right-icon.png")}
-                    style={styles.nav__arrow}
-                  />
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
+              <ProfileOption
+                icon={require("../assets/profile_settings-icon.png")}
+                title="Settings"
+                desc="Security, Privacy"
                 onPress={() => router.push("/settings")}
-                style={[styles.profile__option, styles.profile__option__end]}
-              >
-                <View style={styles.option__icon}>
-                  <Image
-                    source={require("../assets/profile_settings-icon.png")}
-                    style={styles.option__image}
-                  />
-                  <View style={styles.option__info}>
-                    <Text style={styles.info__title}>Settings</Text>
-                    <Text style={styles.info__desc}>Security, Privacy</Text>
-                  </View>
-                </View>
-
-                <View style={styles.option__nav}>
-                  <Image
-                    source={require("../assets/profile_arrow-right-icon.png")}
-                    style={styles.nav__arrow}
-                  />
-                </View>
-              </TouchableOpacity>
+                end
+              />
             </View>
 
             <TouchableOpacity
@@ -288,7 +280,14 @@ export default function Profile() {
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>
-          {renderModal()}
+
+          <ConfirmModal
+            visible={modalVisible}
+            type={modalType}
+            data={modalData}
+            onCancel={() => setModalVisible(false)}
+            onConfirm={handleModalConfirm}
+          />
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>

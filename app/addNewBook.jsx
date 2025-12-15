@@ -49,21 +49,23 @@ const AddNewBook = () => {
     return () => unsubscribe();
   }, [router]);
 
-  const modalTitles = useMemo(() => ({
-    imagePicker: "Upload Cover",
-    required: "Required",
-    success: "Success!",
-  }), []);
+  const modalTitles = useMemo(
+    () => ({
+      imagePicker: "Upload Cover",
+      required: "Required",
+      success: "Success!",
+    }),
+    []
+  );
 
-  const modalMessages = useMemo(() => ({
-    imagePicker: "Choose how to add a cover:",
-    required: modalData.message,
-    success: "Book added to your library.",
-  }), [modalData.message]);
-
-  const showAlert = (title, message) => {
-    Platform.OS === "web" ? window.alert(`${title}: ${message}`) : Alert.alert(title, message);
-  };
+  const modalMessages = useMemo(
+    () => ({
+      imagePicker: "Choose how to add a cover:",
+      required: modalData.message,
+      success: "Book added to your library.",
+    }),
+    [modalData.message]
+  );
 
   const compressImage = async (uri) => {
     const result = await ImageManipulator.manipulateAsync(uri, [], {
@@ -118,11 +120,9 @@ const AddNewBook = () => {
 
   const saveBook = async () => {
     if (!title.trim() || !author.trim()) {
-      if (Platform.OS === "web") {
-        setModalType("required");
-        setModalData({ message: "Please enter both title and author." });
-        setModalVisible(true);
-      } else Alert.alert("Required", "Please enter both title and author.");
+      setModalType("required");
+      setModalData({ message: "Please enter both title and author." });
+      setModalVisible(true);
       return;
     }
 
@@ -142,33 +142,45 @@ const AddNewBook = () => {
         rating: 0,
         dateAdded: new Date().toISOString(),
       });
-      if (Platform.OS === "web") {
-        setModalType("success");
-        setModalVisible(true);
-      } else Alert.alert("Success!", "Book added to your library.", [{ text: "OK", onPress: () => router.replace("/homepage") }]);
+      setModalType("success");
+      setModalVisible(true);
     } catch (error) {
-      console.error("Error adding book:", error);
-      showAlert("Error", "Could not save book. Try again.");
+      setModalType("error");
+      setModalData({
+        message:
+          "Could not save the book.\nPlease check your connection and try again.",
+      });
+      setModalVisible(true);
     }
   };
 
   const handleSuccessConfirm = () => {
     setModalVisible(false);
-    router.replace("/homepage");
+    if (modalType === "success") {
+      router.replace("/homepage");
+    }
   };
 
   if (!permission?.granted) {
     return (
       <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
         <SafeAreaView style={styles.safe}>
-          <PermissionRequest message="Camera access is needed to take book cover photos." onRequest={requestPermission} />
+          <PermissionRequest
+            message="Camera access is needed to take book cover photos."
+            onRequest={requestPermission}
+          />
         </SafeAreaView>
       </LinearGradient>
     );
   }
 
   if (showCamera) {
-    return <CameraCapture onBack={() => setShowCamera(false)} onCapture={takePhoto} />;
+    return (
+      <CameraCapture
+        onBack={() => setShowCamera(false)}
+        onCapture={takePhoto}
+      />
+    );
   }
 
   return (
@@ -177,29 +189,61 @@ const AddNewBook = () => {
         <View style={styles.webWrapper}>
           <ScrollView contentContainerStyle={styles.scroll}>
             <View style={styles.header}>
-              <TouchableOpacity onPress={() => router.back()}><Text style={styles.backBtn}>Back</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => router.back()}>
+                <Text style={styles.backBtn}>Back</Text>
+              </TouchableOpacity>
               <Text style={styles.headerTitle}>Add New Book</Text>
               <View style={{ width: 28 }} />
             </View>
 
             <View style={styles.form}>
               <Text style={styles.label}>Title</Text>
-              <TextInput style={styles.input} placeholder="Enter book title" placeholderTextColor="#55000070" value={title} onChangeText={setTitle} />
+              <TextInput
+                style={styles.input}
+                placeholder="Enter book title"
+                placeholderTextColor="#55000070"
+                value={title}
+                onChangeText={setTitle}
+              />
 
               <Text style={styles.label}>Author</Text>
-              <TextInput style={styles.input} placeholder="Enter author name" placeholderTextColor="#55000070" value={author} onChangeText={setAuthor} />
+              <TextInput
+                style={styles.input}
+                placeholder="Enter author name"
+                placeholderTextColor="#55000070"
+                value={author}
+                onChangeText={setAuthor}
+              />
 
               <Text style={styles.label}>Description (Optional)</Text>
-              <TextInput style={[styles.input, styles.textArea]} placeholder="Add a short description..." placeholderTextColor="#55000070" value={description} onChangeText={setDescription} multiline />
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="Add a short description..."
+                placeholderTextColor="#55000070"
+                value={description}
+                onChangeText={setDescription}
+                multiline
+              />
 
-              <CoverPickerButton cover={cover} onPress={showImagePickerOptions} />
+              <CoverPickerButton
+                cover={cover}
+                onPress={showImagePickerOptions}
+              />
 
-              <TouchableOpacity style={styles.saveBtn} onPress={saveBook}><Text style={styles.saveText}>Add Book</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.saveBtn} onPress={saveBook}>
+                <Text style={styles.saveText}>Add Book</Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </View>
 
-        <ModalComponent visible={modalVisible} type={modalType} message={modalData.message} onChoice={handleImagePickerChoice} onConfirm={handleSuccessConfirm} />
+        <ModalComponent
+          visible={modalVisible}
+          type={modalType}
+          message={modalData.message}
+          onChoice={handleImagePickerChoice}
+          onConfirm={handleSuccessConfirm}
+        />
       </SafeAreaView>
     </LinearGradient>
   );

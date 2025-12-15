@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -49,6 +49,28 @@ export default function AddNewBook() {
     });
     return () => unsubscribe();
   }, [router]);
+
+  /* ================= useMemo ================= */
+
+  const modalTitles = useMemo(
+    () => ({
+      imagePicker: "Upload Cover",
+      required: "Required",
+      success: "Success!",
+    }),
+    []
+  );
+
+  const modalMessages = useMemo(
+    () => ({
+      imagePicker: "Choose how to add a cover:",
+      required: modalData.message,
+      success: "Book added to your library.",
+    }),
+    [modalData.message]
+  );
+
+  /* =========================================== */
 
   const showAlert = (title, message) => {
     if (Platform.OS === "web") window.alert(`${title}: ${message}`);
@@ -149,24 +171,16 @@ export default function AddNewBook() {
   const renderModal = () => {
     if (!modalVisible) return null;
 
-    const titles = {
-      imagePicker: "Upload Cover",
-      required: "Required",
-      success: "Success!",
-    };
-
-    const messages = {
-      imagePicker: "Choose how to add a cover:",
-      required: modalData.message,
-      success: "Book added to your library.",
-    };
-
     return (
       <Modal animationType="fade" transparent visible={modalVisible}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{titles[modalType]}</Text>
-            <Text style={styles.modalMessage}>{messages[modalType]}</Text>
+            <Text style={styles.modalTitle}>
+              {modalTitles[modalType]}
+            </Text>
+            <Text style={styles.modalMessage}>
+              {modalMessages[modalType]}
+            </Text>
 
             <View style={styles.modalButtons}>
               {modalType === "imagePicker" && (

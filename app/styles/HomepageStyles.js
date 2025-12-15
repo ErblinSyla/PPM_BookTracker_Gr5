@@ -28,10 +28,10 @@ export const styles = StyleSheet.create({
   logo: { width: 24, height: 24, marginRight: 10 },
   headerText: { color: "#550000", fontSize: 20, fontWeight: "800" },
   profileBtn: {
-   // backgroundColor: "#550000",
-   // paddingHorizontal: 16,
+    // backgroundColor: "#550000",
+    // paddingHorizontal: 16,
     //paddingVertical: 8,
-   // borderRadius: 20,
+    // borderRadius: 20,
    flexDirection:"row",
    alignItems:"center",
    justifyContent:"center",

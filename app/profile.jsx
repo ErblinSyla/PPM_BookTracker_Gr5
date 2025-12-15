@@ -16,7 +16,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserData } from "../app/services/authService";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -78,7 +78,20 @@ export default function Profile() {
     loadUser();
   }, []);
 
-  const showLogoutConfirmation = () => {
+ 
+  const bookCounts = useMemo(() => ({
+    reading: counts.reading,
+    toRead: counts.toRead,
+    finished: counts.finished,
+  }), [counts]);
+
+
+  const performLogout = useCallback(async () => {
+    await signOut(auth);
+    router.replace("/");
+  }, [router]);
+
+  const showLogoutConfirmation = useCallback(() => {
     if (Platform.OS === "web") {
       setModalType("logout");
       setModalVisible(true);
@@ -88,19 +101,14 @@ export default function Profile() {
         { text: "Logout", style: "destructive", onPress: performLogout },
       ]);
     }
-  };
+  }, [performLogout]);
 
-  const performLogout = async () => {
-    await signOut(auth);
-    router.replace("/");
-  };
-
-  const handleModalConfirm = async () => {
+  const handleModalConfirm = useCallback(async () => {
     setModalVisible(false);
     if (modalType === "logout") await performLogout();
-  };
+  }, [modalType, performLogout]);
 
-  const renderModal = () => (
+  const renderModal = useCallback(() => (
     <Modal
       animationType="fade"
       transparent={true}
@@ -136,7 +144,7 @@ export default function Profile() {
         </View>
       </View>
     </Modal>
-  );
+  ), [modalVisible, modalType, modalData.title, handleModalConfirm]);
 
   return (
     <LinearGradient
@@ -170,7 +178,7 @@ export default function Profile() {
                 onPress={() => router.push("/homepage")}
                 style={styles.book__active}
               >
-                <Text style={styles.active__num}>{counts.reading}</Text>
+                <Text style={styles.active__num}>{bookCounts.reading}</Text>
                 <Text style={styles.active__desc}>Reading</Text>
               </TouchableOpacity>
 
@@ -178,7 +186,7 @@ export default function Profile() {
                 onPress={() => router.push("/homepage")}
                 style={styles.book__pending}
               >
-                <Text style={styles.pending__num}>{counts.toRead}</Text>
+                <Text style={styles.pending__num}>{bookCounts.toRead}</Text>
                 <Text style={styles.pending__desc}>To Read</Text>
               </TouchableOpacity>
 
@@ -186,7 +194,7 @@ export default function Profile() {
                 onPress={() => router.push("/homepage")}
                 style={styles.book__completed}
               >
-                <Text style={styles.completed__num}>{counts.finished}</Text>
+                <Text style={styles.completed__num}>{bookCounts.finished}</Text>
                 <Text style={styles.completed__desc}>Finished</Text>
               </TouchableOpacity>
             </View>
@@ -271,4 +279,3 @@ export default function Profile() {
     </LinearGradient>
   );
 }
-

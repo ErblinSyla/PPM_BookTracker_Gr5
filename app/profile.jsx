@@ -3,9 +3,7 @@
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
-  StyleSheet,
   SafeAreaView,
   ScrollView,
   Image,
@@ -24,6 +22,8 @@ import { signOut, onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../firebase/firebaseConfig";
 import styles from "./styles/ProfileStyles";
 
+import Spinner from "./components/Spinner";
+
 export default function Profile() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState(null);
@@ -38,6 +38,7 @@ export default function Profile() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -52,39 +53,46 @@ export default function Profile() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const uid = await AsyncStorage.getItem("userUID");
-      if (!uid) return;
+      try {
+        const uid = await AsyncStorage.getItem("userUID");
+        if (!uid) return;
 
-      const data = await getUserData(uid);
-      if (!data) return;
+        const data = await getUserData(uid);
+        if (!data) return;
 
-      setUserData(data);
+        setUserData(data);
 
-      const q = query(
-        collection(db, "books"),
-        where("userEmail", "==", data.email)
-      );
+        const q = query(
+          collection(db, "books"),
+          where("userEmail", "==", data.email)
+        );
 
-      const snap = await getDocs(q);
-      const books = snap.docs.map((d) => d.data());
+        const snap = await getDocs(q);
+        const books = snap.docs.map((d) => d.data());
 
-      setCounts({
-        reading: books.filter((b) => b.status === "reading").length,
-        toRead: books.filter((b) => b.status === "to-read").length,
-        finished: books.filter((b) => b.status === "finished").length,
-      });
+        setCounts({
+          reading: books.filter((b) => b.status === "reading").length,
+          toRead: books.filter((b) => b.status === "to-read").length,
+          finished: books.filter((b) => b.status === "finished").length,
+        });
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadUser();
   }, []);
 
- 
-  const bookCounts = useMemo(() => ({
-    reading: counts.reading,
-    toRead: counts.toRead,
-    finished: counts.finished,
-  }), [counts]);
-
+  const bookCounts = useMemo(
+    () => ({
+      reading: counts.reading,
+      toRead: counts.toRead,
+      finished: counts.finished,
+    }),
+    [counts]
+  );
 
   const performLogout = useCallback(async () => {
     await signOut(auth);
@@ -108,43 +116,50 @@ export default function Profile() {
     if (modalType === "logout") await performLogout();
   }, [modalType, performLogout]);
 
-  const renderModal = useCallback(() => (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => setModalVisible(false)}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>
-            {modalType === "logout" ? "Logout" : "Delete Book"}
-          </Text>
-          <Text style={styles.modalMessage}>
-            {modalType === "logout"
-              ? "Are you sure you want to logout?"
-              : `Delete "${modalData.title || "this book"}"?`}
-          </Text>
-          <View style={styles.modalButtons}>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.cancelButton]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.confirmButton]}
-              onPress={handleModalConfirm}
-            >
-              <Text style={styles.confirmButtonText}>
-                {modalType === "logout" ? "Logout" : "Delete"}
-              </Text>
-            </TouchableOpacity>
+  const renderModal = useCallback(
+    () => (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              {modalType === "logout" ? "Logout" : "Delete Book"}
+            </Text>
+            <Text style={styles.modalMessage}>
+              {modalType === "logout"
+                ? "Are you sure you want to logout?"
+                : `Delete "${modalData.title || "this book"}"?`}
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={handleModalConfirm}
+              >
+                <Text style={styles.confirmButtonText}>
+                  {modalType === "logout" ? "Logout" : "Delete"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </Modal>
-  ), [modalVisible, modalType, modalData.title, handleModalConfirm]);
+      </Modal>
+    ),
+    [modalVisible, modalType, modalData.title, handleModalConfirm]
+  );
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <LinearGradient

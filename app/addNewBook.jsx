@@ -10,8 +10,8 @@ import {
   Alert,
   Platform,
   SafeAreaView,
-  LinearGradient,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { collection, addDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebaseConfig";
@@ -22,10 +22,10 @@ import * as ImageManipulator from "expo-image-manipulator";
 import { onAuthStateChanged } from "firebase/auth";
 import styles from "./styles/AddNewBookStyles";
 
-import ModalComponent from "../components/ModalComponent";
-import CameraCapture from "../components/CameraCapture";
-import CoverPickerButton from "../components/CoverPickerButton";
-import PermissionRequest from "../components/PermissionRequest";
+import ModalComponent from "./components/ModalComponent.jsx";
+import CameraCapture from "./components/CameraCapture.jsx";
+import CoverPickerButton from "./components/CoverPickerButton.jsx";
+import PermissionRequest from "./components/PermissionRequest.jsx";
 
 const AddNewBook = () => {
   const router = useRouter();

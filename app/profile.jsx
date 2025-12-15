@@ -22,7 +22,7 @@ import { getUserData } from "../app/services/authService";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../firebase/firebaseConfig";
-import styles from "../app/styles/ProfileStyles";
+import styles from "./styles/ProfileStyles";
 
 export default function Profile() {
   const router = useRouter();

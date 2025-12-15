@@ -1,6 +1,6 @@
 import React from "react";
 import { TouchableOpacity, Text, Image } from "react-native";
-import styles from "../screens/styles/AddNewBookStyles";
+import styles from "../styles/AddNewBookStyles";
 
 const CoverPickerButton = ({ cover, onPress }) => {
   return (

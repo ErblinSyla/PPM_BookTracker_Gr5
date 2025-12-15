@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import styles from "../screens/styles/AddNewBookStyles";
+import styles from "../styles/AddNewBookStyles";
 
 const PermissionRequest = ({ message, onRequest }) => {
   return (

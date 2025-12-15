@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Modal } from "react-native";
-import styles from "../screens/styles/AddNewBookStyles";
+import styles from "../styles/AddNewBookStyles";
 
 const ModalComponent = ({ visible, type, message, onChoice, onConfirm }) => {
   if (!visible) return null;

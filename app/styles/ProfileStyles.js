@@ -218,3 +218,5 @@ const styles = StyleSheet.create({
   cancelButtonText: { color: "#550000", fontWeight: "600", fontSize: 16 },
   confirmButtonText: { color: "white", fontWeight: "600", fontSize: 16 },
 });
+
+export default styles;

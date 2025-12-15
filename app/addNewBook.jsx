@@ -22,7 +22,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { onAuthStateChanged } from "firebase/auth";
 import styles from "./styles/AddNewBookStyles";
 
-export default function AddNewBook() {
+const AddNewBook = () => {
   const router = useRouter();
 
   const [userEmail, setUserEmail] = useState(null);
@@ -50,7 +50,7 @@ export default function AddNewBook() {
     return () => unsubscribe();
   }, [router]);
 
-  /* ================= useMemo ================= */
+ 
 
   const modalTitles = useMemo(
     () => ({
@@ -70,7 +70,7 @@ export default function AddNewBook() {
     [modalData.message]
   );
 
-  /* =========================================== */
+ 
 
   const showAlert = (title, message) => {
     if (Platform.OS === "web") window.alert(`${title}: ${message}`);
@@ -328,4 +328,6 @@ export default function AddNewBook() {
       </SafeAreaView>
     </LinearGradient>
   );
-}
+};
+
+export default React.memo(AddNewBook);

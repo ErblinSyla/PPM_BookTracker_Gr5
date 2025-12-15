@@ -28,6 +28,7 @@ import {
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../firebase/firebaseConfig";
 import { styles } from "./styles/HomepageStyles";
+import Spinner from "./components/Spinner";
 
 export default function Homepage() {
   const router = useRouter();
@@ -38,6 +39,7 @@ export default function Homepage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -52,6 +54,9 @@ export default function Homepage() {
 
   const loadBooks = useCallback(async () => {
     if (!userEmail) return;
+
+    setIsLoading(true);
+
     try {
       const q = query(
         collection(db, "books"),
@@ -66,6 +71,8 @@ export default function Homepage() {
     } catch (error) {
       console.error("Error loading books:", error);
       showAlert("Error", "Could not load your books.");
+    } finally {
+      setIsLoading(false);
     }
   }, [userEmail]);
 
@@ -248,6 +255,10 @@ export default function Homepage() {
         </LinearGradient>
       </SafeAreaView>
     );
+  }
+
+  if (isLoading) {
+    return <Spinner />;
   }
 
   return (

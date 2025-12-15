@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -10,25 +10,26 @@ import {
   Alert,
   Platform,
   SafeAreaView,
-  Modal,
-  Image,
+  LinearGradient,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { collection, addDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebaseConfig";
-import { CameraView, useCameraPermissions } from "expo-camera";
+import { useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
-import { LinearGradient } from "expo-linear-gradient";
 import { onAuthStateChanged } from "firebase/auth";
 import styles from "./styles/AddNewBookStyles";
 
+import ModalComponent from "../components/ModalComponent";
+import CameraCapture from "../components/CameraCapture";
+import CoverPickerButton from "../components/CoverPickerButton";
+import PermissionRequest from "../components/PermissionRequest";
+
 const AddNewBook = () => {
   const router = useRouter();
-
   const [userEmail, setUserEmail] = useState(null);
-
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
@@ -39,42 +40,29 @@ const AddNewBook = () => {
   const [modalData, setModalData] = useState({});
 
   const [permission, requestPermission] = useCameraPermissions();
-  const cameraRef = useRef(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserEmail(user.email);
-      } else {
-        router.replace("/login");
-      }
+      if (user) setUserEmail(user.email);
+      else router.replace("/login");
     });
     return () => unsubscribe();
   }, [router]);
 
- 
-  const modalTitles = useMemo(
-    () => ({
-      imagePicker: "Upload Cover",
-      required: "Required",
-      success: "Success!",
-    }),
-    []
-  );
+  const modalTitles = useMemo(() => ({
+    imagePicker: "Upload Cover",
+    required: "Required",
+    success: "Success!",
+  }), []);
 
-  const modalMessages = useMemo(
-    () => ({
-      imagePicker: "Choose how to add a cover:",
-      required: modalData.message,
-      success: "Book added to your library.",
-    }),
-    [modalData.message]
-  );
- 
+  const modalMessages = useMemo(() => ({
+    imagePicker: "Choose how to add a cover:",
+    required: modalData.message,
+    success: "Book added to your library.",
+  }), [modalData.message]);
 
   const showAlert = (title, message) => {
-    if (Platform.OS === "web") window.alert(`${title}: ${message}`);
-    else Alert.alert(title, message);
+    Platform.OS === "web" ? window.alert(`${title}: ${message}`) : Alert.alert(title, message);
   };
 
   const compressImage = async (uri) => {
@@ -102,9 +90,7 @@ const AddNewBook = () => {
     }
   };
 
-  const takePhoto = async () => {
-    if (!cameraRef.current) return;
-    const photo = await cameraRef.current.takePictureAsync({ quality: 0.8 });
+  const takePhoto = async (photo) => {
     await MediaLibrary.saveToLibraryAsync(photo.uri);
     const compressedUri = await compressImage(photo.uri);
     setCover(compressedUri);
@@ -136,9 +122,7 @@ const AddNewBook = () => {
         setModalType("required");
         setModalData({ message: "Please enter both title and author." });
         setModalVisible(true);
-      } else {
-        Alert.alert("Required", "Please enter both title and author.");
-      }
+      } else Alert.alert("Required", "Please enter both title and author.");
       return;
     }
 
@@ -158,15 +142,10 @@ const AddNewBook = () => {
         rating: 0,
         dateAdded: new Date().toISOString(),
       });
-
       if (Platform.OS === "web") {
         setModalType("success");
         setModalVisible(true);
-      } else {
-        Alert.alert("Success!", "Book added to your library.", [
-          { text: "OK", onPress: () => router.replace("/homepage") },
-        ]);
-      }
+      } else Alert.alert("Success!", "Book added to your library.", [{ text: "OK", onPress: () => router.replace("/homepage") }]);
     } catch (error) {
       console.error("Error adding book:", error);
       showAlert("Error", "Could not save book. Try again.");
@@ -178,98 +157,18 @@ const AddNewBook = () => {
     router.replace("/homepage");
   };
 
-  const renderModal = () => {
-    if (!modalVisible) return null;
-
-    return (
-      <Modal animationType="fade" transparent visible={modalVisible}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{modalTitles[modalType]}</Text>
-            <Text style={styles.modalMessage}>{modalMessages[modalType]}</Text>
-
-            <View style={styles.modalButtons}>
-              {modalType === "imagePicker" && (
-                <>
-                  <TouchableOpacity
-                    style={[styles.modalButton, styles.optionButton]}
-                    onPress={() => handleImagePickerChoice("camera")}
-                  >
-                    <Text style={styles.optionButtonText}>Take Photo</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.modalButton, styles.optionButton]}
-                    onPress={() => handleImagePickerChoice("gallery")}
-                  >
-                    <Text style={styles.optionButtonText}>
-                      Choose from Gallery
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.modalButton, styles.cancelButton]}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-
-              {(modalType === "required" || modalType === "success") && (
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.confirmButton]}
-                  onPress={
-                    modalType === "success"
-                      ? handleSuccessConfirm
-                      : () => setModalVisible(false)
-                  }
-                >
-                  <Text style={styles.confirmButtonText}>OK</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        </View>
-      </Modal>
-    );
-  };
-
   if (!permission?.granted) {
     return (
       <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
         <SafeAreaView style={styles.safe}>
-          <View style={styles.permissionContainer}>
-            <Text style={styles.permissionText}>
-              Camera access is needed to take book cover photos.
-            </Text>
-            <TouchableOpacity
-              style={styles.permissionBtn}
-              onPress={requestPermission}
-            >
-              <Text style={styles.permissionBtnText}>Allow Camera</Text>
-            </TouchableOpacity>
-          </View>
+          <PermissionRequest message="Camera access is needed to take book cover photos." onRequest={requestPermission} />
         </SafeAreaView>
       </LinearGradient>
     );
   }
 
   if (showCamera) {
-    return (
-      <View style={styles.cameraContainer}>
-        <CameraView style={styles.camera} ref={cameraRef} facing="back" />
-        <View style={styles.cameraOverlay}>
-          <TouchableOpacity onPress={() => setShowCamera(false)}>
-            <Text style={{ fontSize: 24, color: "white", fontWeight: "700" }}>
-              Back
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={takePhoto}>
-            <View style={styles.captureBtn} />
-          </TouchableOpacity>
-          <View style={{ width: 60 }} />
-        </View>
-      </View>
-    );
+    return <CameraCapture onBack={() => setShowCamera(false)} onCapture={takePhoto} />;
   }
 
   return (
@@ -278,66 +177,29 @@ const AddNewBook = () => {
         <View style={styles.webWrapper}>
           <ScrollView contentContainerStyle={styles.scroll}>
             <View style={styles.header}>
-              <TouchableOpacity onPress={() => router.back()}>
-                <Text style={styles.backBtn}>Back</Text>
-              </TouchableOpacity>
+              <TouchableOpacity onPress={() => router.back()}><Text style={styles.backBtn}>Back</Text></TouchableOpacity>
               <Text style={styles.headerTitle}>Add New Book</Text>
               <View style={{ width: 28 }} />
             </View>
 
             <View style={styles.form}>
               <Text style={styles.label}>Title</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter book title"
-                placeholderTextColor="#55000070"
-                value={title}
-                onChangeText={setTitle}
-              />
+              <TextInput style={styles.input} placeholder="Enter book title" placeholderTextColor="#55000070" value={title} onChangeText={setTitle} />
 
               <Text style={styles.label}>Author</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter author name"
-                placeholderTextColor="#55000070"
-                value={author}
-                onChangeText={setAuthor}
-              />
+              <TextInput style={styles.input} placeholder="Enter author name" placeholderTextColor="#55000070" value={author} onChangeText={setAuthor} />
 
               <Text style={styles.label}>Description (Optional)</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder="Add a short description..."
-                placeholderTextColor="#55000070"
-                value={description}
-                onChangeText={setDescription}
-                multiline
-              />
+              <TextInput style={[styles.input, styles.textArea]} placeholder="Add a short description..." placeholderTextColor="#55000070" value={description} onChangeText={setDescription} multiline />
 
-              <TouchableOpacity
-                style={styles.imageBtn}
-                onPress={showImagePickerOptions}
-              >
-                {cover && (
-                  <Image
-                    source={{ uri: cover }}
-                    style={{ width: 100, height: 150, marginBottom: 8 }}
-                    resizeMode="cover"
-                  />
-                )}
-                <Text style={styles.imageBtnText}>
-                  {cover ? "Change Cover" : "Upload Cover"}
-                </Text>
-              </TouchableOpacity>
+              <CoverPickerButton cover={cover} onPress={showImagePickerOptions} />
 
-              <TouchableOpacity style={styles.saveBtn} onPress={saveBook}>
-                <Text style={styles.saveText}>Add Book</Text>
-              </TouchableOpacity>
+              <TouchableOpacity style={styles.saveBtn} onPress={saveBook}><Text style={styles.saveText}>Add Book</Text></TouchableOpacity>
             </View>
           </ScrollView>
         </View>
 
-        {renderModal()}
+        <ModalComponent visible={modalVisible} type={modalType} message={modalData.message} onChoice={handleImagePickerChoice} onConfirm={handleSuccessConfirm} />
       </SafeAreaView>
     </LinearGradient>
   );

@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Modal,
+  TouchableOpacity,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -42,6 +44,10 @@ export default function UpdateBookDetails() {
   const [notes, setNotes] = useState("");
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(0);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
 
   const demoBook = {
     id: "demo-123",
@@ -98,6 +104,40 @@ export default function UpdateBookDetails() {
       ? Math.min(parseInt(pagesRead) / parseInt(totalPages), 1)
       : 0;
 
+  const renderModal = useCallback(
+    () => (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              {modalType === "success" ? "Success!" : "Error"}
+            </Text>
+            <Text style={styles.modalMessage}>{modalMessage}</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={() => {
+                  setModalVisible(false);
+                  if (modalType === "success") {
+                    router.push("/homepage");
+                  }
+                }}
+              >
+                <Text style={styles.confirmButtonText}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    ),
+    [modalVisible, modalType, modalMessage, router]
+  );
+
   const saveBook = useCallback(async () => {
     if (!book) return;
 
@@ -114,22 +154,18 @@ export default function UpdateBookDetails() {
 
     try {
       await setDoc(doc(db, "books", book.id), updatedBook);
-      const message = `Status: ${status}\nPages: ${pagesRead}/${totalPages}\nRating: ${rating} stars`;
-      if (Platform.OS === "web") {
-        window.alert("Book updated successfully!\n" + message);
-      } else {
-        Alert.alert("Success", "Book updated successfully!", [
-          { text: "OK", onPress: () => router.push("/homepage") },
-        ]);
-      }
-      router.push("/homepage");
+
+      setModalType("success");
+      setModalMessage("Book updated successfully!");
+      setModalVisible(true);
     } catch (err) {
       console.error("Failed to save book:", err);
-      if (Platform.OS === "web") {
-        window.alert("Failed to save changes.");
-      } else {
-        Alert.alert("Error", "Failed to save changes.");
-      }
+
+      setModalType("error");
+      setModalMessage(
+        "Failed to save changes.\nPlease check your connection and try again."
+      );
+      setModalVisible(true);
     }
   }, [
     book,
@@ -192,6 +228,7 @@ export default function UpdateBookDetails() {
           />
         </ScrollView>
       </KeyboardAvoidingView>
+      {renderModal()}
     </BackgroundGradient>
   );
 }

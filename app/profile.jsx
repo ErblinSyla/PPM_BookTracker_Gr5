@@ -143,7 +143,7 @@ export default function Profile() {
               <Text style={styles.avatar__email}>{userData.email}</Text>
             </View>
 
-              <View style={styles.book__stats}>
+            <View style={styles.book__stats}>
               <TouchableOpacity
                 onPress={() => router.push("/homepage")}
                 style={styles.book__active}

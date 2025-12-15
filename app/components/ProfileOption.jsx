@@ -12,10 +12,7 @@ const ProfileOption = React.memo(function ProfileOption({
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[
-        styles.profile__option,
-        end && styles.profile__option__end,
-      ]}
+      style={[styles.profile__option, end && styles.profile__option__end]}
     >
       <View style={styles.option__icon}>
         <Image source={icon} style={styles.option__image} />
@@ -27,7 +24,7 @@ const ProfileOption = React.memo(function ProfileOption({
 
       <View style={styles.option__nav}>
         <Image
-          source={require("../assets/profile_arrow-right-icon.png")}
+          source={require("../../assets/profile_arrow-right-icon.png")}
           style={styles.nav__arrow}
         />
       </View>

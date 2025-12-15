@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -98,7 +98,7 @@ export default function UpdateBookDetails() {
       ? Math.min(parseInt(pagesRead) / parseInt(totalPages), 1)
       : 0;
 
-  const saveBook = async () => {
+  const saveBook = useCallback(async () => {
     if (!book) return;
 
     const updatedBook = {
@@ -131,7 +131,17 @@ export default function UpdateBookDetails() {
         Alert.alert("Error", "Failed to save changes.");
       }
     }
-  };
+  }, [
+    book,
+    status,
+    pagesRead,
+    totalPages,
+    finishDate,
+    notes,
+    review,
+    rating,
+    router,
+  ]); // dependecies qe perdoren dhe memoizohen me funksion
 
   if (!book) {
     return <Spinner />;

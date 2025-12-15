@@ -11,6 +11,7 @@ import {
   Platform,
   SafeAreaView,
   Modal,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { collection, addDoc } from "firebase/firestore";
@@ -18,6 +19,7 @@ import { db, auth } from "../firebase/firebaseConfig";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 import { LinearGradient } from "expo-linear-gradient";
 import { onAuthStateChanged } from "firebase/auth";
 import styles from "./styles/AddNewBookStyles";
@@ -51,7 +53,6 @@ const AddNewBook = () => {
   }, [router]);
 
  
-
   const modalTitles = useMemo(
     () => ({
       imagePicker: "Upload Cover",
@@ -69,12 +70,19 @@ const AddNewBook = () => {
     }),
     [modalData.message]
   );
-
  
 
   const showAlert = (title, message) => {
     if (Platform.OS === "web") window.alert(`${title}: ${message}`);
     else Alert.alert(title, message);
+  };
+
+  const compressImage = async (uri) => {
+    const result = await ImageManipulator.manipulateAsync(uri, [], {
+      compress: 0.7,
+      format: ImageManipulator.SaveFormat.JPEG,
+    });
+    return result.uri;
   };
 
   const pickFromGallery = async () => {
@@ -86,10 +94,11 @@ const AddNewBook = () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 0.8,
+      quality: 0.5,
     });
     if (!result.canceled && result.assets[0]?.uri) {
-      setCover(result.assets[0].uri);
+      const compressedUri = await compressImage(result.assets[0].uri);
+      setCover(compressedUri);
     }
   };
 
@@ -97,7 +106,8 @@ const AddNewBook = () => {
     if (!cameraRef.current) return;
     const photo = await cameraRef.current.takePictureAsync({ quality: 0.8 });
     await MediaLibrary.saveToLibraryAsync(photo.uri);
-    setCover(photo.uri);
+    const compressedUri = await compressImage(photo.uri);
+    setCover(compressedUri);
     setShowCamera(false);
   };
 
@@ -175,12 +185,8 @@ const AddNewBook = () => {
       <Modal animationType="fade" transparent visible={modalVisible}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {modalTitles[modalType]}
-            </Text>
-            <Text style={styles.modalMessage}>
-              {modalMessages[modalType]}
-            </Text>
+            <Text style={styles.modalTitle}>{modalTitles[modalType]}</Text>
+            <Text style={styles.modalMessage}>{modalMessages[modalType]}</Text>
 
             <View style={styles.modalButtons}>
               {modalType === "imagePicker" && (
@@ -312,6 +318,13 @@ const AddNewBook = () => {
                 style={styles.imageBtn}
                 onPress={showImagePickerOptions}
               >
+                {cover && (
+                  <Image
+                    source={{ uri: cover }}
+                    style={{ width: 100, height: 150, marginBottom: 8 }}
+                    resizeMode="cover"
+                  />
+                )}
                 <Text style={styles.imageBtnText}>
                   {cover ? "Change Cover" : "Upload Cover"}
                 </Text>

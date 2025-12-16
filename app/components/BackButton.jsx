@@ -3,7 +3,7 @@ import { TouchableOpacity, Text, StyleSheet } from "react-native";
 export default function BackButton({ onPress }) {
   return (
     <TouchableOpacity onPress={onPress}>
-      <Text style={styles.text}>Back</Text>
+      <Text style={styles.text}>←</Text>
     </TouchableOpacity>
   );
 }
@@ -11,7 +11,7 @@ export default function BackButton({ onPress }) {
 const styles = StyleSheet.create({
   text: {
     color: "#550000",
-    fontSize: 16,
+    fontSize: 26,
     fontWeight: "600",
   },
 });

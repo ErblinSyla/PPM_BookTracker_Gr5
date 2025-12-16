@@ -26,6 +26,9 @@ import ModalComponent from "./components/ModalComponent.jsx";
 import CameraCapture from "./components/CameraCapture.jsx";
 import CoverPickerButton from "./components/CoverPickerButton.jsx";
 import PermissionRequest from "./components/PermissionRequest.jsx";
+import BackButton from "./components/BackButton.jsx";
+import BackgroundGradient from "./components/BackgroundGradient.jsx";
+import { KeyboardAvoidingView } from "react-native-web";
 
 const AddNewBook = () => {
   const router = useRouter();
@@ -184,58 +187,60 @@ const AddNewBook = () => {
   }
 
   return (
-    <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.webWrapper}>
+    <BackgroundGradient>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <SafeAreaView style={{ flex: 1 }}>
+          <View style={styles.header}>
+            <BackButton onPress={() => router.back()} />
+            <Text style={styles.headerTitle}>Add New Book</Text>
+            <View style={{ width: 40 }} />
+          </View>
           <ScrollView contentContainerStyle={styles.scroll}>
-            <View style={styles.header}>
-              <TouchableOpacity onPress={() => router.back()}>
-                <Text style={styles.backBtn}>Back</Text>
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>Add New Book</Text>
-              <View style={{ width: 28 }} />
-            </View>
+            <View style={styles.container}>
+              <View style={styles.form}>
+                <Text style={styles.label}>Title</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter book title"
+                  placeholderTextColor="#55000070"
+                  value={title}
+                  onChangeText={setTitle}
+                />
 
-            <View style={styles.form}>
-              <Text style={styles.label}>Title</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter book title"
-                placeholderTextColor="#55000070"
-                value={title}
-                onChangeText={setTitle}
-              />
+                <Text style={styles.label}>Author</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter author name"
+                  placeholderTextColor="#55000070"
+                  value={author}
+                  onChangeText={setAuthor}
+                />
 
-              <Text style={styles.label}>Author</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter author name"
-                placeholderTextColor="#55000070"
-                value={author}
-                onChangeText={setAuthor}
-              />
+                <Text style={styles.label}>Description (Optional)</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  placeholder="Add a short description..."
+                  placeholderTextColor="#55000070"
+                  value={description}
+                  onChangeText={setDescription}
+                  multiline
+                />
 
-              <Text style={styles.label}>Description (Optional)</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder="Add a short description..."
-                placeholderTextColor="#55000070"
-                value={description}
-                onChangeText={setDescription}
-                multiline
-              />
+                <CoverPickerButton
+                  cover={cover}
+                  onPress={showImagePickerOptions}
+                />
 
-              <CoverPickerButton
-                cover={cover}
-                onPress={showImagePickerOptions}
-              />
-
-              <TouchableOpacity style={styles.saveBtn} onPress={saveBook}>
-                <Text style={styles.saveText}>Add Book</Text>
-              </TouchableOpacity>
+                <TouchableOpacity style={styles.saveBtn} onPress={saveBook}>
+                  <Text style={styles.saveText}>Add Book</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
-        </View>
+        </SafeAreaView>
 
         <ModalComponent
           visible={modalVisible}
@@ -244,8 +249,8 @@ const AddNewBook = () => {
           onChoice={handleImagePickerChoice}
           onConfirm={handleSuccessConfirm}
         />
-      </SafeAreaView>
-    </LinearGradient>
+      </KeyboardAvoidingView>
+    </BackgroundGradient>
   );
 };
 

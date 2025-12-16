@@ -2,7 +2,7 @@ import { StyleSheet, Platform } from "react-native";
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#FAF0DC" },
-  container: { flex: 1 },
+  container: { maxWidth: 500, alignSelf: "center", width: "100%" },
   webWrapper: {
     maxWidth: 800,
     width: "100%",
@@ -16,6 +16,7 @@ const styles = StyleSheet.create({
 
   header: {
     marginTop: 20,
+    paddingHorizontal: 24,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

@@ -139,7 +139,6 @@ export default function Homepage() {
     try {
       await deleteDoc(doc(db, "books", id));
       await loadBooks();
-      showAlert("Deleted", "Book removed.");
     } catch (error) {
       showAlert("Error", "Failed to delete.");
     }
@@ -314,12 +313,6 @@ export default function Homepage() {
                     ? "Try different keywords"
                     : "Add your first book!"}
                 </Text>
-                <TouchableOpacity
-                  style={styles.emptyAddBtn}
-                  onPress={() => router.push("/addNewBook")}
-                >
-                  <Text style={styles.emptyAddText}>Add Book</Text>
-                </TouchableOpacity>
               </View>
             }
             refreshControl={

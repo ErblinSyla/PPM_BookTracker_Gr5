@@ -82,7 +82,11 @@ export default function Login() {
     }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       // Kontrollo nëse emaili është verifikuar
@@ -160,7 +164,7 @@ export default function Login() {
 
 const BackButton = ({ router }) => (
   <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-    <Text style={styles.backText}>← Back</Text>
+    <Text style={styles.backText}>←</Text>
   </TouchableOpacity>
 );
 
@@ -250,7 +254,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   backButton: { position: "absolute", top: 50, left: 25 },
-  backText: { color: "#550000", fontSize: 16 },
+  backText: { color: "#550000", fontSize: 26 },
   formContainer: {
     width: "85%",
     maxWidth: 360,

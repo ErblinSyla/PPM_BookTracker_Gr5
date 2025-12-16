@@ -175,12 +175,14 @@ export default function Profile() {
                 icon={require("../assets/profile_username-icon.png")}
                 title="Username"
                 desc={`@${userData.name?.toLowerCase().replace(/ /g, "_")}`}
+                isUser={true}
               />
 
               <ProfileOption
                 icon={require("../assets/profile_notification-icon.png")}
                 title="Notifications"
                 desc="Mute, Push, Email"
+                onPress={() => router.push("/notifications")}
               />
 
               <ProfileOption
@@ -191,7 +193,6 @@ export default function Profile() {
                 end
               />
             </View>
-
             <TouchableOpacity
               style={styles.logoutBtn}
               onPress={showLogoutConfirmation}

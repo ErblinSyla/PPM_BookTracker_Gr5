@@ -8,11 +8,12 @@ const ProfileOption = React.memo(function ProfileOption({
   desc,
   onPress,
   end = false,
+  isUser = false,
 }) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.profile__option, end && styles.profile__option__end]}
+      style={[styles.profile__option, end && styles.profile__option__end, isUser && styles.profile__option__user,]}
     >
       <View style={styles.option__icon}>
         <Image source={icon} style={styles.option__image} />

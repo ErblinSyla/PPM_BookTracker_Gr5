@@ -31,24 +31,23 @@ export default function ForgotPassword() {
     ]).start();
   }, []);
 
- // const handleResetPassword = async () => {
-  //   setError("");
+ const handleResetPassword = async () => {
+  setError("");
+  if (!email) {
+    setError("Please enter your email!");
+    return;
+  }
 
-  //   if (!email) {
-  //     setError("Please enter your email!");
-  //     return;
-  //   }
-
-  //   try {
-  //     await sendPasswordResetEmail(auth, email);
-  //     Alert.alert("Check your email", "A password reset link has been sent to your email.");
-  //     router.push("/login");
-  //   } catch (err) {
-  //     if (err.code === "auth/user-not-found") setError("No user found with this email!");
-  //     else if (err.code === "auth/invalid-email") setError("Invalid email address!");
-  //     else setError("Something went wrong. Please try again!");
-  //   }
-  // };
+  try {
+    await sendPasswordResetEmail(auth, email);
+    Alert.alert("Check your email", "A password reset link has been sent to your email.");
+    router.push("/login");
+  } catch (err) {
+    if (err.code === "auth/user-not-found") setError("No user found with this email!");
+    else if (err.code === "auth/invalid-email") setError("Invalid email address!");
+    else setError("Something went wrong. Please try again!");
+  }
+}
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FAF0DC" }}>

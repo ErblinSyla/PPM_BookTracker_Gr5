@@ -6,19 +6,26 @@ import {
   TouchableOpacity,
   Animated,
   StatusBar,
-  Alert,
+  Modal,
+  StyleSheet,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter, Stack } from "expo-router";
+import { useRouter, Stack, useLocalSearchParams } from "expo-router"; // SHTUAR useLocalSearchParams
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
 
 export default function ForgotPassword() {
   const router = useRouter();
+  const { mode, oobCode } = useLocalSearchParams(); // Merr parametrat nga URL (Firebase ridrejtim)
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // State për të treguar nëse linku është i skaduar/përdorur
+  const [isLinkExpired, setIsLinkExpired] = useState(false);
 
   useEffect(() => {
     Animated.parallel([
@@ -33,10 +40,21 @@ export default function ForgotPassword() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+
+    // Kontrollo nëse erdhi nga linku i Firebase dhe është invalid
+    if (mode === "resetPassword") {
+      if (!oobCode) {
+        // Link invalid ose i skaduar (Firebase ridrejton pa oobCode ose me error)
+        setIsLinkExpired(true);
+      }
+      // Nëse oobCode ekziston dhe është valid, Firebase do ta trajtojë vetë faqen e resetimit
+      // Por ne jemi vetëm në ForgotPassword, kështu që trajtojmë vetëm rastin invalid
+    }
+  }, [mode, oobCode]);
 
   const handleResetPassword = async () => {
     setError("");
+    setIsLinkExpired(false); // reset statusin
 
     if (!email.trim()) {
       setError("Please enter your email!");
@@ -51,18 +69,23 @@ export default function ForgotPassword() {
 
     try {
       await sendPasswordResetEmail(auth, email);
-      Alert.alert(
-        "Check your email",
-        "A password reset link has been sent to your email."
-      );
-      setEmail(""); // pastro email pas suksesit
-      router.replace("/login");
+      setModalVisible(true); // shfaq modalin e suksesit
     } catch (err) {
       console.log("Firebase error:", err);
-      if (err.code === "auth/user-not-found") setError("If this email exists, you will receive a reset link.");
-      else if (err.code === "auth/invalid-email") setError("Invalid email address!");
-      else setError("Something went wrong. Please try again!");
+      if (err.code === "auth/user-not-found") {
+        setError("If this email exists, you will receive a reset link.");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid email address!");
+      } else {
+        setError("Something went wrong. Please try again!");
+      }
     }
+  };
+
+  const handleModalOk = () => {
+    setModalVisible(false);
+    setEmail("");
+    router.replace("/login");
   };
 
   return (
@@ -121,6 +144,42 @@ export default function ForgotPassword() {
             Enter your email to reset your password
           </Text>
 
+          {/* MESAZHI KUR LINKU ËSHTË I SKADUAR / PËRDORUR */}
+          {isLinkExpired && (
+            <View
+              style={{
+                marginBottom: 20,
+                padding: 18,
+                backgroundColor: "#ffeeee",
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: "#55000050",
+                width: "100%",
+              }}
+            >
+              <Text
+                style={{
+                  color: "#550000",
+                  textAlign: "center",
+                  fontWeight: "700",
+                  fontSize: 16,
+                }}
+              >
+                Linku për ndryshimin e fjalëkalimit ka skaduar ose është përdorur tashmë.
+              </Text>
+              <Text
+                style={{
+                  color: "#550000",
+                  textAlign: "center",
+                  marginTop: 10,
+                  fontSize: 15,
+                }}
+              >
+                Ju lutem shkruani email-in tuaj më poshtë për të marrë një link të ri.
+              </Text>
+            </View>
+          )}
+
           <Text
             style={{
               alignSelf: "flex-start",
@@ -153,7 +212,9 @@ export default function ForgotPassword() {
           />
 
           {error ? (
-            <Text style={{ color: "red", marginBottom: 10 }}>{error}</Text>
+            <Text style={{ color: "red", marginBottom: 10, textAlign: "center" }}>
+              {error}
+            </Text>
           ) : null}
 
           <TouchableOpacity
@@ -196,7 +257,78 @@ export default function ForgotPassword() {
             </Text>
           </TouchableOpacity>
         </Animated.View>
+
+        {/* Modal për sukses */}
+        <Modal
+          visible={modalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={handleModalOk}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Check your email</Text>
+              <Text style={styles.modalMessage}>
+                A password reset link has been sent to your email address.
+              </Text>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleModalOk}
+              >
+                <Text style={styles.modalButtonText}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </LinearGradient>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 24,
+    width: "100%",
+    maxWidth: 400,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#550000",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: "#550000",
+    marginBottom: 30,
+    textAlign: "center",
+    lineHeight: 22,
+  },
+  modalButton: {
+    backgroundColor: "#550000",
+    paddingHorizontal: 30,
+    paddingVertical: 14,
+    borderRadius: 25,
+  },
+  modalButtonText: {
+    color: "#FAF0DC",
+    fontWeight: "700",
+    fontSize: 17,
+  },
+});

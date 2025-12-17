@@ -6,15 +6,19 @@ import {
   TouchableOpacity,
   Animated,
   StatusBar,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, Stack } from "expo-router";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../firebase/firebaseConfig";
 
 export default function ForgotPassword() {
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
   const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     Animated.parallel([
@@ -31,23 +35,35 @@ export default function ForgotPassword() {
     ]).start();
   }, []);
 
- const handleResetPassword = async () => {
-  setError("");
-  if (!email) {
-    setError("Please enter your email!");
-    return;
-  }
+  const handleResetPassword = async () => {
+    setError("");
 
-  try {
-    await sendPasswordResetEmail(auth, email);
-    Alert.alert("Check your email", "A password reset link has been sent to your email.");
-    router.push("/login");
-  } catch (err) {
-    if (err.code === "auth/user-not-found") setError("No user found with this email!");
-    else if (err.code === "auth/invalid-email") setError("Invalid email address!");
-    else setError("Something went wrong. Please try again!");
-  }
-}
+    if (!email.trim()) {
+      setError("Please enter your email!");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email!");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      Alert.alert(
+        "Check your email",
+        "A password reset link has been sent to your email."
+      );
+      setEmail(""); // pastro email pas suksesit
+      router.replace("/login");
+    } catch (err) {
+      console.log("Firebase error:", err);
+      if (err.code === "auth/user-not-found") setError("If this email exists, you will receive a reset link.");
+      else if (err.code === "auth/invalid-email") setError("Invalid email address!");
+      else setError("Something went wrong. Please try again!");
+    }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FAF0DC" }}>
@@ -136,6 +152,10 @@ export default function ForgotPassword() {
             autoCapitalize="none"
           />
 
+          {error ? (
+            <Text style={{ color: "red", marginBottom: 10 }}>{error}</Text>
+          ) : null}
+
           <TouchableOpacity
             style={{
               backgroundColor: "#550000",
@@ -148,7 +168,7 @@ export default function ForgotPassword() {
               elevation: 8,
               marginBottom: 18,
             }}
-            onPress={() => {}}
+            onPress={handleResetPassword}
           >
             <Text
               style={{

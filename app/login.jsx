@@ -121,7 +121,7 @@ export default function Login() {
     <View style={styles.container}>
       <StatusBar style="dark" backgroundColor="transparent" translucent />
       <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.gradient}>
-        <BackButton router={router} />
+        {/* HIQUR KREJT BackButton – nuk ka më buton back */}
 
         <Animated.View
           style={[
@@ -161,12 +161,6 @@ export default function Login() {
     </View>
   );
 }
-
-const BackButton = ({ router }) => (
-  <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-    <Text style={styles.backText}>←</Text>
-  </TouchableOpacity>
-);
 
 const Header = () => (
   <>
@@ -253,8 +247,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 30,
   },
-  backButton: { position: "absolute", top: 50, left: 25 },
-  backText: { color: "#550000", fontSize: 26 },
   formContainer: {
     width: "85%",
     maxWidth: 360,

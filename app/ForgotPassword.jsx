@@ -10,21 +10,19 @@ import {
   StyleSheet,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter, Stack, useLocalSearchParams } from "expo-router"; // SHTUAR useLocalSearchParams
+import { useRouter, Stack, useLocalSearchParams } from "expo-router";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
 
 export default function ForgotPassword() {
   const router = useRouter();
-  const { mode, oobCode } = useLocalSearchParams(); // Merr parametrat nga URL (Firebase ridrejtim)
+  const { mode, oobCode } = useLocalSearchParams();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
-
-  // State për të treguar nëse linku është i skaduar/përdorur
   const [isLinkExpired, setIsLinkExpired] = useState(false);
 
   useEffect(() => {
@@ -41,20 +39,16 @@ export default function ForgotPassword() {
       }),
     ]).start();
 
-    // Kontrollo nëse erdhi nga linku i Firebase dhe është invalid
     if (mode === "resetPassword") {
       if (!oobCode) {
-        // Link invalid ose i skaduar (Firebase ridrejton pa oobCode ose me error)
         setIsLinkExpired(true);
       }
-      // Nëse oobCode ekziston dhe është valid, Firebase do ta trajtojë vetë faqen e resetimit
-      // Por ne jemi vetëm në ForgotPassword, kështu që trajtojmë vetëm rastin invalid
     }
   }, [mode, oobCode]);
 
   const handleResetPassword = async () => {
     setError("");
-    setIsLinkExpired(false); // reset statusin
+    setIsLinkExpired(false);
 
     if (!email.trim()) {
       setError("Please enter your email!");
@@ -69,7 +63,7 @@ export default function ForgotPassword() {
 
     try {
       await sendPasswordResetEmail(auth, email);
-      setModalVisible(true); // shfaq modalin e suksesit
+      setModalVisible(true);
     } catch (err) {
       console.log("Firebase error:", err);
       if (err.code === "auth/user-not-found") {
@@ -102,12 +96,7 @@ export default function ForgotPassword() {
           paddingHorizontal: 30,
         }}
       >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{ position: "absolute", top: 50, left: 25 }}
-        >
-          <Text style={{ color: "#550000", fontSize: 16 }}>← Back</Text>
-        </TouchableOpacity>
+        {/* BUTONI BACK ËSHTË HEQUR KREJTËSISHT – NUK KA MË ← Back */}
 
         <Animated.View
           style={{
@@ -144,7 +133,7 @@ export default function ForgotPassword() {
             Enter your email to reset your password
           </Text>
 
-          {/* MESAZHI KUR LINKU ËSHTË I SKADUAR / PËRDORUR */}
+          {/* Mesazhi kur linku është i skaduar */}
           {isLinkExpired && (
             <View
               style={{

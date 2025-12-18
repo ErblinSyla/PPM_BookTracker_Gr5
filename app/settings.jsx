@@ -192,6 +192,7 @@ export default function Settings() {
                     value={currentPassword}
                     onChangeText={setCurrentPassword}
                     placeholderTextColor="rgba(85, 0, 0, 0.5)"
+                    editable={!isLoading}
                   />
 
                   <TextInput
@@ -201,6 +202,7 @@ export default function Settings() {
                     value={newPassword}
                     onChangeText={setNewPassword}
                     placeholderTextColor="rgba(85, 0, 0, 0.5)"
+                    editable={!isLoading}
                   />
 
                   <TextInput
@@ -210,10 +212,27 @@ export default function Settings() {
                     value={retypePassword}
                     onChangeText={setRetypePassword}
                     placeholderTextColor="rgba(85, 0, 0, 0.5)"
+                    editable={!isLoading}
                   />
 
-                  <TouchableOpacity style={styles.saveButton}>
-                    <Text style={styles.saveButtonText}>Save Changes</Text>
+                  {passwordError ? (
+                    <Text style={styles.errorText}>{passwordError}</Text>
+                  ) : null}
+                  {passwordSuccess ? (
+                    <Text style={styles.successText}>{passwordSuccess}</Text>
+                  ) : null}
+
+                  <TouchableOpacity
+                    style={[
+                      styles.saveButton,
+                      isLoading && styles.saveButtonDisabled,
+                    ]}
+                    onPress={handleChangePassword}
+                    disabled={isLoading}
+                  >
+                    <Text style={styles.saveButtonText}>
+                      {isLoading ? "Saving..." : "Save Changes"}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               )}

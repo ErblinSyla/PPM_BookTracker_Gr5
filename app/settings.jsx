@@ -42,6 +42,13 @@ export default function Settings() {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [notificationEnabled, setNotificationEnabled] = useState(true);
+  const [dailyReminderEnabled, setDailyReminderEnabled] = useState(true);
+  const [weeklySummaryEnabled, setWeeklySummaryEnabled] = useState(true);
+  const [readingStreakEnabled, setReadingStreakEnabled] = useState(true);
+  const [bookAlmostFinishedEnabled, setBookAlmostFinishedEnabled] = useState(true);
+  const [sessionCompletionEnabled, setSessionCompletionEnabled] = useState(true);
+    
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -64,13 +71,24 @@ export default function Settings() {
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
-  const handleSendTestNotification = async () => {
-          try {
-              await NotificationService.sendTestNotification();
-          } catch (error) {
-              console.error("Error sending test notification:", error);
-          }
-  };
+ const handleToggleNotification = async (enabled) => {
+    if (enabled) {
+      setNotificationEnabled(true);
+    }else{
+      setNotificationEnabled(false);
+      await NotificationService.cancelAllNotifications();
+      setDailyReminderEnabled(false);
+      setWeeklySummaryEnabled(false);
+      setReadingStreakEnabled(false);
+      setBookAlmostFinishedEnabled(false);
+      setSessionCompletionEnabled(false);
+    }
+ };
+
+
+
+
+
 
   const handleChangePassword = async () => {
     setPasswordError("");

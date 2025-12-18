@@ -12,9 +12,11 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import styles from "./styles/SettingsStyles";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase/firebaseConfig";
 
 export default function Settings() {
   const router = useRouter();
@@ -23,8 +25,28 @@ export default function Settings() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [retypePassword, setRetypePassword] = useState("");
+  const [userEmail, setUserEmail] = useState(null);
+  const [providerId, setProviderId] = useState("");
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserEmail(user.email);
+      } else {
+        router.replace("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
+
+  useEffect(() => {
+    if (auth.currentUser) {
+      const provider = auth.currentUser.providerData[0]?.providerId;
+      setProviderId(provider || "");
+    }
+  }, []);
 
   return (
     <LinearGradient
@@ -60,41 +82,42 @@ export default function Settings() {
                   ios_backgroundColor="#E6D9B8"
                 />
               </View>
+              {providerId === "password" && (
+                <View style={styles.passwordSection}>
+                  <Text style={styles.sectionTitle}>Change Password</Text>
 
-              <View style={styles.passwordSection}>
-                <Text style={styles.sectionTitle}>Change Password</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Current Password"
+                    secureTextEntry
+                    value={currentPassword}
+                    onChangeText={setCurrentPassword}
+                    placeholderTextColor="rgba(85, 0, 0, 0.5)"
+                  />
 
-                <TextInput
-                  style={styles.input}
-                  placeholder="Current Password"
-                  secureTextEntry
-                  value={currentPassword}
-                  onChangeText={setCurrentPassword}
-                  placeholderTextColor="rgba(85, 0, 0, 0.5)"
-                />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="New Password"
+                    secureTextEntry
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    placeholderTextColor="rgba(85, 0, 0, 0.5)"
+                  />
 
-                <TextInput
-                  style={styles.input}
-                  placeholder="New Password"
-                  secureTextEntry
-                  value={newPassword}
-                  onChangeText={setNewPassword}
-                  placeholderTextColor="rgba(85, 0, 0, 0.5)"
-                />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Retype New Password"
+                    secureTextEntry
+                    value={retypePassword}
+                    onChangeText={setRetypePassword}
+                    placeholderTextColor="rgba(85, 0, 0, 0.5)"
+                  />
 
-                <TextInput
-                  style={styles.input}
-                  placeholder="Retype New Password"
-                  secureTextEntry
-                  value={retypePassword}
-                  onChangeText={setRetypePassword}
-                  placeholderTextColor="rgba(85, 0, 0, 0.5)"
-                />
-
-                <TouchableOpacity style={styles.saveButton} disabled>
-                  <Text style={styles.saveButtonText}>Save Changes</Text>
-                </TouchableOpacity>
-              </View>
+                  <TouchableOpacity style={styles.saveButton} disabled>
+                    <Text style={styles.saveButtonText}>Save Changes</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           </ScrollView>
         </SafeAreaView>

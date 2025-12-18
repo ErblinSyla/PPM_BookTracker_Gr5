@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, memo } from "react";
 import {
   View,
   Text,
@@ -18,8 +18,9 @@ import { auth, db } from "../firebase/firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function SignupEmail() {
+function SignupEmail() {
   const router = useRouter();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,18 +29,20 @@ export default function SignupEmail() {
   const [error, setError] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
 
+  // Redirect if already logged in
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         router.replace("/homepage");
       }
     });
-
     return () => unsubscribe();
   }, [router]);
 
-  const handleSignup = async () => {
+  // Memoized handlers to prevent unnecessary re-creations
+  const handleSignup = useCallback(async () => {
     setError("");
+
     if (!firstName || !lastName || !email || !password || !retypePassword) {
       setError("Please fill all fields!");
       return;
@@ -59,9 +62,11 @@ export default function SignupEmail() {
         email,
         password
       );
+
       await updateProfile(userCredential.user, {
         displayName: `${firstName} ${lastName}`,
       });
+
       await AsyncStorage.setItem("userUID", userCredential.user.uid);
       await sendEmailVerification(userCredential.user);
 
@@ -72,22 +77,26 @@ export default function SignupEmail() {
       });
 
       setModalVisible(true);
-
-      console.log("Verification email sent to:", userCredential.user.email);
     } catch (err) {
       console.error(err);
-      if (err.code === "auth/email-already-in-use")
+      if (err.code === "auth/email-already-in-use") {
         setError("Email is already in use!");
-      else if (err.code === "auth/invalid-email")
+      } else if (err.code === "auth/invalid-email") {
         setError("Invalid email address!");
-      else setError("Something went wrong. Please try again!");
+      } else {
+        setError("Something went wrong. Please try again!");
+      }
     }
-  };
+  }, [firstName, lastName, email, password, retypePassword]);
 
-  const handleModalOk = () => {
+  const handleModalOk = useCallback(() => {
     setModalVisible(false);
     router.push("/login");
-  };
+  }, [router]);
+
+  const handleGoBack = useCallback(() => {
+    router.back();
+  }, [router]);
 
   return (
     <View style={styles.container}>
@@ -129,22 +138,20 @@ export default function SignupEmail() {
           onChangeText={setRetypePassword}
         />
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {!!error && <Text style={styles.error}>{error}</Text>}
 
         <TouchableOpacity style={styles.button} onPress={handleSignup}>
           <Text style={styles.buttonText}>Create Account</Text>
         </TouchableOpacity>
 
-        {/* Back button  */}
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={handleGoBack}>
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Modal për Verify Email */}
       <Modal
         visible={modalVisible}
-        transparent={true}
+        transparent
         animationType="fade"
         onRequestClose={handleModalOk}
       >
@@ -155,10 +162,7 @@ export default function SignupEmail() {
               We’ve sent a verification link to your email address. Please
               verify before logging in.
             </Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={handleModalOk}
-            >
+            <TouchableOpacity style={styles.modalButton} onPress={handleModalOk}>
               <Text style={styles.modalButtonText}>OK</Text>
             </TouchableOpacity>
           </View>
@@ -177,7 +181,7 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     width: "100%",
-    maxWidth: 440, 
+    maxWidth: 440,
     paddingHorizontal: 30,
   },
   title: {
@@ -236,7 +240,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 28,
     width: "100%",
-    maxWidth: 400, 
+    maxWidth: 400,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -270,3 +274,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+export default memo(SignupEmail);

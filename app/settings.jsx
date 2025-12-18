@@ -42,7 +42,7 @@ export default function Settings() {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
-  const [notificationEnabled, setNotificationEnabled] = useState(true);
+  const [notificationsEnabled, setNotificationEnabled] = useState(true);
   const [dailyReminderEnabled, setDailyReminderEnabled] = useState(true);
   const [weeklySummaryEnabled, setWeeklySummaryEnabled] = useState(true);
   const [readingStreakEnabled, setReadingStreakEnabled] = useState(true);
@@ -85,7 +85,45 @@ export default function Settings() {
     }
  };
 
+const handleToggleDailyReminder = async (enabled) => {
+    if (!notificationsEnabled) return;
+    setDailyReminderEnabled(enabled);
+    if (!enabled) {
+      await NotificationService.cancelDailyReminder();
+    }
+  };
 
+  const handleToggleWeeklySummary = async (enabled) => {
+    if (!notificationsEnabled) return;
+    setWeeklySummaryEnabled(enabled);
+    if (!enabled) {
+      await NotificationService.cancelWeeklySummary();
+    }
+  };
+
+  const handleToggleReadingStreak = async (enabled) => {
+    if (!notificationsEnabled) return;
+    setReadingStreakEnabled(enabled);
+    if (!enabled) {
+      await NotificationService.cancelReadingStreak();
+    }
+  };
+
+  const handleToggleBookAlmostFinished = async (enabled) => {
+    if (!notificationsEnabled) return;
+    setBookAlmostFinishedEnabled(enabled);
+    if (!enabled) {
+      await NotificationService.cancelBookAlmostFinished();
+    }
+  };
+
+  const handleToggleSessionCompletion = async (enabled) => {
+    if (!notificationsEnabled) return;
+    setSessionCompletionEnabled(enabled);
+    if (!enabled) {
+      await NotificationService.cancelSessionCompletion();
+    }
+  };
 
 
 

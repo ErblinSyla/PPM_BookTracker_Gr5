@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, useState, memo } from "react";
 import {
   View,
   Text,
@@ -23,13 +23,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 WebBrowser.maybeCompleteAuthSession();
 
-export default function GitHubLogin() {
+function GitHubLogin() {
   const router = useRouter();
   const isWeb = Platform.OS === "web";
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Ruaj të dhënat e përdoruesit në Firestore + AsyncStorage
-  const saveUserData = async (user) => {
+  // Memoized function to save user data
+  const saveUserData = useCallback(async (user) => {
     try {
       await AsyncStorage.setItem("userUID", user.uid);
 
@@ -48,9 +48,9 @@ export default function GitHubLogin() {
     } catch (error) {
       console.error("Error saving user data:", error);
     }
-  };
+  }, []);
 
-  // Kontrollo nëse është i loguar (përfshirë kur hapet faqja)
+  // Redirect if already authenticated
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -60,9 +60,9 @@ export default function GitHubLogin() {
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, [router, saveUserData]);
 
-  // Mobile: Trajto rezultatin pas redirect-it nga browser
+  // Handle redirect result on mobile
   useEffect(() => {
     if (!isWeb) {
       getRedirectResult(auth)
@@ -80,16 +80,16 @@ export default function GitHubLogin() {
           }
         });
     }
-  }, [isWeb]);
+  }, [isWeb, saveUserData]);
 
-  const signInWithGitHub = async () => {
+  // Memoized GitHub sign-in handler
+  const signInWithGitHub = useCallback(async () => {
     setLoading(true);
     try {
       const provider = new GithubAuthProvider();
       provider.addScope("read:user user:email");
 
       if (isWeb) {
-        // Web: popup
         const result = await signInWithPopup(auth, provider);
         if (result.user) {
           await saveUserData(result.user);
@@ -97,20 +97,27 @@ export default function GitHubLogin() {
           router.replace("/homepage");
         }
       } else {
-        // Mobile: redirect
         await signInWithRedirect(auth, provider);
       }
     } catch (error) {
       console.error("GitHub login error:", error);
       let message = "Login me GitHub dështoi. Provo përsëri.";
-      if (error.code === "auth/popup-closed-by-user" || error.code === "auth/cancelled-popup-request") {
+      if (
+        error.code === "auth/popup-closed-by-user" ||
+        error.code === "auth/cancelled-popup-request"
+      ) {
         message = "Login u anulua nga përdoruesi.";
       }
       Alert.alert("Gabim", message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [isWeb, saveUserData]);
+
+  // Memoized back handler
+  const handleGoBack = useCallback(() => {
+    router.back();
+  }, [router]);
 
   return (
     <View style={styles.container}>
@@ -129,7 +136,7 @@ export default function GitHubLogin() {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={handleGoBack}>
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
       </View>
@@ -146,7 +153,7 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     width: "100%",
-    maxWidth: 440, 
+    maxWidth: 440,
     paddingHorizontal: 30,
     alignItems: "center",
   },
@@ -183,3 +190,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+export default memo(GitHubLogin);

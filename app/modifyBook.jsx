@@ -30,6 +30,13 @@ import ReviewField from "./components/ReviewField";
 import RatingField from "./components/RatingField";
 import Spinner from "./components/Spinner";
 
+const demoBook = {
+  id: "demo-123",
+  title: "Demo Book",
+  author: "Demo Author",
+  cover: null,
+};
+
 export default function UpdateBookDetails() {
   const router = useRouter();
   const { editId } = useLocalSearchParams();
@@ -48,13 +55,6 @@ export default function UpdateBookDetails() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState("");
   const [modalMessage, setModalMessage] = useState("");
-
-  const demoBook = {
-    id: "demo-123",
-    title: "Demo Book",
-    author: "Demo Author",
-    cover: null,
-  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

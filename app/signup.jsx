@@ -1,10 +1,26 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 
+// Importet e Firebase
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase/firebaseConfig"; // korrigjo path-in nëse është ndryshe
 
 export default function SignupOptions() {
   const router = useRouter();
+
+  // Kontrollo nëse përdoruesi është i loguar
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Nëse është i loguar, ridrejtoje te faqja kryesore
+        router.replace("/homepage"); // ose "/(tabs)" nëse përdor tabs, ose emrin e saktë të routes
+      }
+    });
+
+    // Cleanup subscription kur komponenti unmount
+    return () => unsubscribe();
+  }, [router]);
 
   return (
     <View style={styles.container}>

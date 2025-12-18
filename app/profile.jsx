@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   View,
   Text,
@@ -11,9 +12,8 @@ import {
   Platform,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useState, useCallback, useMemo } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserData } from "../app/services/authService";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -36,6 +36,7 @@ export default function Profile() {
   });
 
   const [userData, setUserData] = useState({ name: "", email: "" });
+  const [avatarImage, setAvatarImage] = useState(require("../assets/profile-image-test.png"));
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState({});
@@ -59,12 +60,10 @@ export default function Profile() {
         if (!data) return;
 
         setUserData(data);
-
         const q = query(
           collection(db, "books"),
           where("userEmail", "==", data.email)
         );
-
         const snap = await getDocs(q);
         const books = snap.docs.map((d) => d.data());
 
@@ -81,14 +80,21 @@ export default function Profile() {
     loadUser();
   }, []);
 
-  const bookCounts = useMemo(
-    () => ({
-      reading: counts.reading,
-      toRead: counts.toRead,
-      finished: counts.finished,
-    }),
-    [counts]
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadAvatar = async () => {
+        try {
+          const avatar = await AsyncStorage.getItem("userAvatar");
+          if (avatar) setAvatarImage(JSON.parse(avatar));
+        } catch (error) {
+          console.log("Error loading avatar:", error);
+        }
+      };
+      loadAvatar();
+    }, [])
   );
+
+  const bookCounts = useMemo(() => ({ reading: counts.reading, toRead: counts.toRead, finished: counts.finished }), [counts]);
 
   const performLogout = useCallback(async () => {
     await signOut(auth);
@@ -112,20 +118,12 @@ export default function Profile() {
     if (modalType === "logout") await performLogout();
   }, [modalType, performLogout]);
 
-  if (isLoading) {
-    return <Spinner />;
-  }
+  if (isLoading) return <Spinner />;
 
   return (
-    <LinearGradient
-      colors={["#FAF0DC", "#F2EBE2"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={styles.container}
-    >
+    <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={styles.container}>
       <SafeAreaView style={styles.safe}>
         <StatusBar style="light" />
-
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.push("/homepage")}>
@@ -135,56 +133,39 @@ export default function Profile() {
 
           <View style={styles.flex__container}>
             <View style={styles.avatar}>
-              <Image
-                source={require("../assets/profile-image-test.png")}
-                style={styles.avatar__image}
-              />
+              <Image source={avatarImage} style={styles.avatar__image} />
               <Text style={styles.avatar__name}>{userData.name}</Text>
               <Text style={styles.avatar__email}>{userData.email}</Text>
             </View>
 
             <View style={styles.book__stats}>
-              <TouchableOpacity
-                onPress={() => router.push("/homepage")}
-                style={styles.book__active}
-              >
+              <TouchableOpacity onPress={() => router.push("/homepage")} style={styles.book__active}>
                 <Text style={styles.active__num}>{bookCounts.reading}</Text>
                 <Text style={styles.active__desc}>Reading</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => router.push("/homepage")}
-                style={styles.book__pending}
-              >
+              <TouchableOpacity onPress={() => router.push("/homepage")} style={styles.book__pending}>
                 <Text style={styles.pending__num}>{bookCounts.toRead}</Text>
                 <Text style={styles.pending__desc}>To Read</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => router.push("/homepage")}
-                style={styles.book__completed}
-              >
+              <TouchableOpacity onPress={() => router.push("/homepage")} style={styles.book__completed}>
                 <Text style={styles.completed__num}>{bookCounts.finished}</Text>
-
                 <Text style={styles.completed__desc}>Finished</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.profile__options}>
-              <ProfileOption
+              <ProfileOption 
                 icon={require("../assets/profile_username-icon.png")}
-                title="Username"
-                desc={`@${userData.name?.toLowerCase().replace(/ /g, "_")}`}
-                isUser={true}
+                title="Edit Profile"
+                desc="Change name, username"
+                onPress={() => router.push("/EditProfile")}
               />
-
               <ProfileOption
                 icon={require("../assets/profile_notification-icon.png")}
                 title="Notifications"
                 desc="Mute, Push, Email"
                 onPress={() => router.push("/notifications")}
               />
-
               <ProfileOption
                 icon={require("../assets/profile_settings-icon.png")}
                 title="Settings"
@@ -193,10 +174,8 @@ export default function Profile() {
                 end
               />
             </View>
-            <TouchableOpacity
-              style={styles.logoutBtn}
-              onPress={showLogoutConfirmation}
-            >
+
+            <TouchableOpacity style={styles.logoutBtn} onPress={showLogoutConfirmation}>
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>

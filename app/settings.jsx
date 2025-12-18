@@ -246,8 +246,20 @@ const handleToggleDailyReminder = async (enabled) => {
                 />
               </View>
               <View style={styles.notificationContainer}>
-                <Text style={styles.notificationTitle}>Notifications</Text>
-                <Button style={styles.notificationBtn} title="Send Test Notification" onPress={handleSendTestNotification} />
+                <View style={styles.settingItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingTitle}>Enable Notifications</Text>
+                    <Text style={styles.settingDesc}>Turn on/off all notifications</Text>
+                  </View>
+                  <Switch
+                    value={notificationsEnabled}
+                    onValueChange={handleToggleNotification}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={notificationsEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                  />
+                </View>
+                
               </View>
               {providerId === "password" && (
                 <View style={styles.passwordSection}>

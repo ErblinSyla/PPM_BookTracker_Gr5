@@ -11,6 +11,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   innerContainer: {
+    flex: 1,
     maxWidth: 600,
     alignSelf: "center",
     width: "100%",
@@ -66,6 +67,25 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     marginTop: 4,
   },
+  notificationContainer: {
+    backgroundColor: "#FCF7E6",
+    padding: 18,
+    borderRadius: 20,
+  },
+  notificationTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#550000",
+    marginBottom: 10,
+  },
+  notificationBtn: {
+    backgroundColor: "#550000",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 10,
+  },
   passwordSection: {
     backgroundColor: "#FCF7E6",
     padding: 24,
@@ -99,6 +119,21 @@ const styles = StyleSheet.create({
     color: "#FAF0DC",
     fontSize: 18,
     fontWeight: "700",
+  },
+  saveButtonDisabled: {
+    opacity: 0.6,
+  },
+  errorText: {
+    color: "#D32F2F",
+    fontSize: 14,
+    marginTop: 8,
+    fontWeight: "500",
+  },
+  successText: {
+    color: "#388E3C",
+    fontSize: 14,
+    marginTop: 8,
+    fontWeight: "500",
   },
   infoContainer: {
     marginTop: 50,

@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ScrollView,
   Switch,
+  Button,
 } from "react-native";
 import {
   updatePassword,
@@ -53,13 +54,13 @@ export default function Settings() {
       } else {
         setUserEmail(null);
         setProviderId("");
-        router.replace("/login");
         setIsLoadingAuth(false);
+        router.replace("/login");
       }
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, []);
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
@@ -188,7 +189,10 @@ export default function Settings() {
                   ios_backgroundColor="#E6D9B8"
                 />
               </View>
-
+              <View style={styles.notificationContainer}>
+                <Text style={styles.notificationTitle}>Notifications</Text>
+                <Button style={styles.notificationBtn} title="Send Test Notification" onPress={handleSendTestNotification} />
+              </View>
               {providerId === "password" && (
                 <View style={styles.passwordSection}>
                   <Text style={styles.sectionTitle}>Change Password</Text>

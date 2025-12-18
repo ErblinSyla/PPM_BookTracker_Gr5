@@ -421,6 +421,22 @@ async function cancelReadingStreak(){
     }
 }
 
+async function cancelBookAlmostFinished(){
+    try{
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const almostFinishedIds = notifications
+            .filter(n=>n.content.data?.almostFinished)
+            .map(n=>n.identifier);
+        for (let id of almostFinishedIds) {
+            await Notifications.cancelScheduledNotificationAsync(id);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error cancelling book almost finished notifications:", error);
+        return false;
+    }
+}
+
 export default {
     sendTestNotification,
     requestPermissions,
@@ -435,6 +451,7 @@ export default {
     notifySessionCompletion,
     cancelDailyReminder,
     cancelWeeklySummary,
-    cancelReadingStreak,    
+    cancelReadingStreak, 
+    cancelBookAlmostFinished,   
     cancelAllNotifications,
 };

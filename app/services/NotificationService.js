@@ -50,7 +50,40 @@ async function sendTestNotification(){
     });
 }
 
+async function scheduleDailyReminder(hour = 18, minute = 30) {
+    const ok = await requestPermissions();
+    if (!ok) throw new Error('Push notification permission not granted');
+
+    if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('daily-reminder', {
+            name: 'Daily Reminder',
+            importance: Notifications.AndroidImportance.DEFAULT,
+        });
+    }
+
+    return Notifications.scheduleNotificationAsync({
+        content: {
+            title: "📚 Time to Read!",
+            body: "Don't forget your daily reading session. What are you reading today?",
+            data: { reminder: true },
+            sound: true,
+        },
+        trigger: {
+            type: 'daily',
+            hour,
+            minute,
+            repeats: true,
+        },
+    });
+}
+
+async function cancelAllNotifications() {
+    await Notifications.cancelAllScheduledNotificationsAsync();
+}
+
 export default {
     sendTestNotification,
     requestPermissions,
+    scheduleDailyReminder,
+    cancelAllNotifications,
 };

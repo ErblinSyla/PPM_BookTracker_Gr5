@@ -1,24 +1,36 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, memo } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 
 // Importet e Firebase
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase/firebaseConfig"; 
+import { auth } from "../firebase/firebaseConfig";
 
-export default function SignupOptions() {
+function SignupOptions() {
   const router = useRouter();
 
   // Kontrollo nëse përdoruesi është i loguar
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-       
-        router.replace("/homepage"); 
+        router.replace("/homepage");
       }
     });
 
     return () => unsubscribe();
+  }, [router]);
+
+  // Memoizo funksionet e navigimit
+  const handleEmailSignup = useCallback(() => {
+    router.push("/SignupEmail");
+  }, [router]);
+
+  const handleGitHubSignup = useCallback(() => {
+    router.push("/GitHubLogin");
+  }, [router]);
+
+  const handleLogin = useCallback(() => {
+    router.push("/login");
   }, [router]);
 
   return (
@@ -27,28 +39,18 @@ export default function SignupOptions() {
         <Text style={styles.title}>Create an Account</Text>
         <Text style={styles.subtitle}>Choose a method to continue</Text>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push("/SignupEmail")}
-        >
+        <TouchableOpacity style={styles.button} onPress={handleEmailSignup}>
           <Text style={styles.buttonText}>Continue with Email</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push("/GitHubLogin")}
-        >
+        <TouchableOpacity style={styles.button} onPress={handleGitHubSignup}>
           <Text style={styles.buttonText}>Continue with GitHub</Text>
         </TouchableOpacity>
 
-        {/* Pjesa e re me stil si te login */}
         <View style={styles.footerTextContainer}>
           <Text style={styles.footerText}>
             Already have an account?{" "}
-            <Text
-              style={styles.boldText}
-              onPress={() => router.push("/login")}
-            >
+            <Text style={styles.boldText} onPress={handleLogin}>
               Log in
             </Text>
           </Text>
@@ -67,7 +69,7 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     width: "100%",
-    maxWidth: 440, 
+    maxWidth: 440,
     paddingHorizontal: 30,
     alignItems: "center",
   },
@@ -112,3 +114,6 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
 });
+
+// Memoizo komponentin për të shmangur re-render të panevojshëm
+export default memo(SignupOptions);

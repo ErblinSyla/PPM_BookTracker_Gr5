@@ -194,6 +194,107 @@ async function notifyBookAlmostFinished(bookTitle, pagesRead, totalPages, thresh
     });
 }
 
+async function calculateReadingStreak(userEmail) {
+    try {
+        const q = query(
+            collection(db, "books"),
+            where("userEmail", "==", userEmail)
+        );
+        const snap = await getDocs(q);
+        const books = snap.docs.map((d) => d.data());
+
+        
+        const readingDates = new Set();
+        
+        books.forEach(book => {
+            if (book.finishDate && book.pagesRead && book.pagesRead > 0) {
+                const date = new Date(book.finishDate);
+                const dateString = date.toISOString().split('T')[0]; 
+                readingDates.add(dateString);
+            }
+        });
+
+        if (readingDates.size === 0) return 0;
+
+        const sortedDates = Array.from(readingDates).sort().reverse();
+        
+        let currentStreak = 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let checkDate = new Date(today);
+
+        for (let date of sortedDates) {
+            const checkDateString = checkDate.toISOString().split('T')[0];
+            
+            if (date === checkDateString) {
+                currentStreak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+            } else if (date < checkDateString) {
+                break;
+            }
+        }
+
+        return currentStreak;
+    } catch (error) {
+        console.error("Error calculating reading streak:", error);
+        return 0;
+    }
+}
+
+async function notifyReadingStreakCelebration(streakDays) {
+    const ok = await requestPermissions();
+    if (!ok) throw new Error('Push notification permission not granted');
+
+    const milestones = [7, 14, 30, 100];
+    if (!milestones.includes(streakDays)) {
+        console.log(`Streak of ${streakDays} days is not a milestone. Milestones: 7, 14, 30, 100`);
+        return null;
+    }
+
+    if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('reading-streak', {
+            name: 'Reading Streak',
+            importance: Notifications.AndroidImportance.DEFAULT,
+        });
+    }
+
+    let title = "🔥 Reading Streak!";
+    let body = "";
+    let emoji = "";
+
+    if (streakDays === 7) {
+        emoji = "🌟";
+        body = `Amazing! You've maintained a ${streakDays}-day reading streak. Keep it going!`;
+    } else if (streakDays === 14) {
+        emoji = "⚡";
+        body = `Incredible! ${streakDays} consecutive days of reading. You're unstoppable!`;
+    } else if (streakDays === 30) {
+        emoji = "👑";
+        body = `Outstanding! A full month of reading! You're a true bookworm! 📚`;
+    } else if (streakDays === 100) {
+        emoji = "💎";
+        body = `🏆 LEGENDARY! 100 days of reading! You've achieved something extraordinary!`;
+    }
+
+    return Notifications.scheduleNotificationAsync({
+        content: {
+            title: `${emoji} ${title}`,
+            body: body,
+            data: { 
+                streak: true,
+                streakDays: streakDays,
+            },
+            sound: true,
+        },
+        trigger: {
+            type: 'timeInterval',
+            seconds: 1,
+            repeats: false,
+        },
+    });
+}
+
 export default {
     sendTestNotification,
     requestPermissions,
@@ -202,5 +303,7 @@ export default {
     getPagesReadThisWeek,
     calculateReadingPercentage,
     notifyBookAlmostFinished,
+    calculateReadingStreak,
+    notifyReadingStreakCelebration,
     cancelAllNotifications,
 };

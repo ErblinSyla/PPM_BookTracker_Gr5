@@ -1,6 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase/firebaseConfig';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -104,9 +106,90 @@ async function scheduleWeeklySummary(pagesRead = 0, dayOfWeek = 0, hour = 20, mi
         },
         trigger: {
             type: 'weekly',
-            weekday: dayOfWeek, // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            weekday: dayOfWeek, 
             hour,
             minute,
+        },
+    });
+}
+
+async function getPagesReadThisWeek(userEmail) {
+    try {
+        const q = query(
+            collection(db, "books"),
+            where("userEmail", "==", userEmail)
+        );
+        const snap = await getDocs(q);
+        const books = snap.docs.map((d) => d.data());
+
+        const now = new Date();
+        const currentDay = now.getDay();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - currentDay);
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        const totalPagesThisWeek = books.reduce((total, book) => {
+            if (!book.finishDate) return total;
+
+            const finishDate = new Date(book.finishDate);
+            
+            if (finishDate >= startOfWeek && finishDate <= endOfWeek) {
+                return total + (book.pagesRead || 0);
+            }
+            return total;
+        }, 0);
+
+        return totalPagesThisWeek;
+    } catch (error) {
+        console.error("Error fetching pages read this week:", error);
+        return 0;
+    }
+}
+
+function calculateReadingPercentage(pagesRead, totalPages) {
+    if (!totalPages || totalPages === 0) return 0;
+    return Math.round((pagesRead / totalPages) * 100);
+}
+
+async function notifyBookAlmostFinished(bookTitle, pagesRead, totalPages, thresholdPercentage = 90) {
+    const ok = await requestPermissions();
+    if (!ok) throw new Error('Push notification permission not granted');
+
+    const percentage = calculateReadingPercentage(pagesRead, totalPages);
+
+    if (percentage < thresholdPercentage) {
+        console.log(`Book not at threshold yet. Current: ${percentage}%, Threshold: ${thresholdPercentage}%`);
+        return null;
+    }
+
+    if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('book-almost-finished', {
+            name: 'Book Almost Finished',
+            importance: Notifications.AndroidImportance.DEFAULT,
+        });
+    }
+
+    return Notifications.scheduleNotificationAsync({
+        content: {
+            title: "📖 Almost There!",
+            body: `You're ${percentage}% done with "${bookTitle}". Just a little more to go!`,
+            data: { 
+                almostFinished: true,
+                bookTitle: bookTitle,
+                percentage: percentage,
+                pagesRead: pagesRead,
+                totalPages: totalPages,
+            },
+            sound: true,
+        },
+        trigger: {
+            type: 'timeInterval',
+            seconds: 1,
+            repeats: false,
         },
     });
 }
@@ -116,5 +199,8 @@ export default {
     requestPermissions,
     scheduleDailyReminder,
     scheduleWeeklySummary,
+    getPagesReadThisWeek,
+    calculateReadingPercentage,
+    notifyBookAlmostFinished,
     cancelAllNotifications,
 };

@@ -272,6 +272,60 @@ const handleToggleDailyReminder = async (enabled) => {
                     disabled={!notificationsEnabled}
                   />
                 </View>
+                <View style={styles.notificationSubItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingSubTitle}>Weekly Summary</Text>
+                  </View>
+                  <Switch
+                    value={weeklySummaryEnabled}
+                    onValueChange={handleToggleWeeklySummary}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={weeklySummaryEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                    disabled={!notificationsEnabled}
+                  />
+                </View>
+                <View style={styles.notificationSubItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingSubTitle}>Reading Streak</Text>
+                  </View>
+                  <Switch
+                    value={readingStreakEnabled}
+                    onValueChange={handleToggleReadingStreak}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={readingStreakEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                    disabled={!notificationsEnabled}
+                  />
+                </View>
+
+                <View style={styles.notificationSubItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingSubTitle}>Book Almost Finished</Text>
+                  </View>
+                  <Switch
+                    value={bookAlmostFinishedEnabled}
+                    onValueChange={handleToggleBookAlmostFinished}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={bookAlmostFinishedEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                    disabled={!notificationsEnabled}
+                  />
+                </View>
+
+                <View style={styles.notificationSubItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingSubTitle}>Session Completion</Text>
+                  </View>
+                  <Switch
+                    value={sessionCompletionEnabled}
+                    onValueChange={handleToggleSessionCompletion}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={sessionCompletionEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                    disabled={!notificationsEnabled}
+                  />
+                </View>
               </View>
               {providerId === "password" && (
                 <View style={styles.passwordSection}>

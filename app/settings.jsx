@@ -259,7 +259,19 @@ const handleToggleDailyReminder = async (enabled) => {
                     ios_backgroundColor="#E6D9B8"
                   />
                 </View>
-                
+                <View style={styles.notificationSubItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingSubTitle}>Daily Reminder</Text>
+                  </View>
+                  <Switch
+                    value={dailyReminderEnabled}
+                    onValueChange={handleToggleDailyReminder}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={dailyReminderEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                    disabled={!notificationsEnabled}
+                  />
+                </View>
               </View>
               {providerId === "password" && (
                 <View style={styles.passwordSection}>

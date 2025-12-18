@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -180,13 +180,13 @@ export default function UpdateBookDetails() {
     router,
   ]); // dependecies qe perdoren dhe memoizohen me funksion
 
-  if (!book) {
-    return <Spinner />;
-  }
-
   const handleGoBack = useCallback(() => {
     router.back();
   }, [router]);
+
+  if (!book) {
+    return <Spinner />;
+  }
 
   return (
     <BackgroundGradient>

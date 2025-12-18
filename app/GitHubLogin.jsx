@@ -33,7 +33,6 @@ export default function GitHubLogin() {
     try {
       await AsyncStorage.setItem("userUID", user.uid);
 
-      // Kontrollo nëse përdoruesi ekziston tashmë në Firestore
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
@@ -51,19 +50,19 @@ export default function GitHubLogin() {
     }
   };
 
-  // Kontrollo nëse përdoruesi është i loguar (përfshirë kur hapet faqja)
+  // Kontrollo nëse është i loguar (përfshirë kur hapet faqja)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         await saveUserData(user);
-        router.replace("/homepage"); // Ridrejto nëse është i loguar
+        router.replace("/homepage");
       }
     });
 
     return () => unsubscribe();
   }, [router]);
 
-  // Vetëm për mobile: Trajto rezultatin e redirect pas kthimit nga browser
+  // Mobile: Trajto rezultatin pas redirect-it nga browser
   useEffect(() => {
     if (!isWeb) {
       getRedirectResult(auth)
@@ -81,7 +80,7 @@ export default function GitHubLogin() {
           }
         });
     }
-  }, []);
+  }, [isWeb]);
 
   const signInWithGitHub = async () => {
     setLoading(true);
@@ -90,25 +89,22 @@ export default function GitHubLogin() {
       provider.addScope("read:user user:email");
 
       if (isWeb) {
-        // Web: përdor popup
+        // Web: popup
         const result = await signInWithPopup(auth, provider);
         if (result.user) {
           await saveUserData(result.user);
-          Alert.alert("Sukses!", `Mirë se erdhe ${result.user.displayName}!`);
+          Alert.alert("Sukses!", `Mirë se erdhe ${result.user.displayName || "përdorues"}!`);
           router.replace("/homepage");
         }
       } else {
-        // Mobile: përdor redirect
+        // Mobile: redirect
         await signInWithRedirect(auth, provider);
-        // Pas kësaj, app-i do të ridrejtohet te browser dhe do të kthehet (trajtohet nga useEffect-i i dytë)
       }
     } catch (error) {
       console.error("GitHub login error:", error);
       let message = "Login me GitHub dështoi. Provo përsëri.";
-      if (error.code === "auth/popup-closed-by-user") {
-        message = "Login u anulua.";
-      } else if (error.code === "auth/cancelled-popup-request") {
-        message = "Veprim i anuluar.";
+      if (error.code === "auth/popup-closed-by-user" || error.code === "auth/cancelled-popup-request") {
+        message = "Login u anulua nga përdoruesi.";
       }
       Alert.alert("Gabim", message);
     } finally {
@@ -118,23 +114,25 @@ export default function GitHubLogin() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Continue with GitHub</Text>
+      <View style={styles.contentWrapper}>
+        <Text style={styles.title}>Continue with GitHub</Text>
 
-      <TouchableOpacity
-        style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={signInWithGitHub}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#550000" />
-        ) : (
-          <Text style={styles.buttonText}>Sign in with GitHub</Text>
-        )}
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={signInWithGitHub}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#550000" size="small" />
+          ) : (
+            <Text style={styles.buttonText}>Sign in with GitHub</Text>
+          )}
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.back()} style={styles.backContainer}>
-        <Text style={styles.backText}>← Back</Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={styles.backText}>← Back</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -142,10 +140,15 @@ export default function GitHubLogin() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#FAF0DC",
     justifyContent: "center",
     alignItems: "center",
-    padding: 30,
-    backgroundColor: "#FAF0DC",
+  },
+  contentWrapper: {
+    width: "100%",
+    maxWidth: 440, 
+    paddingHorizontal: 30,
+    alignItems: "center",
   },
   title: {
     fontSize: 26,
@@ -159,9 +162,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#55000070",
     borderRadius: 25,
-    paddingVertical: 15,
+    paddingVertical: 16,
     width: "100%",
     alignItems: "center",
+    justifyContent: "center",
   },
   buttonDisabled: {
     opacity: 0.7,
@@ -171,11 +175,11 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 16,
   },
-  backContainer: {
-    marginTop: 30,
-  },
   backText: {
+    marginTop: 32,
     color: "#550000",
     fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

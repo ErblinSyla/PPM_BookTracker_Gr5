@@ -42,8 +42,6 @@ export default function Settings() {
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
 
-  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -62,6 +60,89 @@ export default function Settings() {
 
     return () => unsubscribe();
   }, [router]);
+
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
+
+  const handleChangePassword = async () => {
+    setPasswordError("");
+    setPasswordSuccess("");
+    setIsLoading(true);
+
+    if (!currentPassword) {
+      setPasswordError("Please enter your current password.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!newPassword) {
+      setPasswordError("Please enter a new password.");
+      setIsLoading(false);
+      return;
+    }
+
+    const strongPasswordRegex =
+      /^(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+
+    if (!strongPasswordRegex.test(newPassword)) {
+      setPasswordError(
+        "New password must be at least 8 characters long and include at least 1 number and 1 special character (!@#$%^&* etc.)."
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    if (newPassword !== retypePassword) {
+      setPasswordError("New passwords do not match.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      setPasswordError("New password must be different from current.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        setPasswordError("No user logged in.");
+        setIsLoading(false);
+        return;
+      }
+
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        currentPassword
+      );
+      await reauthenticateWithCredential(user, credential);
+
+      await updatePassword(user, newPassword);
+
+      setPasswordSuccess("Password changed successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setRetypePassword("");
+
+      if (Platform.OS !== "web") {
+        Alert.alert("Success", "Your password has been updated!");
+      }
+    } catch (error) {
+      console.error("Password change error:", error);
+
+      if (error.code === "auth/wrong-password") {
+        setPasswordError("Current password is incorrect.");
+      } else if (error.code === "auth/too-many-requests") {
+        setPasswordError("Too many attempts. Try again later.");
+      } else if (error.code === "auth/requires-recent-login") {
+        setPasswordError("Please log in again to change your password.");
+      } else {
+        setPasswordError("Failed to change password. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (isLoadingAuth) return <Spinner />;
 

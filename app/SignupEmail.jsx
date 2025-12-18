@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; 
 import {
   View,
   Text,
@@ -6,13 +6,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
-  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   updateProfile,
+  onAuthStateChanged, 
 } from "firebase/auth";
 import { auth, db } from "../firebase/firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
@@ -27,6 +27,17 @@ export default function SignupEmail() {
   const [retypePassword, setRetypePassword] = useState("");
   const [error, setError] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+
+        router.replace("/homepage"); 
+      }
+    });
+
+    return () => unsubscribe(); 
+  }, [router]);
 
   const handleSignup = async () => {
     setError("");
@@ -58,10 +69,9 @@ export default function SignupEmail() {
       await setDoc(doc(db, "users", userCredential.user.uid), {
         name: `${firstName.trim()} ${lastName.trim()}`,
         email: email.toLowerCase(),
-        createdAt: new Date().toISOString(), // optional, nice to have
+        createdAt: new Date().toISOString(),
       });
 
-      // Shfaq modal
       setModalVisible(true);
 
       console.log("Verification email sent to:", userCredential.user.email);
@@ -156,6 +166,7 @@ export default function SignupEmail() {
   );
 }
 
+// Styles mbeten njësoj siç i ke ti...
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   updateProfile,
-  onAuthStateChanged, 
+  onAuthStateChanged,
 } from "firebase/auth";
 import { auth, db } from "../firebase/firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
@@ -31,12 +31,11 @@ export default function SignupEmail() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-
-        router.replace("/homepage"); 
+        router.replace("/homepage");
       }
     });
 
-    return () => unsubscribe(); 
+    return () => unsubscribe();
   }, [router]);
 
   const handleSignup = async () => {
@@ -92,52 +91,55 @@ export default function SignupEmail() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign Up with Email</Text>
+      <View style={styles.contentWrapper}>
+        <Text style={styles.title}>Sign Up with Email</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="First Name"
-        value={firstName}
-        onChangeText={setFirstName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Last Name"
-        value={lastName}
-        onChangeText={setLastName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Retype Password"
-        secureTextEntry
-        value={retypePassword}
-        onChangeText={setRetypePassword}
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="First Name"
+          value={firstName}
+          onChangeText={setFirstName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Last Name"
+          value={lastName}
+          onChangeText={setLastName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Retype Password"
+          secureTextEntry
+          value={retypePassword}
+          onChangeText={setRetypePassword}
+        />
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <TouchableOpacity style={styles.button} onPress={handleSignup}>
-        <Text style={styles.buttonText}>Create Account</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleSignup}>
+          <Text style={styles.buttonText}>Create Account</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.back()}>
-        <Text style={styles.backText}>← Back</Text>
-      </TouchableOpacity>
+        {/* Back button  */}
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={styles.backText}>← Back</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Modal për Verify Email */}
       <Modal
@@ -166,13 +168,17 @@ export default function SignupEmail() {
   );
 }
 
-// Styles mbeten njësoj siç i ke ti...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    padding: 30,
     backgroundColor: "#FAF0DC",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  contentWrapper: {
+    width: "100%",
+    maxWidth: 440, 
+    paddingHorizontal: 30,
   },
   title: {
     fontSize: 26,
@@ -185,18 +191,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#55000060",
     borderRadius: 25,
-    padding: 12,
+    padding: 14,
     marginBottom: 16,
     backgroundColor: "#ffffff40",
     color: "#550000",
+    fontSize: 16,
   },
   button: {
     backgroundColor: "#ffffff40",
     borderWidth: 1,
     borderColor: "#55000070",
     borderRadius: 25,
-    paddingVertical: 15,
-    marginBottom: 16,
+    paddingVertical: 16,
+    marginTop: 10,
+    marginBottom: 20,
   },
   buttonText: {
     textAlign: "center",
@@ -204,8 +212,18 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 16,
   },
-  error: { color: "red", textAlign: "center", marginBottom: 10 },
-  backText: { color: "#550000", marginTop: 20, textAlign: "center" },
+  error: {
+    color: "red",
+    textAlign: "center",
+    marginBottom: 16,
+    fontSize: 15,
+  },
+  backText: {
+    color: "#550000",
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -216,10 +234,15 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: "white",
     borderRadius: 20,
-    padding: 24,
+    padding: 28,
     width: "100%",
-    maxWidth: 400,
+    maxWidth: 400, 
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
   },
   modalTitle: {
     fontSize: 20,
@@ -231,13 +254,14 @@ const styles = StyleSheet.create({
   modalMessage: {
     fontSize: 16,
     color: "#550000",
-    marginBottom: 24,
+    marginBottom: 28,
     textAlign: "center",
+    lineHeight: 22,
   },
   modalButton: {
     backgroundColor: "#550000",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
     borderRadius: 12,
   },
   modalButtonText: {

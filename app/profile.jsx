@@ -157,7 +157,7 @@ export default function Profile() {
               <ProfileOption 
                 icon={require("../assets/profile_username-icon.png")}
                 title="Edit Profile"
-                desc="Change name, username"
+                desc="Change your avatar"
                 onPress={() => router.push("/EditProfile")}
               />
               <ProfileOption

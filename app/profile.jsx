@@ -164,7 +164,7 @@ export default function Profile() {
                 icon={require("../assets/profile_notification-icon.png")}
                 title="Notifications"
                 desc="Mute, Push, Email"
-                onPress={() => router.push("/notifications")}
+                onPress={() => router.push("/settings")}
               />
               <ProfileOption
                 icon={require("../assets/profile_settings-icon.png")}

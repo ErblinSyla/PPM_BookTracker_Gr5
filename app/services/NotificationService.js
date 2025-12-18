@@ -35,9 +35,8 @@ async function sendTestNotification(){
             importance: Notifications.AndroidImportance.DEFAULT,
         });
     }
-}
 
-return Notifications.scheduleNotificationAsync({
+    return Notifications.scheduleNotificationAsync({
     content: {
         title: "Test Notification",
         body: 'This is a test notification from NotificationService',
@@ -46,9 +45,10 @@ return Notifications.scheduleNotificationAsync({
     trigger: {
         type: 'timeInterval',
         seconds: 1,
-        repeats: false, 
-        },
-});
+        repeats: false,
+    },
+    });
+}
 
 export default {
     sendTestNotification,

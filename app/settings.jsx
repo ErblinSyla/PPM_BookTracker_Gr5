@@ -24,6 +24,7 @@ import styles from "./styles/SettingsStyles";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
 
+import NotificationService from "./services/NotificationService";
 import Spinner from "./components/Spinner";
 
 export default function Settings() {
@@ -61,6 +62,14 @@ export default function Settings() {
   }, [router]);
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
+
+  const handleSendTestNotification = async () => {
+          try {
+              await NotificationService.sendTestNotification();
+          } catch (error) {
+              console.error("Error sending test notification:", error);
+          }
+  };
 
   const handleChangePassword = async () => {
     setPasswordError("");

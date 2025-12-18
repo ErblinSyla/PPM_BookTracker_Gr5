@@ -3,6 +3,8 @@
 import { View, Animated, TouchableOpacity, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase/firebaseConfig";
 
 import BackgroundGradient from "./components/BackgroundGradient";
 import PrimaryButton from "./components/PrimaryButton";
@@ -25,6 +27,16 @@ export default function Index() {
   const floatAnimLogo = useRef(new Animated.Value(0)).current;
   const floatAnimQuote = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.replace("/homepage");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   const fadeIn = (anim, delay = 0) => {
     Animated.timing(anim, {

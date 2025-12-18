@@ -295,6 +295,164 @@ async function notifyReadingStreakCelebration(streakDays) {
     });
 }
 
+function calculateReadingSessionDuration(startTime, endTime) {
+    try {
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+
+        const durationMs = end - start;
+        
+        if (durationMs < 0) {
+            console.error("End time is before start time");
+            return null;
+        }
+
+        const totalMinutes = Math.floor(durationMs / 60000);
+        const minutes = totalMinutes % 60;
+        const hours = Math.floor(totalMinutes / 60);
+        const seconds = Math.floor((durationMs % 60000) / 1000);
+
+        return {
+            totalMinutes,
+            hours,
+            minutes,
+            seconds,
+            formatted: hours > 0 
+                ? `${hours}h ${minutes}m` 
+                : `${minutes}m ${seconds}s`,
+            totalSeconds: Math.floor(durationMs / 1000)
+        };
+    } catch (error) {
+        console.error("Error calculating reading session duration:", error);
+        return null;
+    }
+}
+
+async function notifySessionCompletion(bookTitle, pagesRead, sessionDuration) {
+    const ok = await requestPermissions();
+    if (!ok) throw new Error('Push notification permission not granted');
+
+    if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('session-completion', {
+            name: 'Session Completion',
+            importance: Notifications.AndroidImportance.DEFAULT,
+        });
+    }
+
+    let message = "";
+    if (sessionDuration.hours >= 2) {
+        message = `🌟 Awesome marathon session! You read ${pagesRead} pages in ${sessionDuration.formatted}. Amazing dedication!`;
+    } else if (sessionDuration.totalMinutes >= 60) {
+        message = `📖 Great session! You read ${pagesRead} pages in ${sessionDuration.formatted}. Well done!`;
+    } else if (sessionDuration.totalMinutes >= 30) {
+        message = `✨ Good work! ${pagesRead} pages in ${sessionDuration.formatted}. Keep it up!`;
+    } else {
+        message = `📚 Nice start! ${pagesRead} pages in ${sessionDuration.formatted}. Every bit counts!`;
+    }
+
+    return Notifications.scheduleNotificationAsync({
+        content: {
+            title: "📚 Reading Session Complete!",
+            body: message,
+            data: { 
+                sessionComplete: true,
+                bookTitle: bookTitle,
+                pagesRead: pagesRead,
+                duration: sessionDuration.formatted,
+                totalSeconds: sessionDuration.totalSeconds,
+            },
+            sound: true,
+        },
+        trigger: {
+            type: 'timeInterval',
+            seconds: 1,
+            repeats: false,
+        },
+    });
+}
+
+async function cancelDailyReminder() {
+    try{
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const reminderIds = notifications
+            .filter(n=>n.content.data?.reminder)
+            .map(n=>n.identifier);
+
+        for (let id of reminderIds) {
+            await Notifications.cancelScheduledNotificationAsync(id);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error cancelling daily reminders:", error);
+        return false;
+    }
+}
+
+async function cancelWeeklySummary() {
+    try{
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const weeklySummaryIds = notifications
+            .filter(n=>n.content.data?.weeklySummary)
+            .map(n=>n.identifier);
+
+        for (let id of weeklySummaryIds) {
+            await Notifications.cancelScheduledNotificationAsync(id);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error cancelling weekly summaries:", error);
+        return false;
+    }
+}
+
+async function cancelReadingStreak(){
+    try{
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const streakIds = notifications
+            .filter(n=>n.content.data?.streak)
+            .map(n=>n.identifier);
+        for (let id of streakIds) {
+            await Notifications.cancelScheduledNotificationAsync(id);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error cancelling reading streak notifications:", error);
+        return false;
+    }
+}
+
+async function cancelBookAlmostFinished(){
+    try{
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const almostFinishedIds = notifications
+            .filter(n=>n.content.data?.almostFinished)
+            .map(n=>n.identifier);
+        for (let id of almostFinishedIds) {
+            await Notifications.cancelScheduledNotificationAsync(id);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error cancelling book almost finished notifications:", error);
+        return false;
+    }
+}
+
+async function cancelSessionCompletion(){
+    try{
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const sessionCompletionIds = notifications
+            .filter(n=>n.content.data?.sessionComplete)
+            .map(n=>n.identifier);
+        for (let id of sessionCompletionIds) {
+            await Notifications.cancelScheduledNotificationAsync(id);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error cancelling session completion notifications:", error);
+        return false;
+    }
+}
+
 export default {
     sendTestNotification,
     requestPermissions,
@@ -305,5 +463,12 @@ export default {
     notifyBookAlmostFinished,
     calculateReadingStreak,
     notifyReadingStreakCelebration,
+    calculateReadingSessionDuration,
+    notifySessionCompletion,
+    cancelDailyReminder,
+    cancelWeeklySummary,
+    cancelReadingStreak, 
+    cancelBookAlmostFinished, 
+    cancelSessionCompletion,  
     cancelAllNotifications,
 };

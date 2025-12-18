@@ -42,6 +42,13 @@ export default function Settings() {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [notificationsEnabled, setNotificationEnabled] = useState(true);
+  const [dailyReminderEnabled, setDailyReminderEnabled] = useState(true);
+  const [weeklySummaryEnabled, setWeeklySummaryEnabled] = useState(true);
+  const [readingStreakEnabled, setReadingStreakEnabled] = useState(true);
+  const [bookAlmostFinishedEnabled, setBookAlmostFinishedEnabled] = useState(true);
+  const [sessionCompletionEnabled, setSessionCompletionEnabled] = useState(true);
+    
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -64,13 +71,62 @@ export default function Settings() {
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
-  const handleSendTestNotification = async () => {
-          try {
-              await NotificationService.sendTestNotification();
-          } catch (error) {
-              console.error("Error sending test notification:", error);
-          }
+ const handleToggleNotification = async (enabled) => {
+    if (enabled) {
+      setNotificationEnabled(true);
+    }else{
+      setNotificationEnabled(false);
+      await NotificationService.cancelAllNotifications();
+      setDailyReminderEnabled(false);
+      setWeeklySummaryEnabled(false);
+      setReadingStreakEnabled(false);
+      setBookAlmostFinishedEnabled(false);
+      setSessionCompletionEnabled(false);
+    }
+ };
+
+const handleToggleDailyReminder = async (enabled) => {
+    if (!notificationsEnabled) return;
+    setDailyReminderEnabled(enabled);
+    if (!enabled) {
+      await NotificationService.cancelDailyReminder();
+    }
   };
+
+  const handleToggleWeeklySummary = async (enabled) => {
+    if (!notificationsEnabled) return;
+    setWeeklySummaryEnabled(enabled);
+    if (!enabled) {
+      await NotificationService.cancelWeeklySummary();
+    }
+  };
+
+  const handleToggleReadingStreak = async (enabled) => {
+    if (!notificationsEnabled) return;
+    setReadingStreakEnabled(enabled);
+    if (!enabled) {
+      await NotificationService.cancelReadingStreak();
+    }
+  };
+
+  const handleToggleBookAlmostFinished = async (enabled) => {
+    if (!notificationsEnabled) return;
+    setBookAlmostFinishedEnabled(enabled);
+    if (!enabled) {
+      await NotificationService.cancelBookAlmostFinished();
+    }
+  };
+
+  const handleToggleSessionCompletion = async (enabled) => {
+    if (!notificationsEnabled) return;
+    setSessionCompletionEnabled(enabled);
+    if (!enabled) {
+      await NotificationService.cancelSessionCompletion();
+    }
+  };
+
+
+
 
   const handleChangePassword = async () => {
     setPasswordError("");
@@ -190,8 +246,86 @@ export default function Settings() {
                 />
               </View>
               <View style={styles.notificationContainer}>
-                <Text style={styles.notificationTitle}>Notifications</Text>
-                <Button style={styles.notificationBtn} title="Send Test Notification" onPress={handleSendTestNotification} />
+                <View style={styles.settingItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingTitle}>Enable Notifications</Text>
+                    <Text style={styles.settingDesc}>Turn on/off all notifications</Text>
+                  </View>
+                  <Switch
+                    value={notificationsEnabled}
+                    onValueChange={handleToggleNotification}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={notificationsEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                  />
+                </View>
+                <View style={styles.notificationSubItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingSubTitle}>Daily Reminder</Text>
+                  </View>
+                  <Switch
+                    value={dailyReminderEnabled}
+                    onValueChange={handleToggleDailyReminder}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={dailyReminderEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                    disabled={!notificationsEnabled}
+                  />
+                </View>
+                <View style={styles.notificationSubItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingSubTitle}>Weekly Summary</Text>
+                  </View>
+                  <Switch
+                    value={weeklySummaryEnabled}
+                    onValueChange={handleToggleWeeklySummary}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={weeklySummaryEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                    disabled={!notificationsEnabled}
+                  />
+                </View>
+                <View style={styles.notificationSubItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingSubTitle}>Reading Streak</Text>
+                  </View>
+                  <Switch
+                    value={readingStreakEnabled}
+                    onValueChange={handleToggleReadingStreak}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={readingStreakEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                    disabled={!notificationsEnabled}
+                  />
+                </View>
+
+                <View style={styles.notificationSubItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingSubTitle}>Book Almost Finished</Text>
+                  </View>
+                  <Switch
+                    value={bookAlmostFinishedEnabled}
+                    onValueChange={handleToggleBookAlmostFinished}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={bookAlmostFinishedEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                    disabled={!notificationsEnabled}
+                  />
+                </View>
+
+                <View style={styles.notificationSubItem}>
+                  <View style={styles.settingInfo}>
+                    <Text style={styles.settingSubTitle}>Session Completion</Text>
+                  </View>
+                  <Switch
+                    value={sessionCompletionEnabled}
+                    onValueChange={handleToggleSessionCompletion}
+                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
+                    thumbColor={sessionCompletionEnabled ? "#FAF0DC" : "#550000"}
+                    ios_backgroundColor="#E6D9B8"
+                    disabled={!notificationsEnabled}
+                  />
+                </View>
               </View>
               {providerId === "password" && (
                 <View style={styles.passwordSection}>

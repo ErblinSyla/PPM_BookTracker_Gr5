@@ -78,6 +78,21 @@ const styles = StyleSheet.create({
     color: "#550000",
     marginBottom: 10,
   },
+   notificationSubItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    borderRadius: 12,
+    marginBottom: 5,
+  },
+  settingSubTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#550000",
+  },
   notificationBtn: {
     backgroundColor: "#550000",
     paddingVertical: 12,

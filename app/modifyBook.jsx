@@ -184,6 +184,10 @@ export default function UpdateBookDetails() {
     return <Spinner />;
   }
 
+  const handleGoBack = useCallback(() => {
+    router.back();
+  }, [router]);
+
   return (
     <BackgroundGradient>
       <KeyboardAvoidingView
@@ -191,7 +195,7 @@ export default function UpdateBookDetails() {
         style={{ flex: 1 }}
       >
         <View style={styles.header}>
-          <BackButton onPress={() => router.back()} />
+          <BackButton onPress={handleGoBack} />
           <HeaderTitle>Update Book</HeaderTitle>
           <View style={{ width: 40 }} />
         </View>

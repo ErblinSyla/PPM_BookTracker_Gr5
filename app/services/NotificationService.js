@@ -388,6 +388,23 @@ async function cancelDailyReminder() {
     }
 }
 
+async function cancelWeeklySummary() {
+    try{
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const weeklySummaryIds = notifications
+            .filter(n=>n.content.data?.weeklySummary)
+            .map(n=>n.identifier);
+
+        for (let id of weeklySummaryIds) {
+            await Notifications.cancelScheduledNotificationAsync(id);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error cancelling weekly summaries:", error);
+        return false;
+    }
+}
+
 export default {
     sendTestNotification,
     requestPermissions,
@@ -400,5 +417,7 @@ export default {
     notifyReadingStreakCelebration,
     calculateReadingSessionDuration,
     notifySessionCompletion,
+    cancelDailyReminder,
+    cancelWeeklySummary,
     cancelAllNotifications,
 };

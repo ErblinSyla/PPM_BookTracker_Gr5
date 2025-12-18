@@ -5,10 +5,19 @@ import {
     StyleSheet
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-
+import NotificationService from "./services/NotificationService";
 // import styles from "./styles/NotificationsStyles";
 
 export default function Notifications() {
+
+    const handleSendTestNotification = async () => {
+        try {
+            await NotificationService.sendTestNotification();
+        } catch (error) {
+            console.error("Error sending test notification:", error);
+        }
+    };
+
     return(
         <LinearGradient 
         colors={["#FAF0DC", "#F2EBE2"]}
@@ -18,6 +27,7 @@ export default function Notifications() {
 
         <View style={styles.main_content}>
             <Text>Notifications Screen</Text>
+            <Button title="Send Test Notification" onPress={handleSendTestNotification} />
         </View>
 
         </LinearGradient>

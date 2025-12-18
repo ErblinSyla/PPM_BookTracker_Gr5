@@ -371,6 +371,23 @@ async function notifySessionCompletion(bookTitle, pagesRead, sessionDuration) {
     });
 }
 
+async function cancelDailyReminder() {
+    try{
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const reminderIds = notifications
+            .filter(n=>n.content.data?.reminder)
+            .map(n=>n.identifier);
+
+        for (let id of reminderIds) {
+            await Notifications.cancelScheduledNotificationAsync(id);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error cancelling daily reminders:", error);
+        return false;
+    }
+}
+
 export default {
     sendTestNotification,
     requestPermissions,

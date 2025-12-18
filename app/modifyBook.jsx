@@ -99,10 +99,11 @@ export default function UpdateBookDetails() {
     loadBook();
   }, [editId]);
 
-  const progress =
-    totalPages && pagesRead
+  const progress = useMemo(() => {
+    return totalPages && pagesRead
       ? Math.min(parseInt(pagesRead) / parseInt(totalPages), 1)
       : 0;
+  }, [pagesRead, totalPages]);
 
   const renderModal = useCallback(
     () => (

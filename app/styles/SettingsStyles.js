@@ -94,12 +94,50 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     marginTop: 10,
-    opacity: 0.6,
   },
   saveButtonText: {
     color: "#FAF0DC",
     fontSize: 18,
     fontWeight: "700",
+  },
+  infoContainer: {
+    marginTop: 50,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    width: "100%",
+  },
+  infoItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(85, 0, 0, 0.1)",
+  },
+  infoLabel: {
+    fontSize: 16,
+    color: "#550000",
+    fontWeight: "600",
+  },
+  infoValue: {
+    fontSize: 16,
+    color: "#550000",
+    opacity: 0.8,
+  },
+  infoFooter: {
+    marginTop: 20,
+    fontSize: 15,
+    color: "#550000",
+    fontStyle: "italic",
+    textAlign: "center",
+    opacity: 0.7,
+  },
+  copyright: {
+    marginTop: 10,
+    fontSize: 12,
+    color: "#550000",
+    opacity: 0.5,
+    textAlign: "center",
   },
 });
 

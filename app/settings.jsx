@@ -18,6 +18,8 @@ import styles from "./styles/SettingsStyles";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
 
+import Spinner from "./components/Spinner";
+
 export default function Settings() {
   const router = useRouter();
 
@@ -27,6 +29,8 @@ export default function Settings() {
   const [retypePassword, setRetypePassword] = useState("");
   const [userEmail, setUserEmail] = useState(null);
   const [providerId, setProviderId] = useState("");
+  const [readingReminder, setReadingReminder] = useState(false);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
@@ -34,19 +38,22 @@ export default function Settings() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserEmail(user.email);
+
+        const provider = user.providerData[0]?.providerId;
+        setProviderId(provider || "");
+        setIsLoadingAuth(false);
       } else {
+        setUserEmail(null);
+        setProviderId("");
         router.replace("/login");
+        setIsLoadingAuth(false);
       }
     });
+
     return () => unsubscribe();
   }, [router]);
 
-  useEffect(() => {
-    if (auth.currentUser) {
-      const provider = auth.currentUser.providerData[0]?.providerId;
-      setProviderId(provider || "");
-    }
-  }, []);
+  if (isLoadingAuth) return <Spinner />;
 
   return (
     <LinearGradient
@@ -82,6 +89,7 @@ export default function Settings() {
                   ios_backgroundColor="#E6D9B8"
                 />
               </View>
+
               {providerId === "password" && (
                 <View style={styles.passwordSection}>
                   <Text style={styles.sectionTitle}>Change Password</Text>
@@ -113,11 +121,21 @@ export default function Settings() {
                     placeholderTextColor="rgba(85, 0, 0, 0.5)"
                   />
 
-                  <TouchableOpacity style={styles.saveButton} disabled>
+                  <TouchableOpacity style={styles.saveButton}>
                     <Text style={styles.saveButtonText}>Save Changes</Text>
                   </TouchableOpacity>
                 </View>
               )}
+              <View style={styles.infoContainer}>
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>App Version</Text>
+                  <Text style={styles.infoValue}>1.0.0</Text>
+                </View>
+
+                <Text style={styles.copyright}>
+                  © 2025 BookTracker. All rights reserved.
+                </Text>
+              </View>
             </View>
           </ScrollView>
         </SafeAreaView>

@@ -9,6 +9,13 @@ import {
   ScrollView,
   Switch,
 } from "react-native";
+import {
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+} from "firebase/auth";
+import { auth } from "../firebase/firebaseConfig";
+import { Alert, Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -31,6 +38,9 @@ export default function Settings() {
   const [providerId, setProviderId] = useState("");
   const [readingReminder, setReadingReminder] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 

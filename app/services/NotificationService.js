@@ -405,6 +405,22 @@ async function cancelWeeklySummary() {
     }
 }
 
+async function cancelReadingStreak(){
+    try{
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const streakIds = notifications
+            .filter(n=>n.content.data?.streak)
+            .map(n=>n.identifier);
+        for (let id of streakIds) {
+            await Notifications.cancelScheduledNotificationAsync(id);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error cancelling reading streak notifications:", error);
+        return false;
+    }
+}
+
 export default {
     sendTestNotification,
     requestPermissions,
@@ -419,5 +435,6 @@ export default {
     notifySessionCompletion,
     cancelDailyReminder,
     cancelWeeklySummary,
+    cancelReadingStreak,    
     cancelAllNotifications,
 };

@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: "rgba(255, 255, 255, 0.5)",
     borderRadius: 12,
+    marginBottom: 5,
   },
   settingSubTitle: {
     fontSize: 16,

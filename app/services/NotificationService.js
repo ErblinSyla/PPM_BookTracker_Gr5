@@ -81,9 +81,40 @@ async function cancelAllNotifications() {
     await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
+async function scheduleWeeklySummary(pagesRead = 0, dayOfWeek = 0, hour = 20, minute = 0) {
+    const ok = await requestPermissions();
+    if (!ok) throw new Error('Push notification permission not granted');
+
+    if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('weekly-summary', {
+            name: 'Weekly Summary',
+            importance: Notifications.AndroidImportance.DEFAULT,
+        });
+    }
+
+    return Notifications.scheduleNotificationAsync({
+        content: {
+            title: "📖 Weekly Reading Summary",
+            body: `Great job! You've read ${pagesRead} pages this week. Keep up the momentum!`,
+            data: { 
+                summary: true,
+                pagesRead: pagesRead,
+            },
+            sound: true,
+        },
+        trigger: {
+            type: 'weekly',
+            weekday: dayOfWeek, // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            hour,
+            minute,
+        },
+    });
+}
+
 export default {
     sendTestNotification,
     requestPermissions,
     scheduleDailyReminder,
+    scheduleWeeklySummary,
     cancelAllNotifications,
 };

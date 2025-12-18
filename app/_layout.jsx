@@ -74,6 +74,10 @@ export default function RootLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="EditProfile"
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 }

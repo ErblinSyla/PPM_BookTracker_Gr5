@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,22 +8,24 @@ import {
   ScrollView,
   Animated,
   StyleSheet,
-  StatusBar,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function EditProfile() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(10)).current; // Animacion më i butë
+  const slideAnim = useRef(new Animated.Value(10)).current;
 
-  const [username, setUsername] = useState(""); // Username bosh
+  const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("Prefer not to say");
   const [showGenderOptions, setShowGenderOptions] = useState(false);
+  const [avatar, setAvatar] = useState(null);
 
-  const router = useRouter(); // router për redirect
+  const router = useRouter();
 
+  // Animacioni
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -39,9 +41,32 @@ export default function EditProfile() {
     ]).start();
   }, []);
 
+  // Load avatar dhe profileData kur faqja merr focus
+  useFocusEffect(
+    useCallback(() => {
+      const loadData = async () => {
+        try {
+          const savedAvatar = await AsyncStorage.getItem("userAvatar");
+          if (savedAvatar) setAvatar(JSON.parse(savedAvatar));
+
+          const savedProfile = await AsyncStorage.getItem("profileData");
+          if (savedProfile) {
+            const { username, bio, gender } = JSON.parse(savedProfile);
+            if (username) setUsername(username);
+            if (bio) setBio(bio);
+            if (gender) setGender(gender);
+          }
+        } catch (e) {
+          console.log("Load error:", e);
+        }
+      };
+
+      loadData();
+    }, [])
+  );
+
   return (
     <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
-      <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Animated.View
           style={{
@@ -50,16 +75,13 @@ export default function EditProfile() {
             marginTop: 50,
           }}
         >
-          {/* Avatar + Edit Avatar */}
+          {/* Avatar */}
           <View style={styles.avatarSection}>
             <Image
-              source={require("../assets/avatar01.png")}
+              source={avatar ? avatar : require("../assets/avatar01.png")}
               style={styles.avatar}
             />
-            <TouchableOpacity
-              style={styles.editAvatarBtn}
-              onPress={() => router.push("/EditAvatar")} // redirect te EditAvatar
-            >
+            <TouchableOpacity onPress={() => router.push("/EditAvatar")}>
               <Text style={styles.editAvatarText}>Edit avatar</Text>
             </TouchableOpacity>
           </View>
@@ -94,9 +116,7 @@ export default function EditProfile() {
             onPress={() => setShowGenderOptions(!showGenderOptions)}
           >
             <Text style={styles.genderText}>{gender}</Text>
-            <Text style={[styles.arrow, showGenderOptions && styles.arrowOpen]}>
-              ▼
-            </Text>
+            <Text style={[styles.arrow, showGenderOptions && styles.arrowOpen]}>▼</Text>
           </TouchableOpacity>
 
           {showGenderOptions && (
@@ -117,7 +137,21 @@ export default function EditProfile() {
           )}
 
           {/* Save Changes */}
-          <TouchableOpacity style={styles.saveBtn}>
+          <TouchableOpacity
+            style={styles.saveBtn}
+            onPress={async () => {
+              try {
+                await AsyncStorage.setItem(
+                  "profileData",
+                  JSON.stringify({ username, bio, gender })
+                );
+                // Redirect te Profile.jsx
+                router.push("/profile");
+              } catch (e) {
+                console.log("Save error:", e);
+              }
+            }}
+          >
             <Text style={styles.saveText}>Save Changes</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -128,36 +162,18 @@ export default function EditProfile() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: {
-    padding: 20,
-    alignItems: "center",
-  },
+  scrollContent: { padding: 20, alignItems: "center" },
   avatarSection: {
     alignItems: "center",
     marginBottom: 20,
     backgroundColor: "#ffffff30",
     padding: 15,
     borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
     elevation: 5,
   },
   avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
-  editAvatarBtn: {},
-  editAvatarText: {
-    color: "#550000",
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  label: {
-    alignSelf: "flex-start",
-    color: "#550000",
-    fontWeight: "600",
-    marginBottom: 5,
-    marginTop: 15,
-  },
+  editAvatarText: { color: "#550000", fontWeight: "600", fontSize: 16 },
+  label: { alignSelf: "flex-start", color: "#550000", fontWeight: "600", marginBottom: 5, marginTop: 15 },
   input: {
     width: 300,
     height: 50,
@@ -182,18 +198,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  genderText: {
-    color: "#550000",
-    fontWeight: "500",
-  },
-  arrow: {
-    color: "#550000",
-    fontSize: 18,
-    transform: [{ rotate: "0deg" }],
-  },
-  arrowOpen: {
-    transform: [{ rotate: "180deg" }],
-  },
+  genderText: { color: "#550000", fontWeight: "500" },
+  arrow: { color: "#550000", fontSize: 18 },
+  arrowOpen: { transform: [{ rotate: "180deg" }] },
   genderOptions: {
     width: 300,
     backgroundColor: "#ffffff50",
@@ -202,15 +209,8 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     elevation: 3,
   },
-  genderOption: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#55000030",
-  },
-  genderOptionText: {
-    color: "#550000",
-    fontWeight: "500",
-  },
+  genderOption: { padding: 12, borderBottomWidth: 1, borderBottomColor: "#55000030" },
+  genderOptionText: { color: "#550000", fontWeight: "500" },
   saveBtn: {
     backgroundColor: "#550000",
     paddingVertical: 14,

@@ -1,17 +1,19 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   Image,
   FlatList,
+  Animated,
   StyleSheet,
   ScrollView,
   SafeAreaView,
   StatusBar,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AVATARS = [
   { id: "1", image: require("../assets/avatar01.png") },
@@ -32,6 +34,46 @@ const AVATARS = [
 ];
 
 export default function EditProfile() {
+  const router = useRouter();
+  const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0].image);
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(40)).current;
+
+  /* ANIMACIONI */
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 700,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 700,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  /* LOAD AVATAR NGA STORAGE */
+  useEffect(() => {
+    const loadAvatar = async () => {
+      const saved = await AsyncStorage.getItem("userAvatar");
+      if (saved) setSelectedAvatar(JSON.parse(saved));
+    };
+    loadAvatar();
+  }, []);
+
+  /* SAVE */
+  const handleSave = async () => {
+    await AsyncStorage.setItem(
+      "userAvatar",
+      JSON.stringify(selectedAvatar)
+    );
+    router.back();
+  };
+
   return (
     <>
       {/* HEADER OFF */}
@@ -48,48 +90,75 @@ export default function EditProfile() {
           colors={["#FAF0DC", "#F2EBE2"]}
           style={styles.gradient}
         >
-          {/* BACK – pa funksionalitet */}
-          <TouchableOpacity style={styles.backButton}>
+          {/* BACK */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
             <Text style={styles.backText}>← BACK</Text>
           </TouchableOpacity>
 
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            <View style={styles.formContainer}>
+            <Animated.View
+              style={[
+                styles.formContainer,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }],
+                },
+              ]}
+            >
               <Text style={styles.title}>Edit Profile</Text>
               <Text style={styles.subtitle}>
                 Choose your reading persona
               </Text>
 
-              {/* Avatar kryesor (statik) */}
+              {/* AVATAR KRYESOR */}
               <View style={styles.mainAvatarWrapper}>
                 <Image
-                  source={AVATARS[0].image}
+                  source={selectedAvatar}
                   style={styles.mainAvatar}
                 />
               </View>
 
-              {/* Lista e avatarëve (vetëm UI) */}
+              {/* LISTA AVATAREVE */}
               <FlatList
                 data={AVATARS}
                 keyExtractor={(item) => item.id}
                 numColumns={3}
                 scrollEnabled={false}
                 contentContainerStyle={styles.flatListContent}
-                renderItem={({ item }) => (
-                  <View style={styles.avatarOption}>
-                    <Image
-                      source={item.image}
-                      style={styles.avatarThumb}
-                    />
-                  </View>
-                )}
+                renderItem={({ item }) => {
+                  const isSelected =
+                    selectedAvatar === item.image;
+
+                  return (
+                    <TouchableOpacity
+                      onPress={() => setSelectedAvatar(item.image)}
+                      style={[
+                        styles.avatarOption,
+                        isSelected && styles.selectedAvatarOption,
+                      ]}
+                    >
+                      <Image
+                        source={item.image}
+                        style={styles.avatarThumb}
+                      />
+                    </TouchableOpacity>
+                  );
+                }}
               />
 
-              {/* SAVE – pa funksionalitet */}
-              <TouchableOpacity style={styles.saveButton}>
-                <Text style={styles.saveButtonText}>SAVE CHANGES</Text>
+              {/* SAVE */}
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={handleSave}
+              >
+                <Text style={styles.saveButtonText}>
+                  SAVE CHANGES
+                </Text>
               </TouchableOpacity>
-            </View>
+            </Animated.View>
           </ScrollView>
         </LinearGradient>
       </SafeAreaView>
@@ -133,7 +202,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "800",
     color: "#550000",
-    letterSpacing: 1,
     marginBottom: 5,
   },
 
@@ -169,6 +237,13 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 5,
     borderRadius: 40,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+
+  selectedAvatarOption: {
+    borderColor: "#550000",
+    backgroundColor: "#ffffff60",
   },
 
   avatarThumb: {

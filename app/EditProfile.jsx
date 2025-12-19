@@ -11,6 +11,7 @@ import {
   StatusBar,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 
 export default function EditProfile() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -20,6 +21,8 @@ export default function EditProfile() {
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("Prefer not to say");
   const [showGenderOptions, setShowGenderOptions] = useState(false);
+
+  const router = useRouter(); // router për redirect
 
   useEffect(() => {
     Animated.parallel([
@@ -44,7 +47,7 @@ export default function EditProfile() {
           style={{
             opacity: fadeAnim,
             transform: [{ translateY: slideAnim }],
-            marginTop: 50, // zhvendos avatarin më poshtë
+            marginTop: 50,
           }}
         >
           {/* Avatar + Edit Avatar */}
@@ -53,7 +56,10 @@ export default function EditProfile() {
               source={require("../assets/avatar01.png")}
               style={styles.avatar}
             />
-            <TouchableOpacity style={styles.editAvatarBtn}>
+            <TouchableOpacity
+              style={styles.editAvatarBtn}
+              onPress={() => router.push("/EditAvatar")} // redirect te EditAvatar
+            >
               <Text style={styles.editAvatarText}>Edit avatar</Text>
             </TouchableOpacity>
           </View>

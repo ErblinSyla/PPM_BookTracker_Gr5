@@ -10,8 +10,8 @@ import {
   StyleSheet,
   StatusBar,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Picker } from "@react-native-picker/picker";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function EditProfile() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -20,7 +20,6 @@ export default function EditProfile() {
   const [username, setUsername] = useState("eraberishaaaa");
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("Prefer not to say");
-  const [avatar, setAvatar] = useState("https://placekitten.com/100/100");
 
   useEffect(() => {
     Animated.parallel([
@@ -44,11 +43,14 @@ export default function EditProfile() {
         <Animated.View
           style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
         >
-          {/* Avatar + Change Photo */}
+          {/* Avatar + Edit Avatar */}
           <View style={styles.avatarSection}>
-            <Image source={{ uri: avatar }} style={styles.avatar} />
-            <TouchableOpacity style={styles.changePhotoBtn}>
-              <Text style={styles.changePhotoText}>Change photo</Text>
+            <Image
+              source={require("../assets/avatar01.png")}
+              style={styles.avatar}
+            />
+            <TouchableOpacity style={styles.editAvatarBtn}>
+              <Text style={styles.editAvatarText}>Edit avatar</Text>
             </TouchableOpacity>
           </View>
 
@@ -77,23 +79,18 @@ export default function EditProfile() {
 
           {/* Gender */}
           <Text style={styles.label}>Gender</Text>
-          <View style={styles.genderWrapper}>
-            <LinearGradient
-              colors={["#FDE68A", "#FCA5A5"]}
-              style={styles.genderGradient}
+          <View style={styles.genderBox}>
+            <Picker
+              selectedValue={gender}
+              onValueChange={(itemValue) => setGender(itemValue)}
+              style={styles.genderPicker}
+              dropdownIconColor="#550000"
             >
-              <Picker
-                selectedValue={gender}
-                onValueChange={(itemValue) => setGender(itemValue)}
-                style={styles.genderPicker}
-                dropdownIconColor="#550000"
-              >
-                <Picker.Item label="Prefer not to say" value="Prefer not to say" />
-                <Picker.Item label="Male" value="Male" />
-                <Picker.Item label="Female" value="Female" />
-                <Picker.Item label="Other" value="Other" />
-              </Picker>
-            </LinearGradient>
+              <Picker.Item label="Prefer not to say" value="Prefer not to say" />
+              <Picker.Item label="Male" value="Male" />
+              <Picker.Item label="Female" value="Female" />
+              <Picker.Item label="Other" value="Other" />
+            </Picker>
           </View>
 
           {/* Save Changes */}
@@ -113,11 +110,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatarSection: {
-    flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
     backgroundColor: "#ffffff30",
-    padding: 10,
+    padding: 15,
     borderRadius: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -125,14 +121,15 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 5,
   },
-  avatar: { width: 80, height: 80, borderRadius: 40, marginRight: 15 },
-  changePhotoBtn: {
-    backgroundColor: "#550000",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
+  avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
+  editAvatarBtn: {
+    // Thjesht touchable
   },
-  changePhotoText: { color: "#FAF0DC", fontWeight: "600" },
+  editAvatarText: {
+    color: "#550000",
+    fontWeight: "600",
+    fontSize: 16,
+  },
   label: {
     alignSelf: "flex-start",
     color: "#550000",
@@ -143,29 +140,30 @@ const styles = StyleSheet.create({
   input: {
     width: 300,
     height: 50,
-    borderRadius: 20,
+    borderRadius: 12,
     paddingHorizontal: 14,
-    backgroundColor: "#ffffff30",
+    backgroundColor: "#ffffff20",
     color: "#550000",
     borderWidth: 1,
     borderColor: "#55000050",
     marginBottom: 15,
   },
   charCount: { alignSelf: "flex-end", color: "#550000", marginBottom: 15 },
-  genderWrapper: {
+  genderBox: {
     width: 300,
-    borderRadius: 20,
-    overflow: "hidden",
-    marginBottom: 30,
+    height: 50,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "#55000050",
-  },
-  genderGradient: {
-    borderRadius: 20,
+    backgroundColor: "#ffffff20",
+    justifyContent: "center",
+    marginBottom: 30,
   },
   genderPicker: {
     color: "#550000",
     backgroundColor: "transparent",
+    width: "100%",
+    height: "100%",
   },
   saveBtn: {
     backgroundColor: "#550000",

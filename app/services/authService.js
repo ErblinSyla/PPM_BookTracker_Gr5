@@ -99,9 +99,46 @@ export const signInWithApple = async (identityToken, fullName) => {
   }
 };
 
-//Profile get Username and Email
 export const getUserData = async (uid) => {
   const snap = await getDoc(doc(db, "users", uid));
   if (!snap.exists()) return null;
   return snap.data();
+};
+
+export const ensureNotificationSettings = async (uid) => {
+  try {
+    const userDoc = await getDoc(doc(db, "users", uid));
+    
+    if (!userDoc.exists()) {
+      console.warn("User document not found");
+      return;
+    }
+
+    const userData = userDoc.data();
+    const defaultSettings = {
+      notificationsEnabled: true,
+      dailyReminderEnabled: true,
+      weeklySummaryEnabled: true,
+      readingStreakEnabled: true,
+      bookAlmostFinishedEnabled: true,
+      sessionCompletionEnabled: true,
+    };
+
+    const fieldsToAdd = {};
+    let hasMissingFields = false;
+
+    for (const [key, defaultValue] of Object.entries(defaultSettings)) {
+      if (!(key in userData)) {
+        fieldsToAdd[key] = defaultValue;
+        hasMissingFields = true;
+      }
+    }
+
+    if (hasMissingFields) {
+      await setDoc(doc(db, "users", uid), fieldsToAdd, { merge: true });
+      console.log(`Added missing notification fields for user: ${uid}`);
+    }
+  } catch (error) {
+    console.error("Error ensuring notification settings:", error);
+  }
 };

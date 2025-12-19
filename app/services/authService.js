@@ -22,6 +22,12 @@ export const registerUserWithEmail = async (email, password, name) => {
       name: name,
       email: email,
       createdAt: new Date(),
+      notificationsEnabled: true,
+      dailyReminderEnabled: true,
+      weeklySummaryEnabled: true,
+      readingStreakEnabled: true,
+      bookAlmostFinishedEnabled: true,
+      sessionCompletionEnabled: true,
     });
 
     return user;
@@ -43,6 +49,12 @@ export const signInWithGoogle = async (credential) => {
         name: user.displayName || "Google User",
         email: user.email,
         createdAt: new Date(),
+        notificationsEnabled: true,
+        dailyReminderEnabled: true,
+        weeklySummaryEnabled: true,
+        readingStreakEnabled: true,
+        bookAlmostFinishedEnabled: true,
+        sessionCompletionEnabled: true,
       },
       { merge: true }
     );
@@ -70,6 +82,12 @@ export const signInWithApple = async (identityToken, fullName) => {
         name: fullName || "Apple User",
         email: user.email,
         createdAt: new Date(),
+        notificationsEnabled: true,
+        dailyReminderEnabled: true,
+        weeklySummaryEnabled: true,
+        readingStreakEnabled: true,
+        bookAlmostFinishedEnabled: true,
+        sessionCompletionEnabled: true,
       },
       { merge: true }
     );

@@ -14,7 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 export default function EditProfile() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(40)).current;
+  const slideAnim = useRef(new Animated.Value(10)).current; // Animacion më i butë
 
   const [username, setUsername] = useState(""); // Username bosh
   const [bio, setBio] = useState("");
@@ -41,7 +41,11 @@ export default function EditProfile() {
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Animated.View
-          style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
+          style={{
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+            marginTop: 50, // zhvendos avatarin më poshtë
+          }}
         >
           {/* Avatar + Edit Avatar */}
           <View style={styles.avatarSection}>
@@ -93,19 +97,18 @@ export default function EditProfile() {
             <View style={styles.genderOptions}>
               {["Prefer not to say", "Male", "Female"].map((option) => (
                 <TouchableOpacity
-                key={option}
-                style={styles.genderOption}
-                onPress={() => {
-                  setGender(option);
-                  setShowGenderOptions(false);
-                }}
+                  key={option}
+                  style={styles.genderOption}
+                  onPress={() => {
+                    setGender(option);
+                    setShowGenderOptions(false);
+                  }}
                 >
                   <Text style={styles.genderOptionText}>{option}</Text>
-                  </TouchableOpacity>
-                ))}
-                </View>
-              )}
-
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
 
           {/* Save Changes */}
           <TouchableOpacity style={styles.saveBtn}>

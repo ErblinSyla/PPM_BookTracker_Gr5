@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,21 +6,20 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
+  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   updateProfile,
-  onAuthStateChanged,
 } from "firebase/auth";
 import { auth, db } from "../firebase/firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-function SignupEmail() {
+export default function SignupEmail() {
   const router = useRouter();
-
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -29,20 +28,8 @@ function SignupEmail() {
   const [error, setError] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Redirect if already logged in
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.replace("/homepage");
-      }
-    });
-    return () => unsubscribe();
-  }, [router]);
-
-  // Memoized handlers to prevent unnecessary re-creations
-  const handleSignup = useCallback(async () => {
+  const handleSignup = async () => {
     setError("");
-
     if (!firstName || !lastName || !email || !password || !retypePassword) {
       setError("Please fill all fields!");
       return;
@@ -62,96 +49,90 @@ function SignupEmail() {
         email,
         password
       );
-
       await updateProfile(userCredential.user, {
         displayName: `${firstName} ${lastName}`,
       });
-
       await AsyncStorage.setItem("userUID", userCredential.user.uid);
       await sendEmailVerification(userCredential.user);
 
       await setDoc(doc(db, "users", userCredential.user.uid), {
         name: `${firstName.trim()} ${lastName.trim()}`,
         email: email.toLowerCase(),
-        createdAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(), // optional, nice to have
       });
 
+      // Shfaq modal
       setModalVisible(true);
+
+      console.log("Verification email sent to:", userCredential.user.email);
     } catch (err) {
       console.error(err);
-      if (err.code === "auth/email-already-in-use") {
+      if (err.code === "auth/email-already-in-use")
         setError("Email is already in use!");
-      } else if (err.code === "auth/invalid-email") {
+      else if (err.code === "auth/invalid-email")
         setError("Invalid email address!");
-      } else {
-        setError("Something went wrong. Please try again!");
-      }
+      else setError("Something went wrong. Please try again!");
     }
-  }, [firstName, lastName, email, password, retypePassword]);
+  };
 
-  const handleModalOk = useCallback(() => {
+  const handleModalOk = () => {
     setModalVisible(false);
     router.push("/login");
-  }, [router]);
-
-  const handleGoBack = useCallback(() => {
-    router.back();
-  }, [router]);
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.contentWrapper}>
-        <Text style={styles.title}>Sign Up with Email</Text>
+      <Text style={styles.title}>Sign Up with Email</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="First Name"
-          value={firstName}
-          onChangeText={setFirstName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Last Name"
-          value={lastName}
-          onChangeText={setLastName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Retype Password"
-          secureTextEntry
-          value={retypePassword}
-          onChangeText={setRetypePassword}
-        />
+      <TextInput
+        style={styles.input}
+        placeholder="First Name"
+        value={firstName}
+        onChangeText={setFirstName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Last Name"
+        value={lastName}
+        onChangeText={setLastName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Retype Password"
+        secureTextEntry
+        value={retypePassword}
+        onChangeText={setRetypePassword}
+      />
 
-        {!!error && <Text style={styles.error}>{error}</Text>}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <TouchableOpacity style={styles.button} onPress={handleSignup}>
-          <Text style={styles.buttonText}>Create Account</Text>
-        </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={handleSignup}>
+        <Text style={styles.buttonText}>Create Account</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleGoBack}>
-          <Text style={styles.backText}>← Back</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity onPress={() => router.back()}>
+        <Text style={styles.backText}>← Back</Text>
+      </TouchableOpacity>
 
+      {/* Modal për Verify Email */}
       <Modal
         visible={modalVisible}
-        transparent
+        transparent={true}
         animationType="fade"
         onRequestClose={handleModalOk}
       >
@@ -162,7 +143,10 @@ function SignupEmail() {
               We’ve sent a verification link to your email address. Please
               verify before logging in.
             </Text>
-            <TouchableOpacity style={styles.modalButton} onPress={handleModalOk}>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleModalOk}
+            >
               <Text style={styles.modalButtonText}>OK</Text>
             </TouchableOpacity>
           </View>
@@ -175,14 +159,9 @@ function SignupEmail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAF0DC",
     justifyContent: "center",
-    alignItems: "center",
-  },
-  contentWrapper: {
-    width: "100%",
-    maxWidth: 440,
-    paddingHorizontal: 30,
+    padding: 30,
+    backgroundColor: "#FAF0DC",
   },
   title: {
     fontSize: 26,
@@ -195,20 +174,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#55000060",
     borderRadius: 25,
-    padding: 14,
+    padding: 12,
     marginBottom: 16,
     backgroundColor: "#ffffff40",
     color: "#550000",
-    fontSize: 16,
   },
   button: {
     backgroundColor: "#ffffff40",
     borderWidth: 1,
     borderColor: "#55000070",
     borderRadius: 25,
-    paddingVertical: 16,
-    marginTop: 10,
-    marginBottom: 20,
+    paddingVertical: 15,
+    marginBottom: 16,
   },
   buttonText: {
     textAlign: "center",
@@ -216,18 +193,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 16,
   },
-  error: {
-    color: "red",
-    textAlign: "center",
-    marginBottom: 16,
-    fontSize: 15,
-  },
-  backText: {
-    color: "#550000",
-    textAlign: "center",
-    fontSize: 16,
-    fontWeight: "600",
-  },
+  error: { color: "red", textAlign: "center", marginBottom: 10 },
+  backText: { color: "#550000", marginTop: 20, textAlign: "center" },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -238,15 +205,10 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: "white",
     borderRadius: 20,
-    padding: 28,
+    padding: 24,
     width: "100%",
     maxWidth: 400,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
   },
   modalTitle: {
     fontSize: 20,
@@ -258,14 +220,13 @@ const styles = StyleSheet.create({
   modalMessage: {
     fontSize: 16,
     color: "#550000",
-    marginBottom: 28,
+    marginBottom: 24,
     textAlign: "center",
-    lineHeight: 22,
   },
   modalButton: {
     backgroundColor: "#550000",
-    paddingHorizontal: 32,
-    paddingVertical: 14,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     borderRadius: 12,
   },
   modalButtonText: {
@@ -274,5 +235,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-export default memo(SignupEmail);

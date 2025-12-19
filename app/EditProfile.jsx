@@ -10,16 +10,16 @@ import {
   StyleSheet,
   StatusBar,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function EditProfile() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
 
-  const [username, setUsername] = useState("eraberishaaaa");
+  const [username, setUsername] = useState(""); // Username bosh
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("Prefer not to say");
+  const [showGenderOptions, setShowGenderOptions] = useState(false);
 
   useEffect(() => {
     Animated.parallel([
@@ -79,19 +79,33 @@ export default function EditProfile() {
 
           {/* Gender */}
           <Text style={styles.label}>Gender</Text>
-          <View style={styles.genderBox}>
-            <Picker
-              selectedValue={gender}
-              onValueChange={(itemValue) => setGender(itemValue)}
-              style={styles.genderPicker}
-              dropdownIconColor="#550000"
-            >
-              <Picker.Item label="Prefer not to say" value="Prefer not to say" />
-              <Picker.Item label="Male" value="Male" />
-              <Picker.Item label="Female" value="Female" />
-              <Picker.Item label="Other" value="Other" />
-            </Picker>
-          </View>
+          <TouchableOpacity
+            style={styles.genderBox}
+            onPress={() => setShowGenderOptions(!showGenderOptions)}
+          >
+            <Text style={styles.genderText}>{gender}</Text>
+            <Text style={[styles.arrow, showGenderOptions && styles.arrowOpen]}>
+              ▼
+            </Text>
+          </TouchableOpacity>
+
+          {showGenderOptions && (
+            <View style={styles.genderOptions}>
+              {["Prefer not to say", "Male", "Female"].map((option) => (
+                <TouchableOpacity
+                key={option}
+                style={styles.genderOption}
+                onPress={() => {
+                  setGender(option);
+                  setShowGenderOptions(false);
+                }}
+                >
+                  <Text style={styles.genderOptionText}>{option}</Text>
+                  </TouchableOpacity>
+                ))}
+                </View>
+              )}
+
 
           {/* Save Changes */}
           <TouchableOpacity style={styles.saveBtn}>
@@ -122,9 +136,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
-  editAvatarBtn: {
-    // Thjesht touchable
-  },
+  editAvatarBtn: {},
   editAvatarText: {
     color: "#550000",
     fontWeight: "600",
@@ -151,19 +163,44 @@ const styles = StyleSheet.create({
   charCount: { alignSelf: "flex-end", color: "#550000", marginBottom: 15 },
   genderBox: {
     width: 300,
-    height: 50,
     borderRadius: 12,
+    backgroundColor: "#ffffff30",
+    padding: 14,
     borderWidth: 1,
     borderColor: "#55000050",
-    backgroundColor: "#ffffff20",
-    justifyContent: "center",
-    marginBottom: 30,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
   },
-  genderPicker: {
+  genderText: {
     color: "#550000",
-    backgroundColor: "transparent",
-    width: "100%",
-    height: "100%",
+    fontWeight: "500",
+  },
+  arrow: {
+    color: "#550000",
+    fontSize: 18,
+    transform: [{ rotate: "0deg" }],
+  },
+  arrowOpen: {
+    transform: [{ rotate: "180deg" }],
+  },
+  genderOptions: {
+    width: 300,
+    backgroundColor: "#ffffff50",
+    borderRadius: 12,
+    overflow: "hidden",
+    marginBottom: 30,
+    elevation: 3,
+  },
+  genderOption: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#55000030",
+  },
+  genderOptionText: {
+    color: "#550000",
+    fontWeight: "500",
   },
   saveBtn: {
     backgroundColor: "#550000",

@@ -17,7 +17,8 @@ export default function EditProfile() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(10)).current;
 
-  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("Prefer not to say");
   const [showGenderOptions, setShowGenderOptions] = useState(false);
@@ -25,23 +26,13 @@ export default function EditProfile() {
 
   const router = useRouter();
 
-  // Animacioni
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 900,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 900,
-        useNativeDriver: true,
-      }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 900, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 900, useNativeDriver: true }),
     ]).start();
   }, []);
 
-  // Load avatar dhe profileData kur faqja merr focus
   useFocusEffect(
     useCallback(() => {
       const loadData = async () => {
@@ -51,8 +42,9 @@ export default function EditProfile() {
 
           const savedProfile = await AsyncStorage.getItem("profileData");
           if (savedProfile) {
-            const { username, bio, gender } = JSON.parse(savedProfile);
-            if (username) setUsername(username);
+            const { firstName, lastName, bio, gender } = JSON.parse(savedProfile);
+            if (firstName) setFirstName(firstName);
+            if (lastName) setLastName(lastName);
             if (bio) setBio(bio);
             if (gender) setGender(gender);
           }
@@ -60,7 +52,6 @@ export default function EditProfile() {
           console.log("Load error:", e);
         }
       };
-
       loadData();
     }, [])
   );
@@ -68,35 +59,20 @@ export default function EditProfile() {
   return (
     <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Animated.View
-          style={{
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
-            marginTop: 50,
-          }}
-        >
-          {/* Avatar */}
+        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }], marginTop: 50 }}>
           <View style={styles.avatarSection}>
-            <Image
-              source={avatar ? avatar : require("../assets/avatar01.png")}
-              style={styles.avatar}
-            />
+            <Image source={avatar ? avatar : require("../assets/avatar01.png")} style={styles.avatar} />
             <TouchableOpacity onPress={() => router.push("/EditAvatar")}>
               <Text style={styles.editAvatarText}>Edit avatar</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Username */}
-          <Text style={styles.label}>Username</Text>
-          <TextInput
-            style={styles.input}
-            value={username}
-            onChangeText={setUsername}
-            placeholder="Username"
-            placeholderTextColor="#55000070"
-          />
+          <Text style={styles.label}>First Name</Text>
+          <TextInput style={styles.input} value={firstName} onChangeText={setFirstName} placeholder="First Name" placeholderTextColor="#55000070" />
 
-          {/* Bio */}
+          <Text style={styles.label}>Last Name</Text>
+          <TextInput style={styles.input} value={lastName} onChangeText={setLastName} placeholder="Last Name" placeholderTextColor="#55000070" />
+
           <Text style={styles.label}>Bio</Text>
           <TextInput
             style={[styles.input, { height: 80 }]}
@@ -109,12 +85,8 @@ export default function EditProfile() {
           />
           <Text style={styles.charCount}>{bio.length} / 150</Text>
 
-          {/* Gender */}
           <Text style={styles.label}>Gender</Text>
-          <TouchableOpacity
-            style={styles.genderBox}
-            onPress={() => setShowGenderOptions(!showGenderOptions)}
-          >
+          <TouchableOpacity style={styles.genderBox} onPress={() => setShowGenderOptions(!showGenderOptions)}>
             <Text style={styles.genderText}>{gender}</Text>
             <Text style={[styles.arrow, showGenderOptions && styles.arrowOpen]}>▼</Text>
           </TouchableOpacity>
@@ -122,30 +94,21 @@ export default function EditProfile() {
           {showGenderOptions && (
             <View style={styles.genderOptions}>
               {["Prefer not to say", "Male", "Female"].map((option) => (
-                <TouchableOpacity
-                  key={option}
-                  style={styles.genderOption}
-                  onPress={() => {
-                    setGender(option);
-                    setShowGenderOptions(false);
-                  }}
-                >
+                <TouchableOpacity key={option} style={styles.genderOption} onPress={() => { setGender(option); setShowGenderOptions(false); }}>
                   <Text style={styles.genderOptionText}>{option}</Text>
                 </TouchableOpacity>
               ))}
             </View>
           )}
 
-          {/* Save Changes */}
           <TouchableOpacity
             style={styles.saveBtn}
             onPress={async () => {
               try {
                 await AsyncStorage.setItem(
                   "profileData",
-                  JSON.stringify({ username, bio, gender })
+                  JSON.stringify({ firstName, lastName, bio, gender })
                 );
-                // Redirect te Profile.jsx
                 router.push("/profile");
               } catch (e) {
                 console.log("Save error:", e);
@@ -159,6 +122,8 @@ export default function EditProfile() {
     </LinearGradient>
   );
 }
+
+// styles mbetet i njejte
 
 const styles = StyleSheet.create({
   container: { flex: 1 },

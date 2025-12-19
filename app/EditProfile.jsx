@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useRef, useEffect } from "react";
 import {
   View,
@@ -13,6 +15,8 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase/firebaseConfig";
 
 const AVATARS = [
   { id: "1", image: require("../assets/avatar01.png") },
@@ -36,8 +40,30 @@ export default function EditProfile() {
   const router = useRouter();
   const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0].image);
 
+  const [userEmail, setUserEmail] = useState(null);
+  const [providerId, setProviderId] = useState("");
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserEmail(user.email);
+        const provider = user.providerData[0]?.providerId;
+        setProviderId(provider || "");
+        setIsLoadingAuth(false);
+      } else {
+        setUserEmail(null);
+        setProviderId("");
+        setIsLoadingAuth(false);
+        router.replace("/login");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     Animated.parallel([
@@ -73,6 +99,10 @@ export default function EditProfile() {
     }
   };
 
+  if (isLoadingAuth) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -81,7 +111,6 @@ export default function EditProfile() {
           <Text style={styles.backText}>← BACK</Text>
         </TouchableOpacity>
 
-        {/* ScrollView e shtuar per scroll */}
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Animated.View
             style={[
@@ -107,7 +136,8 @@ export default function EditProfile() {
                     onPress={() => setSelectedAvatar(item.image)}
                     style={[
                       styles.avatarOption,
-                      selectedAvatar === item.image && styles.selectedAvatarOption,
+                      selectedAvatar === item.image &&
+                        styles.selectedAvatarOption,
                     ]}
                     activeOpacity={0.8}
                   >
@@ -130,7 +160,7 @@ export default function EditProfile() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FAF0DC" },
   gradient: { flex: 1, paddingHorizontal: 30, paddingTop: 60 },
-  scrollContent: { paddingBottom: 40, alignItems: "center" }, 
+  scrollContent: { paddingBottom: 40, alignItems: "center" },
   backButton: { marginBottom: 20 },
   backText: { color: "#550000", fontWeight: "700", letterSpacing: 1 },
   formContainer: { width: "100%", alignItems: "center" },

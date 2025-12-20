@@ -1,4 +1,6 @@
-import React, { useRef, useEffect, useState } from "react";
+"use client";
+
+import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -6,7 +8,6 @@ import {
   Image,
   FlatList,
   Animated,
-  StyleSheet,
   ScrollView,
   SafeAreaView,
   StatusBar,
@@ -38,24 +39,28 @@ const AVATARS = [
   { id: "15", image: require("../assets/avatars/avatar15.png") },
 ];
 
+const AvatarOption = React.memo(({ item, isSelected, onSelect }) => (
+  <TouchableOpacity
+    onPress={() => onSelect(item)}
+    style={[styles.avatarOption, isSelected && styles.selectedAvatarOption]}
+  >
+    <Image source={item.image} style={styles.avatarThumb} />
+  </TouchableOpacity>
+));
+
 export default function EditAvatar() {
   const router = useRouter();
   const [selectedAvatarId, setSelectedAvatarId] = useState("1");
   const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0].image);
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
-
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.replace("/login"); 
-      }
+      if (!user) router.replace("/login");
       setIsLoadingAuth(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -86,7 +91,12 @@ export default function EditAvatar() {
     loadAvatar();
   }, []);
 
-  const handleSave = async () => {
+  const handleSelectAvatar = useCallback((item) => {
+    setSelectedAvatarId(item.id);
+    setSelectedAvatar(item.image);
+  }, []);
+
+  const handleSave = useCallback(async () => {
     try {
       const user = auth.currentUser;
       if (!user) {
@@ -103,10 +113,11 @@ export default function EditAvatar() {
       console.error(error);
       Alert.alert("Error", "Failed to save avatar.");
     }
-  };
+  }, [selectedAvatarId]);
+
+  const avatarsData = useMemo(() => AVATARS, []);
 
   if (isLoadingAuth) return null;
-
   if (!selectedAvatar) return null;
 
   return (
@@ -130,25 +141,18 @@ export default function EditAvatar() {
               </View>
 
               <FlatList
-                data={AVATARS}
+                data={avatarsData}
                 keyExtractor={(item) => item.id}
                 numColumns={3}
                 scrollEnabled={false}
                 contentContainerStyle={styles.flatListContent}
-                renderItem={({ item }) => {
-                  const isSelected = selectedAvatarId === item.id;
-                  return (
-                    <TouchableOpacity
-                      onPress={() => {
-                        setSelectedAvatarId(item.id);
-                        setSelectedAvatar(item.image);
-                      }}
-                      style={[styles.avatarOption, isSelected && styles.selectedAvatarOption]}
-                    >
-                      <Image source={item.image} style={styles.avatarThumb} />
-                    </TouchableOpacity>
-                  );
-                }}
+                renderItem={({ item }) => (
+                  <AvatarOption
+                    item={item}
+                    isSelected={selectedAvatarId === item.id}
+                    onSelect={handleSelectAvatar}
+                  />
+                )}
               />
 
               <TouchableOpacity style={styles.saveButton} onPress={handleSave}>

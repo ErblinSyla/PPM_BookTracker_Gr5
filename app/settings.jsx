@@ -48,10 +48,11 @@ export default function Settings() {
   const [dailyReminderEnabled, setDailyReminderEnabled] = useState(true);
   const [weeklySummaryEnabled, setWeeklySummaryEnabled] = useState(true);
   const [readingStreakEnabled, setReadingStreakEnabled] = useState(true);
-  const [bookAlmostFinishedEnabled, setBookAlmostFinishedEnabled] = useState(true);
-  const [sessionCompletionEnabled, setSessionCompletionEnabled] = useState(true);
+  const [bookAlmostFinishedEnabled, setBookAlmostFinishedEnabled] =
+    useState(true);
+  const [sessionCompletionEnabled, setSessionCompletionEnabled] =
+    useState(true);
   const [userId, setUserId] = useState(null);
-    
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -62,18 +63,23 @@ export default function Settings() {
         const provider = user.providerData[0]?.providerId;
         setProviderId(provider || "");
 
-        // Load notification settings from Firestore
         try {
           const userRef = doc(db, "users", user.uid);
           const snap = await getDoc(userRef);
           if (snap.exists()) {
             const data = snap.data();
-            if (typeof data.notificationsEnabled === "boolean") setNotificationEnabled(data.notificationsEnabled);
-            if (typeof data.dailyReminderEnabled === "boolean") setDailyReminderEnabled(data.dailyReminderEnabled);
-            if (typeof data.weeklySummaryEnabled === "boolean") setWeeklySummaryEnabled(data.weeklySummaryEnabled);
-            if (typeof data.readingStreakEnabled === "boolean") setReadingStreakEnabled(data.readingStreakEnabled);
-            if (typeof data.bookAlmostFinishedEnabled === "boolean") setBookAlmostFinishedEnabled(data.bookAlmostFinishedEnabled);
-            if (typeof data.sessionCompletionEnabled === "boolean") setSessionCompletionEnabled(data.sessionCompletionEnabled);
+            if (typeof data.notificationsEnabled === "boolean")
+              setNotificationEnabled(data.notificationsEnabled);
+            if (typeof data.dailyReminderEnabled === "boolean")
+              setDailyReminderEnabled(data.dailyReminderEnabled);
+            if (typeof data.weeklySummaryEnabled === "boolean")
+              setWeeklySummaryEnabled(data.weeklySummaryEnabled);
+            if (typeof data.readingStreakEnabled === "boolean")
+              setReadingStreakEnabled(data.readingStreakEnabled);
+            if (typeof data.bookAlmostFinishedEnabled === "boolean")
+              setBookAlmostFinishedEnabled(data.bookAlmostFinishedEnabled);
+            if (typeof data.sessionCompletionEnabled === "boolean")
+              setSessionCompletionEnabled(data.sessionCompletionEnabled);
           }
         } catch (err) {
           console.error("Error loading notification settings:", err);
@@ -115,7 +121,7 @@ export default function Settings() {
         setReadingStreakEnabled(false);
         setBookAlmostFinishedEnabled(false);
         setSessionCompletionEnabled(false);
-        
+
         try {
           await NotificationService.cancelAllNotifications();
         } catch (err) {
@@ -201,7 +207,7 @@ export default function Settings() {
     await saveUserFields({ sessionCompletionEnabled: enabled });
   };
 
-const handleChangePassword = async () => {
+  const handleChangePassword = async () => {
     setPasswordError("");
     setPasswordSuccess("");
     setIsLoading(true);
@@ -305,24 +311,15 @@ const handleChangePassword = async () => {
             </View>
 
             <View style={styles.contentContainer}>
-              <View style={styles.settingItem}>
-                <View style={styles.settingInfo}>
-                  <Text style={styles.settingTitle}>Dark Mode</Text>
-                  <Text style={styles.settingDesc}>Switch to dark theme</Text>
-                </View>
-                <Switch
-                  value={isDarkMode}
-                  onValueChange={toggleDarkMode}
-                  trackColor={{ false: "#E6D9B8", true: "#550000" }}
-                  thumbColor={isDarkMode ? "#FAF0DC" : "#550000"}
-                  ios_backgroundColor="#E6D9B8"
-                />
-              </View>
               <View style={styles.notificationContainer}>
                 <View style={styles.settingItem}>
                   <View style={styles.settingInfo}>
-                    <Text style={styles.settingTitle}>Enable Notifications</Text>
-                    <Text style={styles.settingDesc}>Turn on/off all notifications</Text>
+                    <Text style={styles.settingTitle}>
+                      Enable Notifications
+                    </Text>
+                    <Text style={styles.settingDesc}>
+                      Turn on/off all notifications
+                    </Text>
                   </View>
                   <Switch
                     value={notificationsEnabled}
@@ -374,13 +371,17 @@ const handleChangePassword = async () => {
 
                 <View style={styles.notificationSubItem}>
                   <View style={styles.settingInfo}>
-                    <Text style={styles.settingSubTitle}>Book Almost Finished</Text>
+                    <Text style={styles.settingSubTitle}>
+                      Book Almost Finished
+                    </Text>
                   </View>
                   <Switch
                     value={bookAlmostFinishedEnabled}
                     onValueChange={handleToggleBookAlmostFinished}
                     trackColor={{ false: "#E6D9B8", true: "#550000" }}
-                    thumbColor={bookAlmostFinishedEnabled ? "#FAF0DC" : "#550000"}
+                    thumbColor={
+                      bookAlmostFinishedEnabled ? "#FAF0DC" : "#550000"
+                    }
                     ios_backgroundColor="#E6D9B8"
                     disabled={!notificationsEnabled}
                   />
@@ -388,13 +389,17 @@ const handleChangePassword = async () => {
 
                 <View style={styles.notificationSubItem}>
                   <View style={styles.settingInfo}>
-                    <Text style={styles.settingSubTitle}>Session Completion</Text>
+                    <Text style={styles.settingSubTitle}>
+                      Session Completion
+                    </Text>
                   </View>
                   <Switch
                     value={sessionCompletionEnabled}
                     onValueChange={handleToggleSessionCompletion}
                     trackColor={{ false: "#E6D9B8", true: "#550000" }}
-                    thumbColor={sessionCompletionEnabled ? "#FAF0DC" : "#550000"}
+                    thumbColor={
+                      sessionCompletionEnabled ? "#FAF0DC" : "#550000"
+                    }
                     ios_backgroundColor="#E6D9B8"
                     disabled={!notificationsEnabled}
                   />

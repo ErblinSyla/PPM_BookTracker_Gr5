@@ -20,21 +20,21 @@ import { db, auth } from "../firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 
 const AVATAR_MAP = {
-  "1": require("../assets/avatar01.png"),
-  "2": require("../assets/avatar02.png"),
-  "3": require("../assets/avatar03.png"),
-  "4": require("../assets/avatar04.png"),
-  "5": require("../assets/avatar05.png"),
-  "6": require("../assets/avatar06.png"),
-  "7": require("../assets/avatar07.png"),
-  "8": require("../assets/avatar08.png"),
-  "9": require("../assets/avatar09.png"),
-  "10": require("../assets/avatar10.png"),
-  "11": require("../assets/avatar11.png"),
-  "12": require("../assets/avatar12.png"),
-  "13": require("../assets/avatar13.png"),
-  "14": require("../assets/avatar14.png"),
-  "15": require("../assets/avatar15.png"),
+  "1": require("../assets/avatars/avatar01.png"),
+  "2": require("../assets/avatars/avatar02.png"),
+  "3": require("../assets/avatars/avatar03.png"),
+  "4": require("../assets/avatars/avatar04.png"),
+  "5": require("../assets/avatars/avatar05.png"),
+  "6": require("../assets/avatars/avatar06.png"),
+  "7": require("../assets/avatars/avatar07.png"),
+  "8": require("../assets/avatars/avatar08.png"),
+  "9": require("../assets/avatars/avatar09.png"),
+  "10": require("../assets/avatars/avatar10.png"),
+  "11": require("../assets/avatars/avatar11.png"),
+  "12": require("../assets/avatars/avatar12.png"),
+  "13": require("../assets/avatars/avatar13.png"),
+  "14": require("../assets/avatars/avatar14.png"),
+  "15": require("../assets/avatars/avatar15.png"),
 };
 
 export default function EditProfile() {

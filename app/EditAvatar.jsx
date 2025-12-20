@@ -20,21 +20,21 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
 const AVATARS = [
-  { id: "1", image: require("../assets/avatar01.png") },
-  { id: "2", image: require("../assets/avatar02.png") },
-  { id: "3", image: require("../assets/avatar03.png") },
-  { id: "4", image: require("../assets/avatar04.png") },
-  { id: "5", image: require("../assets/avatar05.png") },
-  { id: "6", image: require("../assets/avatar06.png") },
-  { id: "7", image: require("../assets/avatar07.png") },
-  { id: "8", image: require("../assets/avatar08.png") },
-  { id: "9", image: require("../assets/avatar09.png") },
-  { id: "10", image: require("../assets/avatar10.png") },
-  { id: "11", image: require("../assets/avatar11.png") },
-  { id: "12", image: require("../assets/avatar12.png") },
-  { id: "13", image: require("../assets/avatar13.png") },
-  { id: "14", image: require("../assets/avatar14.png") },
-  { id: "15", image: require("../assets/avatar15.png") },
+  { id: "1", image: require("../assets/avatars/avatar01.png") },
+  { id: "2", image: require("../assets/avatars/avatar02.png") },
+  { id: "3", image: require("../assets/avatars/avatar03.png") },
+  { id: "4", image: require("../assets/avatars/avatar04.png") },
+  { id: "5", image: require("../assets/avatars/avatar05.png") },
+  { id: "6", image: require("../assets/avatars/avatar06.png") },
+  { id: "7", image: require("../assets/avatars/avatar07.png") },
+  { id: "8", image: require("../assets/avatars/avatar08.png") },
+  { id: "9", image: require("../assets/avatars/avatar09.png") },
+  { id: "10", image: require("../assets/avatars/avatar10.png") },
+  { id: "11", image: require("../assets/avatars/avatar11.png") },
+  { id: "12", image: require("../assets/avatars/avatar12.png") },
+  { id: "13", image: require("../assets/avatars/avatar13.png") },
+  { id: "14", image: require("../assets/avatars/avatar14.png") },
+  { id: "15", image: require("../assets/avatars/avatar15.png") },
 ];
 
 export default function EditAvatar() {

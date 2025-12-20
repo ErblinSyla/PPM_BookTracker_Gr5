@@ -24,6 +24,8 @@ import { useEffect, useState } from "react";
 import styles from "./styles/SettingsStyles";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from "../firebase/firebaseConfig";
 
 import NotificationService from "./services/NotificationService";
 import Spinner from "./components/Spinner";
@@ -48,18 +50,21 @@ export default function Settings() {
   const [readingStreakEnabled, setReadingStreakEnabled] = useState(true);
   const [bookAlmostFinishedEnabled, setBookAlmostFinishedEnabled] = useState(true);
   const [sessionCompletionEnabled, setSessionCompletionEnabled] = useState(true);
+  const [userId, setUserId] = useState(null);
     
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserEmail(user.email);
+        setUserId(user.uid);
 
         const provider = user.providerData[0]?.providerId;
         setProviderId(provider || "");
         setIsLoadingAuth(false);
       } else {
         setUserEmail(null);
+        setUserId(null);
         setProviderId("");
         setIsLoadingAuth(false);
         router.replace("/login");
@@ -71,64 +76,114 @@ export default function Settings() {
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
- const handleToggleNotification = async (enabled) => {
-    if (enabled) {
-      setNotificationEnabled(true);
-    }else{
-      setNotificationEnabled(false);
-      await NotificationService.cancelAllNotifications();
-      setDailyReminderEnabled(false);
-      setWeeklySummaryEnabled(false);
-      setReadingStreakEnabled(false);
-      setBookAlmostFinishedEnabled(false);
-      setSessionCompletionEnabled(false);
+  const saveUserFields = async (fields) => {
+    if (!userId) return;
+    try {
+      await setDoc(doc(db, "users", userId), fields, { merge: true });
+    } catch (err) {
+      console.error("Error saving user fields:", err);
     }
- };
+  };
 
-const handleToggleDailyReminder = async (enabled) => {
+  const handleToggleNotification = async (enabled) => {
+    try {
+      if (enabled) {
+        setNotificationEnabled(true);
+        await saveUserFields({ notificationsEnabled: true });
+      } else {
+        setNotificationEnabled(false);
+        setDailyReminderEnabled(false);
+        setWeeklySummaryEnabled(false);
+        setReadingStreakEnabled(false);
+        setBookAlmostFinishedEnabled(false);
+        setSessionCompletionEnabled(false);
+        
+        try {
+          await NotificationService.cancelAllNotifications();
+        } catch (err) {
+          console.warn("Cancel all failed:", err);
+        }
+
+        await saveUserFields({
+          notificationsEnabled: false,
+          dailyReminderEnabled: false,
+          weeklySummaryEnabled: false,
+          readingStreakEnabled: false,
+          bookAlmostFinishedEnabled: false,
+          sessionCompletionEnabled: false,
+        });
+      }
+    } catch (err) {
+      console.error("Error toggling notifications:", err);
+    }
+  };
+
+  const handleToggleDailyReminder = async (enabled) => {
     if (!notificationsEnabled) return;
     setDailyReminderEnabled(enabled);
     if (!enabled) {
-      await NotificationService.cancelDailyReminder();
+      try {
+        await NotificationService.cancelDailyReminder();
+      } catch (err) {
+        console.warn("Cancel daily reminder failed:", err);
+      }
     }
+    await saveUserFields({ dailyReminderEnabled: enabled });
   };
 
   const handleToggleWeeklySummary = async (enabled) => {
     if (!notificationsEnabled) return;
     setWeeklySummaryEnabled(enabled);
     if (!enabled) {
-      await NotificationService.cancelWeeklySummary();
+      try {
+        await NotificationService.cancelWeeklySummary();
+      } catch (err) {
+        console.warn("Cancel weekly summary failed:", err);
+      }
     }
+    await saveUserFields({ weeklySummaryEnabled: enabled });
   };
 
   const handleToggleReadingStreak = async (enabled) => {
     if (!notificationsEnabled) return;
     setReadingStreakEnabled(enabled);
     if (!enabled) {
-      await NotificationService.cancelReadingStreak();
+      try {
+        await NotificationService.cancelReadingStreak();
+      } catch (err) {
+        console.warn("Cancel reading streak failed:", err);
+      }
     }
+    await saveUserFields({ readingStreakEnabled: enabled });
   };
 
   const handleToggleBookAlmostFinished = async (enabled) => {
     if (!notificationsEnabled) return;
     setBookAlmostFinishedEnabled(enabled);
     if (!enabled) {
-      await NotificationService.cancelBookAlmostFinished();
+      try {
+        await NotificationService.cancelBookAlmostFinished();
+      } catch (err) {
+        console.warn("Cancel book almost finished failed:", err);
+      }
     }
+    await saveUserFields({ bookAlmostFinishedEnabled: enabled });
   };
 
   const handleToggleSessionCompletion = async (enabled) => {
     if (!notificationsEnabled) return;
     setSessionCompletionEnabled(enabled);
     if (!enabled) {
-      await NotificationService.cancelSessionCompletion();
+      try {
+        await NotificationService.cancelSessionCompletion();
+      } catch (err) {
+        console.warn("Cancel session completion failed:", err);
+      }
     }
+    await saveUserFields({ sessionCompletionEnabled: enabled });
   };
 
-
-
-
-  const handleChangePassword = async () => {
+const handleChangePassword = async () => {
     setPasswordError("");
     setPasswordSuccess("");
     setIsLoading(true);

@@ -16,7 +16,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserData } from "../app/services/authService";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../firebase/firebaseConfig";
 import styles from "./styles/ProfileStyles";
@@ -50,35 +50,42 @@ export default function Profile() {
     return () => unsubscribe();
   }, [router]);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const uid = await AsyncStorage.getItem("userUID");
-        if (!uid) return;
+ useEffect(() => {
+  const loadUser = async () => {
+    try {
+      const uid = await AsyncStorage.getItem("userUID");
+      if (!uid) return;
 
-        const data = await getUserData(uid);
-        if (!data) return;
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+      const profileData = userSnap.exists() ? userSnap.data() : {};
 
-        setUserData(data);
-        const q = query(
-          collection(db, "books"),
-          where("userEmail", "==", data.email)
-        );
-        const snap = await getDocs(q);
-        const books = snap.docs.map((d) => d.data());
+      setUserData({
+        name: profileData.firstName ? `${profileData.firstName} ${profileData.lastName}` : "",
+        email: profileData.email || "",
+      });
 
-        setCounts({
-          reading: books.filter((b) => b.status === "reading").length,
-          toRead: books.filter((b) => b.status === "to-read").length,
-          finished: books.filter((b) => b.status === "finished").length,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      const q = query(
+        collection(db, "books"),
+        where("userEmail", "==", profileData.email)
+      );
+      const snap = await getDocs(q);
+      const books = snap.docs.map((d) => d.data());
 
-    loadUser();
-  }, []);
+      setCounts({
+        reading: books.filter((b) => b.status === "reading").length,
+        toRead: books.filter((b) => b.status === "to-read").length,
+        finished: books.filter((b) => b.status === "finished").length,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  loadUser();
+}, []);
+
+
 
   useFocusEffect(
     React.useCallback(() => {

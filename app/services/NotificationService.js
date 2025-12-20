@@ -80,6 +80,10 @@ async function scheduleDailyReminder(hour = 18, minute = 30) {
 }
 
 async function cancelAllNotifications() {
+    if (Platform.OS === 'web') {
+        console.warn('Notifications are not available on web');
+        return;
+    }
     await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
@@ -372,6 +376,10 @@ async function notifySessionCompletion(bookTitle, pagesRead, sessionDuration) {
 }
 
 async function cancelDailyReminder() {
+    if (Platform.OS === 'web') {
+        console.warn('Notifications are not available on web');
+        return true;
+    }
     try{
         const notifications = await Notifications.getAllScheduledNotificationsAsync();
         const reminderIds = notifications
@@ -389,6 +397,10 @@ async function cancelDailyReminder() {
 }
 
 async function cancelWeeklySummary() {
+    if (Platform.OS === 'web') {
+        console.warn('Notifications are not available on web');
+        return true;
+    }
     try{
         const notifications = await Notifications.getAllScheduledNotificationsAsync();
         const weeklySummaryIds = notifications
@@ -402,6 +414,10 @@ async function cancelWeeklySummary() {
     } catch (error) {
         console.error("Error cancelling weekly summaries:", error);
         return false;
+    if (Platform.OS === 'web') {
+        console.warn('Notifications are not available on web');
+        return true;
+    }
     }
 }
 
@@ -418,6 +434,10 @@ async function cancelReadingStreak(){
     } catch (error) {
         console.error("Error cancelling reading streak notifications:", error);
         return false;
+    if (Platform.OS === 'web') {
+        console.warn('Notifications are not available on web');
+        return true;
+    }
     }
 }
 
@@ -430,6 +450,10 @@ async function cancelBookAlmostFinished(){
         for (let id of almostFinishedIds) {
             await Notifications.cancelScheduledNotificationAsync(id);
         }
+    if (Platform.OS === 'web') {
+        console.warn('Notifications are not available on web');
+        return true;
+    }
         return true;
     } catch (error) {
         console.error("Error cancelling book almost finished notifications:", error);

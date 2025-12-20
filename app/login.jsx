@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   Animated,
   StatusBar,
   Alert,
-  StyleSheet,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import { LinearGradient } from "expo-linear-gradient";
@@ -16,6 +15,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
 import styles from "./styles/LoginStyles"; 
+import Input from "./components/Input";
+import PasswordInput from "./components/PasswordInput";
+import Options from "./components/Options";
+import LoginButton from "./components/LoginButton";
+import SignupRedirect from "./components/SignupRedirect";
+import HeaderTitle from "./components/HeaderTitle"; 
+
 
 export default function Login() {
   const router = useRouter();
@@ -34,7 +40,7 @@ export default function Login() {
     loadSavedCredentials();
   }, []);
 
-  const startAnimations = () => {
+  const startAnimations = useCallback(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -47,12 +53,14 @@ export default function Login() {
         useNativeDriver: true,
       }),
     ]).start();
-  };
+  }, [fadeAnim, slideAnim]);
 
-  const loadSavedCredentials = async () => {
+  const loadSavedCredentials = useCallback(async () => {
     try {
-      const savedEmail = await AsyncStorage.getItem("email");
-      const savedPassword = await AsyncStorage.getItem("password");
+      const [savedEmail, savedPassword] = await Promise.all([
+        AsyncStorage.getItem("email"),
+        AsyncStorage.getItem("password"),
+      ]);
       if (savedEmail && savedPassword) {
         setEmail(savedEmail);
         setPassword(savedPassword);
@@ -61,44 +69,25 @@ export default function Login() {
     } catch (e) {
       console.log("Error loading saved credentials", e);
     }
-  };
+  }, []);
 
-  const handleLogin = async () => {
+  const handleLogin = useCallback(async () => {
     setErrorMessage("");
 
-    if (!email.trim()) {
-      setErrorMessage("Please enter your email.");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setErrorMessage("Please enter a valid email.");
-      return;
-    }
-
-    if (!password.trim()) {
-      setErrorMessage("Please enter your password.");
-      return;
-    }
+    if (!email.trim()) return setErrorMessage("Please enter your email.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      return setErrorMessage("Please enter a valid email.");
+    if (!password.trim()) return setErrorMessage("Please enter your password.");
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Kontrollo nëse emaili është verifikuar
-      if (!user.emailVerified) {
-        setErrorMessage(
+      if (!user.emailVerified)
+        return setErrorMessage(
           "Please verify your email first. Check your inbox for the verification link."
         );
-        return;
-      }
 
-      // Ruaj credentials në AsyncStorage nëse është checked
       if (isChecked) {
         await AsyncStorage.setItem("email", email);
         await AsyncStorage.setItem("password", password);
@@ -107,36 +96,38 @@ export default function Login() {
         await AsyncStorage.removeItem("password");
       }
 
-      // Ruaj UID për përdorim tek Profile.jsx
       await AsyncStorage.setItem("userUID", user.uid);
-
       Alert.alert("Success", "You have logged in successfully!");
       router.push("/homepage");
     } catch (error) {
       console.log("Firebase login error:", error);
       setErrorMessage("Invalid credentials.");
     }
-  };
+  }, [email, password, isChecked, router]);
+
+  const memoizedHeader = useMemo(() => <HeaderTitle>Welcome Back</HeaderTitle>, []);
+  const memoizedOptions = useMemo(
+    () => <Options isChecked={isChecked} setChecked={setChecked} router={router} />,
+    [isChecked, router]
+  );
+  const memoizedLoginButton = useMemo(() => <LoginButton handleLogin={handleLogin} />, [
+    handleLogin,
+  ]);
+  const memoizedSignupRedirect = useMemo(() => <SignupRedirect router={router} />, [router]);
 
   return (
     <View style={styles.container}>
       <StatusBar style="dark" backgroundColor="transparent" translucent />
       <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.gradient}>
-        {/* HIQUR KREJT BackButton – nuk ka më buton back */}
-
         <Animated.View
           style={[
             styles.formContainer,
             { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
           ]}
         >
-          <Header />
-          <Input
-            label="E-mail"
-            value={email}
-            onChangeText={setEmail}
-            placeholder="example@email.com"
-          />
+          {memoizedHeader}
+
+          <Input label="E-mail" value={email} onChangeText={setEmail} placeholder="example@email.com" />
           <PasswordInput
             label="Password"
             value={password}
@@ -145,97 +136,14 @@ export default function Login() {
             setShowPassword={setShowPassword}
           />
 
-          {errorMessage ? (
-            <Text style={styles.errorText}>{errorMessage}</Text>
-          ) : null}
+          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
-          <Options
-            isChecked={isChecked}
-            setChecked={setChecked}
-            router={router}
-          />
-
-          <LoginButton handleLogin={handleLogin} />
-          <SignupRedirect router={router} />
+          {memoizedOptions}
+          {memoizedLoginButton}
+          {memoizedSignupRedirect}
         </Animated.View>
       </LinearGradient>
     </View>
   );
 }
 
-const Header = () => (
-  <>
-    <Text style={styles.title}>Welcome Back</Text>
-    <Text style={styles.subtitle}>Log in to continue your reading journey</Text>
-  </>
-);
-
-const Input = ({ label, value, onChangeText, placeholder }) => (
-  <>
-    <Text style={styles.inputLabel}>{label}</Text>
-    <TextInput
-      value={value}
-      onChangeText={onChangeText}
-      placeholder={placeholder}
-      placeholderTextColor="#55000070"
-      style={styles.input}
-    />
-  </>
-);
-
-const PasswordInput = ({
-  label,
-  value,
-  onChangeText,
-  showPassword,
-  setShowPassword,
-}) => (
-  <>
-    <Text style={[styles.inputLabel, { marginTop: 15 }]}>{label}</Text>
-    <View style={styles.passwordContainer}>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder="Your Password"
-        placeholderTextColor="#55000070"
-        secureTextEntry={!showPassword}
-        style={styles.passwordInput}
-      />
-      <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-        <Text style={styles.showText}>{showPassword ? "Hide" : "Show"}</Text>
-      </TouchableOpacity>
-    </View>
-  </>
-);
-
-const Options = ({ isChecked, setChecked, router }) => (
-  <View style={styles.optionsContainer}>
-    <View style={{ flexDirection: "row", alignItems: "center" }}>
-      <Checkbox
-        value={isChecked}
-        onValueChange={setChecked}
-        color={isChecked ? "#550000" : undefined}
-      />
-      <Text style={{ marginLeft: 8, color: "#550000" }}>Remember me</Text>
-    </View>
-    <TouchableOpacity onPress={() => router.push("/ForgotPassword")}>
-      <Text style={{ color: "#550000", fontWeight: "500" }}>
-        Forgot Password?
-      </Text>
-    </TouchableOpacity>
-  </View>
-);
-
-const LoginButton = ({ handleLogin }) => (
-  <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
-    <Text style={styles.loginText}>Log In</Text>
-  </TouchableOpacity>
-);
-
-const SignupRedirect = ({ router }) => (
-  <TouchableOpacity onPress={() => router.push("/signup")}>
-    <Text style={styles.signupText}>
-      Don’t have an account? <Text style={{ fontWeight: "700" }}>Sign Up</Text>
-    </Text>
-  </TouchableOpacity>
-);

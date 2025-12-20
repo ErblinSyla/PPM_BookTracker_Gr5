@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Animated,
-  StyleSheet,
+  FlatList,
   Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -18,7 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
-import styles from "./styles/EditProfileStyles"; 
+import styles from "./styles/EditProfileStyles";
 
 const AVATAR_MAP = {
   "1": require("../assets/avatars/avatar01.png"),
@@ -37,6 +37,12 @@ const AVATAR_MAP = {
   "14": require("../assets/avatars/avatar14.png"),
   "15": require("../assets/avatars/avatar15.png"),
 };
+
+const GenderOption = React.memo(({ option, onPress }) => (
+  <TouchableOpacity style={styles.genderOption} onPress={() => onPress(option)}>
+    <Text style={styles.genderOptionText}>{option}</Text>
+  </TouchableOpacity>
+));
 
 export default function EditProfile() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -110,7 +116,7 @@ export default function EditProfile() {
     }, [])
   );
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     try {
       const user = auth.currentUser;
       if (!user) {
@@ -134,11 +140,15 @@ export default function EditProfile() {
       console.log("Save error:", e);
       Alert.alert("Error", "Failed to save profile. Try again.");
     }
-  };
+  }, [firstName, lastName, bio, gender, avatarId]);
 
-  if (isLoadingAuth) {
-    return null; 
-  }
+  const genderOptions = useMemo(() => ["Prefer not to say", "Male", "Female"], []);
+  const handleGenderSelect = useCallback((option) => {
+    setGender(option);
+    setShowGenderOptions(false);
+  }, []);
+
+  if (isLoadingAuth) return null;
 
   return (
     <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
@@ -198,20 +208,14 @@ export default function EditProfile() {
           </TouchableOpacity>
 
           {showGenderOptions && (
-            <View style={styles.genderOptions}>
-              {["Prefer not to say", "Male", "Female"].map((option) => (
-                <TouchableOpacity
-                  key={option}
-                  style={styles.genderOption}
-                  onPress={() => {
-                    setGender(option);
-                    setShowGenderOptions(false);
-                  }}
-                >
-                  <Text style={styles.genderOptionText}>{option}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <FlatList
+              data={genderOptions}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <GenderOption option={item} onPress={handleGenderSelect} />
+              )}
+              scrollEnabled={false}
+            />
           )}
 
           <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
@@ -222,4 +226,3 @@ export default function EditProfile() {
     </LinearGradient>
   );
 }
-

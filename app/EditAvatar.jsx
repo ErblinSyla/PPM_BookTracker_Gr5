@@ -17,6 +17,7 @@ import { Stack, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { db, auth } from "../firebase/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
 const AVATARS = [
   { id: "1", image: require("../assets/avatar01.png") },
@@ -43,6 +44,19 @@ export default function EditAvatar() {
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
+
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.replace("/login"); 
+      }
+      setIsLoadingAuth(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     Animated.parallel([
@@ -89,6 +103,8 @@ export default function EditAvatar() {
       Alert.alert("Error", "Failed to save avatar.");
     }
   };
+
+  if (isLoadingAuth) return null;
 
   if (!selectedAvatar) return null;
 

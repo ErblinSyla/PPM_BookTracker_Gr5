@@ -35,8 +35,6 @@ export default function Index() {
 
         if (user.emailVerified) {
           router.replace("/homepage");
-        } else {
-          router.replace("/login");
         }
       }
     });

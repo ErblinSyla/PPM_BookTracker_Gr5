@@ -56,10 +56,15 @@ export default function SignupEmail() {
       await sendEmailVerification(userCredential.user);
 
       await setDoc(doc(db, "users", userCredential.user.uid), {
-        name: `${firstName.trim()} ${lastName.trim()}`,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         email: email.toLowerCase(),
-        createdAt: new Date().toISOString(), // optional, nice to have
+        bio: "",
+        gender: "Prefer not to say",
+        avatarId: "1",
+        createdAt: new Date().toISOString(),
       });
+
 
       // Shfaq modal
       setModalVisible(true);

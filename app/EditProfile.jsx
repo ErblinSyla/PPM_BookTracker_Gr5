@@ -17,6 +17,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
 
 const AVATAR_MAP = {
   "1": require("../assets/avatar01.png"),
@@ -48,7 +49,29 @@ export default function EditProfile() {
   const [avatarId, setAvatarId] = useState("1");
   const [avatar, setAvatar] = useState(AVATAR_MAP["1"]);
 
+  const [userEmail, setUserEmail] = useState(null);
+  const [providerId, setProviderId] = useState("");
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+
   const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserEmail(user.email);
+        const provider = user.providerData[0]?.providerId;
+        setProviderId(provider || "");
+        setIsLoadingAuth(false);
+      } else {
+        setUserEmail(null);
+        setProviderId("");
+        setIsLoadingAuth(false);
+        router.replace("/login");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     Animated.parallel([
@@ -73,7 +96,6 @@ export default function EditProfile() {
             setBio(data.bio || "");
             setGender(data.gender || "Prefer not to say");
 
-            // Merr avatarId nga AsyncStorage ose Firestore
             const savedAvatarId = await AsyncStorage.getItem("userAvatarId");
             const idToUse = savedAvatarId || data.avatarId || "1";
             setAvatarId(idToUse);
@@ -101,10 +123,10 @@ export default function EditProfile() {
         lastName: lastName.trim(),
         bio,
         gender,
-        avatarId, // ruaj avatarId në Firestore
+        avatarId,
       });
 
-      await AsyncStorage.setItem("userAvatarId", avatarId); // ruaj avatarId lokalisht
+      await AsyncStorage.setItem("userAvatarId", avatarId);
       Alert.alert("Success", "Profile updated!");
       router.push("/profile");
     } catch (e) {
@@ -112,6 +134,10 @@ export default function EditProfile() {
       Alert.alert("Error", "Failed to save profile. Try again.");
     }
   };
+
+  if (isLoadingAuth) {
+    return null; 
+  }
 
   return (
     <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
@@ -195,9 +221,6 @@ export default function EditProfile() {
     </LinearGradient>
   );
 }
-
-// styles janë të njëjtat si në kodin tënd
-
 
 const styles = StyleSheet.create({
   container: { flex: 1 },

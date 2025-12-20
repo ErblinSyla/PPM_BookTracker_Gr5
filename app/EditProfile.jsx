@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import {
   View,
@@ -14,7 +16,25 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { db, auth } from "../firebase/firebaseConfig";
+
+const AVATAR_MAP = {
+  "1": require("../assets/avatar01.png"),
+  "2": require("../assets/avatar02.png"),
+  "3": require("../assets/avatar03.png"),
+  "4": require("../assets/avatar04.png"),
+  "5": require("../assets/avatar05.png"),
+  "6": require("../assets/avatar06.png"),
+  "7": require("../assets/avatar07.png"),
+  "8": require("../assets/avatar08.png"),
+  "9": require("../assets/avatar09.png"),
+  "10": require("../assets/avatar10.png"),
+  "11": require("../assets/avatar11.png"),
+  "12": require("../assets/avatar12.png"),
+  "13": require("../assets/avatar13.png"),
+  "14": require("../assets/avatar14.png"),
+  "15": require("../assets/avatar15.png"),
+};
 
 export default function EditProfile() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -25,7 +45,8 @@ export default function EditProfile() {
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("Prefer not to say");
   const [showGenderOptions, setShowGenderOptions] = useState(false);
-  const [avatar, setAvatar] = useState(null);
+  const [avatarId, setAvatarId] = useState("1");
+  const [avatar, setAvatar] = useState(AVATAR_MAP["1"]);
 
   const router = useRouter();
 
@@ -40,32 +61,24 @@ export default function EditProfile() {
     useCallback(() => {
       const loadData = async () => {
         try {
-          const savedAvatar = await AsyncStorage.getItem("userAvatar");
-          if (savedAvatar) setAvatar(JSON.parse(savedAvatar));
+          const user = auth.currentUser;
+          if (!user) return;
 
-          const uid = await AsyncStorage.getItem("userUID");
-          if (!uid) return;
-
-          const userRef = doc(db, "users", uid);
+          const userRef = doc(db, "users", user.uid);
           const userSnap = await getDoc(userRef);
-          let data = {};
           if (userSnap.exists()) {
-            data = userSnap.data();
-            if (data.firstName) setFirstName(data.firstName);
-            if (data.lastName) setLastName(data.lastName);
-            if (data.bio) setBio(data.bio);
-            if (data.gender) setGender(data.gender);
-          }
+            const data = userSnap.data();
+            setFirstName(data.firstName || "");
+            setLastName(data.lastName || "");
+            setBio(data.bio || "");
+            setGender(data.gender || "Prefer not to say");
 
-          await AsyncStorage.setItem(
-            "profileData",
-            JSON.stringify({
-              firstName: data?.firstName || "",
-              lastName: data?.lastName || "",
-              bio: data?.bio || "",
-              gender: data?.gender || "Prefer not to say",
-            })
-          );
+            // Merr avatarId nga AsyncStorage ose Firestore
+            const savedAvatarId = await AsyncStorage.getItem("userAvatarId");
+            const idToUse = savedAvatarId || data.avatarId || "1";
+            setAvatarId(idToUse);
+            setAvatar(AVATAR_MAP[idToUse]);
+          }
         } catch (e) {
           console.log("Load error:", e);
         }
@@ -76,25 +89,23 @@ export default function EditProfile() {
 
   const handleSave = async () => {
     try {
-      const uid = await AsyncStorage.getItem("userUID");
-      if (!uid) {
+      const user = auth.currentUser;
+      if (!user) {
         Alert.alert("Error", "User not found.");
         return;
       }
 
-      const userRef = doc(db, "users", uid);
+      const userRef = doc(db, "users", user.uid);
       await updateDoc(userRef, {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         bio,
         gender,
+        avatarId, // ruaj avatarId në Firestore
       });
 
-      await AsyncStorage.setItem(
-        "profileData",
-        JSON.stringify({ firstName, lastName, bio, gender })
-      );
-
+      await AsyncStorage.setItem("userAvatarId", avatarId); // ruaj avatarId lokalisht
+      Alert.alert("Success", "Profile updated!");
       router.push("/profile");
     } catch (e) {
       console.log("Save error:", e);
@@ -105,9 +116,16 @@ export default function EditProfile() {
   return (
     <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }], marginTop: 50 }}>
+        <Animated.View
+          style={{
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+            marginTop: 50,
+            alignItems: "center",
+          }}
+        >
           <View style={styles.avatarSection}>
-            <Image source={avatar ? avatar : require("../assets/avatar01.png")} style={styles.avatar} />
+            <Image source={avatar} style={styles.avatar} />
             <TouchableOpacity onPress={() => router.push("/EditAvatar")}>
               <Text style={styles.editAvatarText}>Edit avatar</Text>
             </TouchableOpacity>
@@ -144,7 +162,10 @@ export default function EditProfile() {
           <Text style={styles.charCount}>{bio.length} / 150</Text>
 
           <Text style={styles.label}>Gender</Text>
-          <TouchableOpacity style={styles.genderBox} onPress={() => setShowGenderOptions(!showGenderOptions)}>
+          <TouchableOpacity
+            style={styles.genderBox}
+            onPress={() => setShowGenderOptions(!showGenderOptions)}
+          >
             <Text style={styles.genderText}>{gender}</Text>
             <Text style={[styles.arrow, showGenderOptions && styles.arrowOpen]}>▼</Text>
           </TouchableOpacity>
@@ -152,7 +173,14 @@ export default function EditProfile() {
           {showGenderOptions && (
             <View style={styles.genderOptions}>
               {["Prefer not to say", "Male", "Female"].map((option) => (
-                <TouchableOpacity key={option} style={styles.genderOption} onPress={() => { setGender(option); setShowGenderOptions(false); }}>
+                <TouchableOpacity
+                  key={option}
+                  style={styles.genderOption}
+                  onPress={() => {
+                    setGender(option);
+                    setShowGenderOptions(false);
+                  }}
+                >
                   <Text style={styles.genderOptionText}>{option}</Text>
                 </TouchableOpacity>
               ))}
@@ -167,6 +195,9 @@ export default function EditProfile() {
     </LinearGradient>
   );
 }
+
+// styles janë të njëjtat si në kodin tënd
+
 
 const styles = StyleSheet.create({
   container: { flex: 1 },

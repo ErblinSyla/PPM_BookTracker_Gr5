@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,10 +12,9 @@ import {
   Platform,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { useRouter, useFocusEffect } from "expo-router";
+import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getUserData } from "../app/services/authService";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../firebase/firebaseConfig";
@@ -25,92 +24,102 @@ import Spinner from "./components/Spinner";
 import ProfileOption from "./components/ProfileOption";
 import ConfirmModal from "./components/ConfirmModal";
 
+const AVATAR_MAP = {
+  "1": require("../assets/avatar01.png"),
+  "2": require("../assets/avatar02.png"),
+  "3": require("../assets/avatar03.png"),
+  "4": require("../assets/avatar04.png"),
+  "5": require("../assets/avatar05.png"),
+  "6": require("../assets/avatar06.png"),
+  "7": require("../assets/avatar07.png"),
+  "8": require("../assets/avatar08.png"),
+  "9": require("../assets/avatar09.png"),
+  "10": require("../assets/avatar10.png"),
+  "11": require("../assets/avatar11.png"),
+  "12": require("../assets/avatar12.png"),
+  "13": require("../assets/avatar13.png"),
+  "14": require("../assets/avatar14.png"),
+  "15": require("../assets/avatar15.png"),
+};
+
 export default function Profile() {
   const router = useRouter();
-  const [userEmail, setUserEmail] = useState(null);
-
-  const [counts, setCounts] = useState({
-    reading: 0,
-    toRead: 0,
-    finished: 0,
-  });
-
+  const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState({ name: "", email: "" });
-  const [avatarImage, setAvatarImage] = useState(require("../assets/profile-image-test.png"));
+  const [counts, setCounts] = useState({ reading: 0, toRead: 0, finished: 0 });
+  const [avatarImage, setAvatarImage] = useState(require("../assets/avatar01.png"));
+
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState("");
   const [modalData, setModalData] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) setUserEmail(user.email);
-      else router.replace("/login");
-    });
-    return () => unsubscribe();
-  }, [router]);
-
- useEffect(() => {
-  const loadUser = async () => {
+  const fetchProfileData = async (user) => {
     try {
-      const uid = await AsyncStorage.getItem("userUID");
-      if (!uid) return;
-
-      const userRef = doc(db, "users", uid);
+      // Merr të dhënat nga Firestore
+      const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
-      const profileData = userSnap.exists() ? userSnap.data() : {};
 
-      setUserData({
-        name: profileData.firstName ? `${profileData.firstName} ${profileData.lastName}` : "",
-        email: profileData.email || "",
-      });
+      if (userSnap.exists()) {
+        const data = userSnap.data();
 
-      const q = query(
-        collection(db, "books"),
-        where("userEmail", "==", profileData.email)
-      );
-      const snap = await getDocs(q);
-      const books = snap.docs.map((d) => d.data());
+        // Përdor avatarId nga Firestore, ose default 1
+        const avatarId = data.avatarId || "1";
+        setAvatarImage(AVATAR_MAP[avatarId]);
 
-      setCounts({
-        reading: books.filter((b) => b.status === "reading").length,
-        toRead: books.filter((b) => b.status === "to-read").length,
-        finished: books.filter((b) => b.status === "finished").length,
-      });
+        // Ruaj avatarId lokalisht për përdorim të ardhshëm
+        await AsyncStorage.setItem("userAvatarId", avatarId);
+
+        setUserData({
+          name: `${data.firstName || ""} ${data.lastName || ""}`.trim() || "User",
+          email: data.email || user.email,
+        });
+
+        // Merr librat e përdoruesit
+        const q = query(
+          collection(db, "books"),
+          where("userEmail", "==", data.email || user.email)
+        );
+        const snap = await getDocs(q);
+        const books = snap.docs.map(d => d.data());
+
+        setCounts({
+          reading: books.filter(b => b.status === "reading").length,
+          toRead: books.filter(b => b.status === "to-read").length,
+          finished: books.filter(b => b.status === "finished").length,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  loadUser();
-}, []);
-
-
-
-  useFocusEffect(
-    React.useCallback(() => {
-      const loadAvatar = async () => {
-        try {
-          const avatar = await AsyncStorage.getItem("userAvatar");
-          if (avatar) setAvatarImage(JSON.parse(avatar));
-        } catch (error) {
-          console.log("Error loading avatar:", error);
-        }
-      };
-      loadAvatar();
-    }, [])
-  );
-
-  const bookCounts = useMemo(() => ({ reading: counts.reading, toRead: counts.toRead, finished: counts.finished }), [counts]);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        fetchProfileData(user);
+      } else {
+        router.replace("/login");
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const performLogout = useCallback(async () => {
-    await signOut(auth);
-    router.replace("/");
+    try {
+      await signOut(auth);
+      await AsyncStorage.removeItem("userAvatarId"); // fshij avatarin e ruajtur
+      router.replace("/login");
+    } catch (error) {
+      console.error(error);
+    }
   }, [router]);
 
   const showLogoutConfirmation = useCallback(() => {
     if (Platform.OS === "web") {
       setModalType("logout");
+      setModalData({ title: "Logout", message: "Are you sure you want to log out?" });
       setModalVisible(true);
     } else {
       Alert.alert("Logout", "Are you sure?", [
@@ -128,9 +137,9 @@ export default function Profile() {
   if (isLoading) return <Spinner />;
 
   return (
-    <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={styles.container}>
+    <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
       <SafeAreaView style={styles.safe}>
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.push("/homepage")}>
@@ -146,40 +155,43 @@ export default function Profile() {
             </View>
 
             <View style={styles.book__stats}>
-              <TouchableOpacity onPress={() => router.push("/homepage")} style={styles.book__active}>
-                <Text style={styles.active__num}>{bookCounts.reading}</Text>
+              <View style={styles.book__active}>
+                <Text style={styles.active__num}>{counts.reading}</Text>
                 <Text style={styles.active__desc}>Reading</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => router.push("/homepage")} style={styles.book__pending}>
-                <Text style={styles.pending__num}>{bookCounts.toRead}</Text>
+              </View>
+              <View style={styles.book__pending}>
+                <Text style={styles.pending__num}>{counts.toRead}</Text>
                 <Text style={styles.pending__desc}>To Read</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => router.push("/homepage")} style={styles.book__completed}>
-                <Text style={styles.completed__num}>{bookCounts.finished}</Text>
+              </View>
+              <View style={styles.book__completed}>
+                <Text style={styles.completed__num}>{counts.finished}</Text>
                 <Text style={styles.completed__desc}>Finished</Text>
-              </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.profile__options}>
-              <ProfileOption 
-                icon={require("../assets/profile_username-icon.png")}
-                title="Edit Profile"
-                desc="Change your avatar"
-                onPress={() => router.push("/EditProfile")}
-              />
-              <ProfileOption
-                icon={require("../assets/profile_notification-icon.png")}
-                title="Notifications"
-                desc="Mute, Push, Email"
-                onPress={() => router.push("/settings")}
-              />
-              <ProfileOption
-                icon={require("../assets/profile_settings-icon.png")}
-                title="Settings"
-                desc="Security, Privacy"
-                onPress={() => router.push("/settings")}
-                end
-              />
+              <View style={styles.profile__options}>
+  <ProfileOption 
+    icon={require("../assets/profile_username-icon.png")}
+    title="Edit Profile"
+    desc="Edit your info"
+    onPress={() => router.push("/EditProfile")}
+  />
+  <ProfileOption
+    icon={require("../assets/profile_notification-icon.png")}
+    title="Notifications"
+    desc="Mute, Push, Email"
+    onPress={() => router.push("/settings")} // <-- rregullo këtu
+  />
+  <ProfileOption
+    icon={require("../assets/profile_settings-icon.png")}
+    title="Settings"
+    desc="Security, Privacy"
+    onPress={() => router.push("/settings")} // <-- dhe këtu
+    end
+  />
+</View>
+
             </View>
 
             <TouchableOpacity style={styles.logoutBtn} onPress={showLogoutConfirmation}>

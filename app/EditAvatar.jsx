@@ -10,10 +10,13 @@ import {
   ScrollView,
   SafeAreaView,
   StatusBar,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { db, auth } from "../firebase/firebaseConfig";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const AVATARS = [
   { id: "1", image: require("../assets/avatar01.png") },
@@ -35,6 +38,7 @@ const AVATARS = [
 
 export default function EditAvatar() {
   const router = useRouter();
+  const [selectedAvatarId, setSelectedAvatarId] = useState("1");
   const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0].image);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -42,49 +46,66 @@ export default function EditAvatar() {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 700,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 700,
-        useNativeDriver: true,
-      }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 700, useNativeDriver: true }),
     ]).start();
-  }, []);
 
-  useEffect(() => {
     const loadAvatar = async () => {
-      const saved = await AsyncStorage.getItem("userAvatar");
-      if (saved) setSelectedAvatar(JSON.parse(saved));
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          const idToUse = (await AsyncStorage.getItem("userAvatarId")) || data.avatarId || "1";
+          setSelectedAvatarId(idToUse);
+          const avatarObj = AVATARS.find(a => a.id === idToUse);
+          setSelectedAvatar(avatarObj ? avatarObj.image : AVATARS[0].image);
+        }
+      } catch (error) {
+        console.error("Failed to load avatar", error);
+      }
     };
     loadAvatar();
   }, []);
 
   const handleSave = async () => {
-    await AsyncStorage.setItem(
-      "userAvatar",
-      JSON.stringify(selectedAvatar)
-    );
-    router.back();
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        Alert.alert("Error", "You must be logged in.");
+        return;
+      }
+
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { avatarId: selectedAvatarId });
+      await AsyncStorage.setItem("userAvatarId", selectedAvatarId);
+
+      router.back();
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Failed to save avatar.");
+    }
   };
+
+  if (!selectedAvatar) return null;
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-
       <SafeAreaView style={styles.container}>
         <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-
         <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.gradient}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Text style={styles.backText}>← BACK</Text>
           </TouchableOpacity>
 
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+            <Animated.View
+              style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
+            >
               <Text style={styles.title}>Edit Avatar</Text>
 
               <View style={styles.mainAvatarWrapper}>
@@ -98,10 +119,13 @@ export default function EditAvatar() {
                 scrollEnabled={false}
                 contentContainerStyle={styles.flatListContent}
                 renderItem={({ item }) => {
-                  const isSelected = selectedAvatar === item.image;
+                  const isSelected = selectedAvatarId === item.id;
                   return (
                     <TouchableOpacity
-                      onPress={() => setSelectedAvatar(item.image)}
+                      onPress={() => {
+                        setSelectedAvatarId(item.id);
+                        setSelectedAvatar(item.image);
+                      }}
                       style={[styles.avatarOption, isSelected && styles.selectedAvatarOption]}
                     >
                       <Image source={item.image} style={styles.avatarThumb} />

@@ -2,9 +2,24 @@
 
 import { Stack } from "expo-router";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase/firebaseConfig";
+import { ensureNotificationSettings } from "./services/authService";
 
 export default function RootLayout() {
   const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await ensureNotificationSettings(user.uid);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <Stack>
       <Stack.Screen

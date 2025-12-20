@@ -28,16 +28,6 @@ export default function Index() {
   const floatAnimQuote = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.replace("/homepage");
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-
   const fadeIn = (anim, delay = 0) => {
     Animated.timing(anim, {
       toValue: 1,

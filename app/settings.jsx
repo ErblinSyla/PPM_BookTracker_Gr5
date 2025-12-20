@@ -54,13 +54,31 @@ export default function Settings() {
     
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserEmail(user.email);
         setUserId(user.uid);
 
         const provider = user.providerData[0]?.providerId;
         setProviderId(provider || "");
+
+        // Load notification settings from Firestore
+        try {
+          const userRef = doc(db, "users", user.uid);
+          const snap = await getDoc(userRef);
+          if (snap.exists()) {
+            const data = snap.data();
+            if (typeof data.notificationsEnabled === "boolean") setNotificationEnabled(data.notificationsEnabled);
+            if (typeof data.dailyReminderEnabled === "boolean") setDailyReminderEnabled(data.dailyReminderEnabled);
+            if (typeof data.weeklySummaryEnabled === "boolean") setWeeklySummaryEnabled(data.weeklySummaryEnabled);
+            if (typeof data.readingStreakEnabled === "boolean") setReadingStreakEnabled(data.readingStreakEnabled);
+            if (typeof data.bookAlmostFinishedEnabled === "boolean") setBookAlmostFinishedEnabled(data.bookAlmostFinishedEnabled);
+            if (typeof data.sessionCompletionEnabled === "boolean") setSessionCompletionEnabled(data.sessionCompletionEnabled);
+          }
+        } catch (err) {
+          console.error("Error loading notification settings:", err);
+        }
+
         setIsLoadingAuth(false);
       } else {
         setUserEmail(null);

@@ -8,10 +8,13 @@ import {
   ScrollView,
   Animated,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase/firebaseConfig";
 
 export default function EditProfile() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -40,14 +43,29 @@ export default function EditProfile() {
           const savedAvatar = await AsyncStorage.getItem("userAvatar");
           if (savedAvatar) setAvatar(JSON.parse(savedAvatar));
 
-          const savedProfile = await AsyncStorage.getItem("profileData");
-          if (savedProfile) {
-            const { firstName, lastName, bio, gender } = JSON.parse(savedProfile);
-            if (firstName) setFirstName(firstName);
-            if (lastName) setLastName(lastName);
-            if (bio) setBio(bio);
-            if (gender) setGender(gender);
+          const uid = await AsyncStorage.getItem("userUID");
+          if (!uid) return;
+
+          const userRef = doc(db, "users", uid);
+          const userSnap = await getDoc(userRef);
+          let data = {};
+          if (userSnap.exists()) {
+            data = userSnap.data();
+            if (data.firstName) setFirstName(data.firstName);
+            if (data.lastName) setLastName(data.lastName);
+            if (data.bio) setBio(data.bio);
+            if (data.gender) setGender(data.gender);
           }
+
+          await AsyncStorage.setItem(
+            "profileData",
+            JSON.stringify({
+              firstName: data?.firstName || "",
+              lastName: data?.lastName || "",
+              bio: data?.bio || "",
+              gender: data?.gender || "Prefer not to say",
+            })
+          );
         } catch (e) {
           console.log("Load error:", e);
         }
@@ -55,6 +73,34 @@ export default function EditProfile() {
       loadData();
     }, [])
   );
+
+  const handleSave = async () => {
+    try {
+      const uid = await AsyncStorage.getItem("userUID");
+      if (!uid) {
+        Alert.alert("Error", "User not found.");
+        return;
+      }
+
+      const userRef = doc(db, "users", uid);
+      await updateDoc(userRef, {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        bio,
+        gender,
+      });
+
+      await AsyncStorage.setItem(
+        "profileData",
+        JSON.stringify({ firstName, lastName, bio, gender })
+      );
+
+      router.push("/profile");
+    } catch (e) {
+      console.log("Save error:", e);
+      Alert.alert("Error", "Failed to save profile. Try again.");
+    }
+  };
 
   return (
     <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
@@ -68,10 +114,22 @@ export default function EditProfile() {
           </View>
 
           <Text style={styles.label}>First Name</Text>
-          <TextInput style={styles.input} value={firstName} onChangeText={setFirstName} placeholder="First Name" placeholderTextColor="#55000070" />
+          <TextInput
+            style={styles.input}
+            value={firstName}
+            onChangeText={setFirstName}
+            placeholder="First Name"
+            placeholderTextColor="#55000070"
+          />
 
           <Text style={styles.label}>Last Name</Text>
-          <TextInput style={styles.input} value={lastName} onChangeText={setLastName} placeholder="Last Name" placeholderTextColor="#55000070" />
+          <TextInput
+            style={styles.input}
+            value={lastName}
+            onChangeText={setLastName}
+            placeholder="Last Name"
+            placeholderTextColor="#55000070"
+          />
 
           <Text style={styles.label}>Bio</Text>
           <TextInput
@@ -101,20 +159,7 @@ export default function EditProfile() {
             </View>
           )}
 
-          <TouchableOpacity
-            style={styles.saveBtn}
-            onPress={async () => {
-              try {
-                await AsyncStorage.setItem(
-                  "profileData",
-                  JSON.stringify({ firstName, lastName, bio, gender })
-                );
-                router.push("/profile");
-              } catch (e) {
-                console.log("Save error:", e);
-              }
-            }}
-          >
+          <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
             <Text style={styles.saveText}>Save Changes</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -122,8 +167,6 @@ export default function EditProfile() {
     </LinearGradient>
   );
 }
-
-// styles mbetet i njejte
 
 const styles = StyleSheet.create({
   container: { flex: 1 },

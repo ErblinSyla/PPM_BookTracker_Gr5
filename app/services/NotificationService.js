@@ -97,82 +97,9 @@ async function cancelAllNotifications() {
     await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
-async function scheduleWeeklySummary(pagesRead = 0, dayOfWeek = 1, hour = 20, minute = 0) {
-    const ok = await requestPermissions();
-    if (!ok) throw new Error('Push notification permission not granted');
 
-    try {
-        const notifications = await Notifications.getAllScheduledNotificationsAsync();
-        const existingSummaries = notifications.filter(n => n.content.data?.weeklySummary);
-        for (let notification of existingSummaries) {
-            await Notifications.cancelScheduledNotificationAsync(notification.identifier);
-        }
-    } catch (error) {
-        console.warn("Error cleaning up existing weekly summaries:", error);
-    }
 
-    if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('weekly-summary', {
-            name: 'Weekly Summary',
-            importance: Notifications.AndroidImportance.DEFAULT,
-        });
-    }
 
-    return Notifications.scheduleNotificationAsync({
-        content: {
-            title: "📖 Weekly Reading Summary",
-            body: `Great job! You've read ${pagesRead} pages this week. Keep up the momentum!`,
-            data: { 
-                weeklySummary: true,
-                pagesRead: pagesRead,
-            },
-            sound: true,
-        },
-        trigger: {
-            type: 'weekly',
-            weekday: dayOfWeek, 
-            hour,
-            minute,
-        },
-    });
-}
-
-async function getPagesReadThisWeek(userEmail) {
-    try {
-        const q = query(
-            collection(db, "books"),
-            where("userEmail", "==", userEmail)
-        );
-        const snap = await getDocs(q);
-        const books = snap.docs.map((d) => d.data());
-
-        const now = new Date();
-        const currentDay = now.getDay();
-        const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - currentDay);
-        startOfWeek.setHours(0, 0, 0, 0);
-
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
-        endOfWeek.setHours(23, 59, 59, 999);
-
-        const totalPagesThisWeek = books.reduce((total, book) => {
-            if (!book.finishDate) return total;
-
-            const finishDate = new Date(book.finishDate);
-            
-            if (finishDate >= startOfWeek && finishDate <= endOfWeek) {
-                return total + (book.pagesRead || 0);
-            }
-            return total;
-        }, 0);
-
-        return totalPagesThisWeek;
-    } catch (error) {
-        console.error("Error fetching pages read this week:", error);
-        return 0;
-    }
-}
 
 function calculateReadingPercentage(pagesRead, totalPages) {
     if (!totalPages || totalPages === 0) return 0;
@@ -436,26 +363,7 @@ async function cancelDailyReminder() {
     }
 }
 
-async function cancelWeeklySummary() {
-    if (Platform.OS === 'web') {
-        console.warn('Notifications are not available on web');
-        return true;
-    }
-    try{
-        const notifications = await Notifications.getAllScheduledNotificationsAsync();
-        const weeklySummaryIds = notifications
-            .filter(n=>n.content.data?.weeklySummary)
-            .map(n=>n.identifier);
 
-        for (let id of weeklySummaryIds) {
-            await Notifications.cancelScheduledNotificationAsync(id);
-        }
-        return true;
-    } catch (error) {
-        console.error("Error cancelling weekly summaries:", error);
-        return false;
-    }
-}
 
 async function cancelReadingStreak(){
     if (Platform.OS === 'web') {
@@ -517,8 +425,6 @@ export default {
     sendTestNotification,
     requestPermissions,
     scheduleDailyReminder,
-    scheduleWeeklySummary,
-    getPagesReadThisWeek,
     calculateReadingPercentage,
     notifyBookAlmostFinished,
     calculateReadingStreak,
@@ -526,7 +432,6 @@ export default {
     calculateReadingSessionDuration,
     notifySessionCompletion,
     cancelDailyReminder,
-    cancelWeeklySummary,
     cancelReadingStreak, 
     cancelBookAlmostFinished, 
     cancelSessionCompletion,  

@@ -28,7 +28,7 @@ import CoverPickerButton from "./components/CoverPickerButton.jsx";
 import PermissionRequest from "./components/PermissionRequest.jsx";
 import BackButton from "./components/BackButton.jsx";
 import BackgroundGradient from "./components/BackgroundGradient.jsx";
-import { KeyboardAvoidingView } from "react-native-web";
+import { KeyboardAvoidingView } from "react-native";
 
 const AddNewBook = () => {
   const router = useRouter();

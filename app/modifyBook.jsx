@@ -28,7 +28,9 @@ import FinishDateField from "./components/FinishDateField";
 import NotesField from "./components/NotesField";
 import ReviewField from "./components/ReviewField";
 import RatingField from "./components/RatingField";
+import SessionTimeField from "./components/SessionTimeField";
 import Spinner from "./components/Spinner";
+import NotificationService from "./services/NotificationService";
 
 const demoBook = {
   id: "demo-123",
@@ -51,6 +53,10 @@ export default function UpdateBookDetails() {
   const [notes, setNotes] = useState("");
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(0);
+  const [sessionStartTime, setSessionStartTime] = useState(null);
+  const [sessionEndTime, setSessionEndTime] = useState(null);
+  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState("");
@@ -86,6 +92,8 @@ export default function UpdateBookDetails() {
           setNotes(found.notes || "");
           setReview(found.review || "");
           setRating(found.rating || 0);
+          setSessionStartTime(found.sessionStartTime ? new Date(found.sessionStartTime) : null);
+          setSessionEndTime(found.sessionEndTime ? new Date(found.sessionEndTime) : null);
         } else {
           console.log("No such book in Firestore!");
           setBook(demoBook);
@@ -151,10 +159,47 @@ export default function UpdateBookDetails() {
       notes: notes.trim(),
       review: review.trim(),
       rating,
+      sessionStartTime: sessionStartTime ? sessionStartTime.toISOString() : null,
+      sessionEndTime: sessionEndTime ? sessionEndTime.toISOString() : null,
     };
 
     try {
       await setDoc(doc(db, "books", book.id), updatedBook);
+
+      if (pagesRead && totalPages) {
+        const pagesReadNum = parseInt(pagesRead);
+        const totalPagesNum = parseInt(totalPages);
+        if (pagesReadNum > 0 && totalPagesNum > 0) {
+          try {
+            await NotificationService.notifyBookAlmostFinished(
+              book.title,
+              pagesReadNum,
+              totalPagesNum,
+              90
+            );
+          } catch (notifError) {
+            console.warn("Notification error:", notifError);
+          }
+        }
+      }
+
+      if (sessionStartTime && sessionEndTime && pagesRead) {
+        try {
+          const sessionDuration = NotificationService.calculateReadingSessionDuration(
+            sessionStartTime.toISOString(),
+            sessionEndTime.toISOString()
+          );
+          if (sessionDuration) {
+            await NotificationService.notifySessionCompletion(
+              book.title,
+              parseInt(pagesRead),
+              sessionDuration
+            );
+          }
+        } catch (notifError) {
+          console.warn("Session notification error:", notifError);
+        }
+      }
 
       setModalType("success");
       setModalMessage("Book updated successfully!");
@@ -177,6 +222,8 @@ export default function UpdateBookDetails() {
     notes,
     review,
     rating,
+    sessionStartTime,
+    sessionEndTime,
     router,
   ]); // dependecies qe perdoren dhe memoizohen me funksion
 
@@ -225,6 +272,16 @@ export default function UpdateBookDetails() {
             <NotesField notes={notes} setNotes={setNotes} />
             <ReviewField review={review} setReview={setReview} />
             <RatingField rating={rating} setRating={setRating} />
+            <SessionTimeField
+              sessionStartTime={sessionStartTime}
+              setSessionStartTime={setSessionStartTime}
+              sessionEndTime={sessionEndTime}
+              setSessionEndTime={setSessionEndTime}
+              showStartTimePicker={showStartTimePicker}
+              setShowStartTimePicker={setShowStartTimePicker}
+              showEndTimePicker={showEndTimePicker}
+              setShowEndTimePicker={setShowEndTimePicker}
+            />
           </View>
           <PrimaryButton
             style={styles.buttonContainer}

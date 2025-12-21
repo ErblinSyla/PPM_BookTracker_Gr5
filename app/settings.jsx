@@ -46,7 +46,6 @@ export default function Settings() {
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [notificationsEnabled, setNotificationEnabled] = useState(true);
   const [dailyReminderEnabled, setDailyReminderEnabled] = useState(true);
-  const [weeklySummaryEnabled, setWeeklySummaryEnabled] = useState(true);
   const [readingStreakEnabled, setReadingStreakEnabled] = useState(true);
   const [bookAlmostFinishedEnabled, setBookAlmostFinishedEnabled] =
     useState(true);
@@ -72,8 +71,6 @@ export default function Settings() {
               setNotificationEnabled(data.notificationsEnabled);
             if (typeof data.dailyReminderEnabled === "boolean")
               setDailyReminderEnabled(data.dailyReminderEnabled);
-            if (typeof data.weeklySummaryEnabled === "boolean")
-              setWeeklySummaryEnabled(data.weeklySummaryEnabled);
             if (typeof data.readingStreakEnabled === "boolean")
               setReadingStreakEnabled(data.readingStreakEnabled);
             if (typeof data.bookAlmostFinishedEnabled === "boolean")
@@ -106,18 +103,13 @@ export default function Settings() {
         if (notificationsEnabled && dailyReminderEnabled) {
           await NotificationService.scheduleDailyReminder(18, 30);
         }
-
-        if (notificationsEnabled && weeklySummaryEnabled) {
-          const pagesRead = await NotificationService.getPagesReadThisWeek(userEmail);
-          await NotificationService.scheduleWeeklySummary(pagesRead, 0, 20, 0); // Sunday at 8 PM
-        }
       } catch (error) {
         console.error("Error scheduling notifications:", error);
       }
     };
 
     scheduleNotifications();
-  }, [notificationsEnabled, dailyReminderEnabled, weeklySummaryEnabled, userId, userEmail]);
+  }, [notificationsEnabled, dailyReminderEnabled, userId, userEmail]);
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
@@ -138,7 +130,6 @@ export default function Settings() {
       } else {
         setNotificationEnabled(false);
         setDailyReminderEnabled(false);
-        setWeeklySummaryEnabled(false);
         setReadingStreakEnabled(false);
         setBookAlmostFinishedEnabled(false);
         setSessionCompletionEnabled(false);
@@ -152,7 +143,6 @@ export default function Settings() {
         await saveUserFields({
           notificationsEnabled: false,
           dailyReminderEnabled: false,
-          weeklySummaryEnabled: false,
           readingStreakEnabled: false,
           bookAlmostFinishedEnabled: false,
           sessionCompletionEnabled: false,
@@ -176,18 +166,7 @@ export default function Settings() {
     await saveUserFields({ dailyReminderEnabled: enabled });
   };
 
-  const handleToggleWeeklySummary = async (enabled) => {
-    if (!notificationsEnabled) return;
-    setWeeklySummaryEnabled(enabled);
-    if (!enabled) {
-      try {
-        await NotificationService.cancelWeeklySummary();
-      } catch (err) {
-        console.warn("Cancel weekly summary failed:", err);
-      }
-    }
-    await saveUserFields({ weeklySummaryEnabled: enabled });
-  };
+
 
   const handleToggleReadingStreak = async (enabled) => {
     if (!notificationsEnabled) return;
@@ -363,19 +342,7 @@ export default function Settings() {
                     disabled={!notificationsEnabled}
                   />
                 </View>
-                <View style={styles.notificationSubItem}>
-                  <View style={styles.settingInfo}>
-                    <Text style={styles.settingSubTitle}>Weekly Summary</Text>
-                  </View>
-                  <Switch
-                    value={weeklySummaryEnabled}
-                    onValueChange={handleToggleWeeklySummary}
-                    trackColor={{ false: "#E6D9B8", true: "#550000" }}
-                    thumbColor={weeklySummaryEnabled ? "#FAF0DC" : "#550000"}
-                    ios_backgroundColor="#E6D9B8"
-                    disabled={!notificationsEnabled}
-                  />
-                </View>
+
                 <View style={styles.notificationSubItem}>
                   <View style={styles.settingInfo}>
                     <Text style={styles.settingSubTitle}>Reading Streak</Text>

@@ -301,7 +301,7 @@ export default function Settings() {
         <SafeAreaView style={styles.safe}>
           <StatusBar style="light" />
 
-          <ScrollView contentContainerStyle={styles.scroll}>
+          <ScrollView contentContainerStyle={styles.scroll} dataSet={{ settingsScroll: true }}>
             <View style={styles.header}>
               <TouchableOpacity onPress={() => router.push("/Profile")}>
                 <Text style={styles.backBtn}>←</Text>

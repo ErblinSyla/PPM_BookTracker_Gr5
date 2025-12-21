@@ -40,4 +40,17 @@ npx expo start
 npx expo start --clear
 ```
 
- 
+## Screenshots:
+
+![test1](https://github.com/user-attachments/assets/a05fc026-6453-4287-a0bb-d7296b306d30)
+ ![test2](https://github.com/user-attachments/assets/0d96a1bc-c125-41b3-a3fc-e0274871044a)
+![test3](https://github.com/user-attachments/assets/187aa26c-6bb4-4738-b30a-9ff816d1330f)
+![test4](https://github.com/user-attachments/assets/01e4a211-50c8-4ea2-96ac-c851333db6be)
+![test5](https://github.com/user-attachments/assets/a932f068-f00c-4b66-8923-510c3acdad54)
+![test6](https://github.com/user-attachments/assets/42423e03-87d6-4b2a-82e8-497c1e35e224)
+![test7](https://github.com/user-attachments/assets/bdd1a666-044c-4f3a-be73-b900e3a1e8f7)
+![test8](https://github.com/user-attachments/assets/1b23b51d-a79b-4679-b94f-e037df60d3dc)
+![test9](https://github.com/user-attachments/assets/93654999-ca16-48b8-b987-dbaffdb28565)
+![test10](https://github.com/user-attachments/assets/ddfb39e4-3f5d-43c2-ba98-a2ae356faf2d)
+![test11](https://github.com/user-attachments/assets/f701f24f-0213-4624-a1d2-59fa65898f3e)
+

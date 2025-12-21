@@ -1,12 +1,24 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import SignupStyles from "./styles/SignupStyles";
 
-
-import SignupStyles from "./styles/SignupStyles"; 
-
-export default function Signup() {
+// Memoize component to prevent unnecessary re-renders
+const Signup = React.memo(() => {
   const router = useRouter();
+
+  // Navigate to email signup screen
+  const handleEmailSignup = useCallback(() => {
+    router.push("/SignupEmail");
+  }, [router]);
+
+  const handleGitHubSignup = useCallback(() => {
+    router.push("/GitHubLogin");
+  }, [router]);
+
+  const handleNavigateToLogin = useCallback(() => {
+    router.push("/Login");
+  }, [router]);
 
   return (
     <View style={SignupStyles.container}>
@@ -19,23 +31,19 @@ export default function Signup() {
 
           <TouchableOpacity
             style={SignupStyles.button}
-            onPress={() => router.push("/SignupEmail")}
+            onPress={handleEmailSignup}
           >
-            <Text style={SignupStyles.buttonText}>
-              Continue with Email
-            </Text>
+            <Text style={SignupStyles.buttonText}>Continue with Email</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={SignupStyles.button}
-            onPress={() => router.push("/GitHubLogin")}
+            onPress={handleGitHubSignup}
           >
-            <Text style={SignupStyles.buttonText}>
-              Continue with GitHub
-            </Text>
+            <Text style={SignupStyles.buttonText}>Continue with GitHub</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => router.push("/Login")}>
+          <TouchableOpacity onPress={handleNavigateToLogin}>
             <Text style={SignupStyles.loginText}>
               Already have an account? Log in
             </Text>
@@ -44,4 +52,9 @@ export default function Signup() {
       </View>
     </View>
   );
-}
+});
+
+// Display name for React DevTools
+Signup.displayName = "Signup";
+
+export default Signup;

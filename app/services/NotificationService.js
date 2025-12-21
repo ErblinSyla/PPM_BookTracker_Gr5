@@ -56,6 +56,16 @@ async function scheduleDailyReminder(hour = 18, minute = 30) {
     const ok = await requestPermissions();
     if (!ok) throw new Error('Push notification permission not granted');
 
+    try {
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const existingReminders = notifications.filter(n => n.content.data?.reminder);
+        for (let notification of existingReminders) {
+            await Notifications.cancelScheduledNotificationAsync(notification.identifier);
+        }
+    } catch (error) {
+        console.warn("Error cleaning up existing daily reminders:", error);
+    }
+
     if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('daily-reminder', {
             name: 'Daily Reminder',
@@ -91,6 +101,16 @@ async function scheduleWeeklySummary(pagesRead = 0, dayOfWeek = 0, hour = 20, mi
     const ok = await requestPermissions();
     if (!ok) throw new Error('Push notification permission not granted');
 
+    try {
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const existingSummaries = notifications.filter(n => n.content.data?.weeklySummary);
+        for (let notification of existingSummaries) {
+            await Notifications.cancelScheduledNotificationAsync(notification.identifier);
+        }
+    } catch (error) {
+        console.warn("Error cleaning up existing weekly summaries:", error);
+    }
+
     if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('weekly-summary', {
             name: 'Weekly Summary',
@@ -103,7 +123,7 @@ async function scheduleWeeklySummary(pagesRead = 0, dayOfWeek = 0, hour = 20, mi
             title: "📖 Weekly Reading Summary",
             body: `Great job! You've read ${pagesRead} pages this week. Keep up the momentum!`,
             data: { 
-                summary: true,
+                weeklySummary: true,
                 pagesRead: pagesRead,
             },
             sound: true,
@@ -256,6 +276,16 @@ async function notifyReadingStreakCelebration(streakDays) {
         return null;
     }
 
+    try {
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const existingStreaks = notifications.filter(n => n.content.data?.streak && n.content.data?.streakDays === streakDays);
+        for (let notification of existingStreaks) {
+            await Notifications.cancelScheduledNotificationAsync(notification.identifier);
+        }
+    } catch (error) {
+        console.warn("Error cleaning up existing streak notifications:", error);
+    }
+
     if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('reading-streak', {
             name: 'Reading Streak',
@@ -336,6 +366,16 @@ async function notifySessionCompletion(bookTitle, pagesRead, sessionDuration) {
     const ok = await requestPermissions();
     if (!ok) throw new Error('Push notification permission not granted');
 
+    try {
+        const notifications = await Notifications.getAllScheduledNotificationsAsync();
+        const existingSession = notifications.filter(n => n.content.data?.sessionComplete && n.content.data?.bookTitle === bookTitle);
+        for (let notification of existingSession) {
+            await Notifications.cancelScheduledNotificationAsync(notification.identifier);
+        }
+    } catch (error) {
+        console.warn("Error cleaning up existing session notifications:", error);
+    }
+
     if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('session-completion', {
             name: 'Session Completion',
@@ -414,14 +454,14 @@ async function cancelWeeklySummary() {
     } catch (error) {
         console.error("Error cancelling weekly summaries:", error);
         return false;
-    if (Platform.OS === 'web') {
-        console.warn('Notifications are not available on web');
-        return true;
-    }
     }
 }
 
 async function cancelReadingStreak(){
+    if (Platform.OS === 'web') {
+        console.warn('Notifications are not available on web');
+        return true;
+    }
     try{
         const notifications = await Notifications.getAllScheduledNotificationsAsync();
         const streakIds = notifications
@@ -434,14 +474,14 @@ async function cancelReadingStreak(){
     } catch (error) {
         console.error("Error cancelling reading streak notifications:", error);
         return false;
-    if (Platform.OS === 'web') {
-        console.warn('Notifications are not available on web');
-        return true;
-    }
     }
 }
 
 async function cancelBookAlmostFinished(){
+    if (Platform.OS === 'web') {
+        console.warn('Notifications are not available on web');
+        return true;
+    }
     try{
         const notifications = await Notifications.getAllScheduledNotificationsAsync();
         const almostFinishedIds = notifications
@@ -450,10 +490,6 @@ async function cancelBookAlmostFinished(){
         for (let id of almostFinishedIds) {
             await Notifications.cancelScheduledNotificationAsync(id);
         }
-    if (Platform.OS === 'web') {
-        console.warn('Notifications are not available on web');
-        return true;
-    }
         return true;
     } catch (error) {
         console.error("Error cancelling book almost finished notifications:", error);

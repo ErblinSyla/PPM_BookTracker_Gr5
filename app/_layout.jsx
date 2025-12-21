@@ -48,6 +48,18 @@ export default function RootLayout() {
         }}
       />
       <Stack.Screen
+        name="SignupEmail"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="GitHubLogin"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="AddNewBook"
         options={{
           headerShown: false,

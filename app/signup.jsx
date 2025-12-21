@@ -3,9 +3,11 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import SignupStyles from "./styles/SignupStyles";
 
+// Memoize component to prevent unnecessary re-renders
 const Signup = React.memo(() => {
   const router = useRouter();
 
+  // Navigate to email signup screen
   const handleEmailSignup = useCallback(() => {
     router.push("/SignupEmail");
   }, [router]);
@@ -27,11 +29,17 @@ const Signup = React.memo(() => {
             Choose a method to continue
           </Text>
 
-          <TouchableOpacity style={SignupStyles.button} onPress={handleEmailSignup}>
+          <TouchableOpacity
+            style={SignupStyles.button}
+            onPress={handleEmailSignup}
+          >
             <Text style={SignupStyles.buttonText}>Continue with Email</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={SignupStyles.button} onPress={handleGitHubSignup}>
+          <TouchableOpacity
+            style={SignupStyles.button}
+            onPress={handleGitHubSignup}
+          >
             <Text style={SignupStyles.buttonText}>Continue with GitHub</Text>
           </TouchableOpacity>
 
@@ -46,6 +54,7 @@ const Signup = React.memo(() => {
   );
 });
 
-Signup.displayName = "Signup"; 
+// Display name for React DevTools
+Signup.displayName = "Signup";
 
 export default Signup;

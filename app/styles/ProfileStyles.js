@@ -115,9 +115,10 @@ const styles = StyleSheet.create({
   },
   profile__options: {
     width: 305,
-    height: 275,
+    height: 200,
     borderRadius: 20,
     padding: 15,
+    paddingTop: 7,
     backgroundColor: "#FCF7E6",
     justifyContent: "space-around",
   },
@@ -130,13 +131,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "rgba(85,0,0,0.1)",
   },
-  profile__option__user:{
+  profile__option__user: {
     flexDirection: "row",
-    gap:105
+    gap: 105,
   },
   profile__option__end: {
     borderBottomWidth: 0,
-    gap:82,
+    gap: 82,
   },
   option__icon: {
     flexDirection: "row",

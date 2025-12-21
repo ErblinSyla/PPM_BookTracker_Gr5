@@ -4,9 +4,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   Modal,
-  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import {
@@ -17,6 +15,8 @@ import {
 import { auth, db } from "../firebase/firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import SignupEmailStyles from "./styles/SignupEmailStyles"; 
 
 export default function SignupEmail() {
   const router = useRouter();
@@ -65,10 +65,7 @@ export default function SignupEmail() {
         createdAt: new Date().toISOString(),
       });
 
-      // Shfaq modal
       setModalVisible(true);
-
-      console.log("Verification email sent to:", userCredential.user.email);
     } catch (err) {
       console.error(err);
       if (err.code === "auth/email-already-in-use")
@@ -84,74 +81,81 @@ export default function SignupEmail() {
     router.push("/Login");
   };
 
+  const goBack = () => {
+    router.back();
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign Up with Email</Text>
+    <View style={SignupEmailStyles.container}>
+      <View style={SignupEmailStyles.gradient}>
+        <View style={SignupEmailStyles.formContainer}>
+          <Text style={SignupEmailStyles.title}>Sign Up</Text>
+          <Text style={SignupEmailStyles.subtitle}>
+            Create your account with email
+          </Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="First Name"
-        value={firstName}
-        onChangeText={setFirstName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Last Name"
-        value={lastName}
-        onChangeText={setLastName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Retype Password"
-        secureTextEntry
-        value={retypePassword}
-        onChangeText={setRetypePassword}
-      />
+          <TextInput
+            style={SignupEmailStyles.input}
+            placeholder="First Name"
+            value={firstName}
+            onChangeText={setFirstName}
+            placeholderTextColor="#55000080"
+          />
+          <TextInput
+            style={SignupEmailStyles.input}
+            placeholder="Last Name"
+            value={lastName}
+            onChangeText={setLastName}
+            placeholderTextColor="#55000080"
+          />
+          <TextInput
+            style={SignupEmailStyles.input}
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+            placeholderTextColor="#55000080"
+          />
+          <TextInput
+            style={SignupEmailStyles.input}
+            placeholder="Password"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+            placeholderTextColor="#55000080"
+          />
+          <TextInput
+            style={SignupEmailStyles.input}
+            placeholder="Retype Password"
+            secureTextEntry
+            value={retypePassword}
+            onChangeText={setRetypePassword}
+            placeholderTextColor="#55000080"
+          />
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? <Text style={SignupEmailStyles.errorText}>{error}</Text> : null}
 
-      <TouchableOpacity style={styles.button} onPress={handleSignup}>
-        <Text style={styles.buttonText}>Create Account</Text>
-      </TouchableOpacity>
+          <TouchableOpacity style={SignupEmailStyles.signupButton} onPress={handleSignup}>
+            <Text style={SignupEmailStyles.signupButtonText}>Create Account</Text>
+          </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.back()}>
-        <Text style={styles.backText}>←</Text>
-      </TouchableOpacity>
+          <TouchableOpacity onPress={goBack} style={SignupEmailStyles.backButtonContainer}>
+            <Text style={SignupEmailStyles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
-      {/* Modal për Verify Email */}
-      <Modal
-        visible={modalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={handleModalOk}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Verify your email</Text>
-            <Text style={styles.modalMessage}>
-              We’ve sent a verification link to your email address. Please
-              verify before logging in.
+      {/* Modal */}
+      <Modal visible={modalVisible} transparent animationType="fade">
+        <View style={SignupEmailStyles.modalOverlay}>
+          <View style={SignupEmailStyles.modalContent}>
+            <Text style={SignupEmailStyles.modalTitle}>Verify your email</Text>
+            <Text style={SignupEmailStyles.modalMessage}>
+              We’ve sent a verification link to your email address. Please verify before logging in.
             </Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={handleModalOk}
-            >
-              <Text style={styles.modalButtonText}>OK</Text>
+            <TouchableOpacity style={SignupEmailStyles.modalButton} onPress={handleModalOk}>
+              <Text style={SignupEmailStyles.modalButtonText}>OK</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -159,83 +163,3 @@ export default function SignupEmail() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 30,
-    backgroundColor: "#FAF0DC",
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#550000",
-    marginBottom: 30,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#55000060",
-    borderRadius: 25,
-    padding: 12,
-    marginBottom: 16,
-    backgroundColor: "#ffffff40",
-    color: "#550000",
-  },
-  button: {
-    backgroundColor: "#ffffff40",
-    borderWidth: 1,
-    borderColor: "#55000070",
-    borderRadius: 25,
-    paddingVertical: 15,
-    marginBottom: 16,
-  },
-  buttonText: {
-    textAlign: "center",
-    color: "#550000",
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  error: { color: "red", textAlign: "center", marginBottom: 10 },
-  backText: { color: "#550000", marginTop: 20, textAlign: "center" },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 24,
-    width: "100%",
-    maxWidth: 400,
-    alignItems: "center",
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#550000",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  modalMessage: {
-    fontSize: 16,
-    color: "#550000",
-    marginBottom: 24,
-    textAlign: "center",
-  },
-  modalButton: {
-    backgroundColor: "#550000",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
-  },
-  modalButtonText: {
-    color: "#FAF0DC",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-});

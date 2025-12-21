@@ -13,7 +13,6 @@ import {
 import { auth, db } from "../firebase/firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import GitHubLoginStyles from "./styles/GitHubLoginStyles";
 
 WebBrowser.maybeCompleteAuthSession();

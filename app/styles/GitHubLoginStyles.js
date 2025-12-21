@@ -1,4 +1,3 @@
-// GitHubLoginStyles.js
 import { StyleSheet, Platform } from "react-native";
 
 const GitHubLoginStyles = StyleSheet.create({

@@ -5,7 +5,6 @@ import React, {
   useEffect,
   useState,
   useCallback,
-  useMemo,
 } from "react";
 import {
   View,
@@ -15,7 +14,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Animated,
-  FlatList,
   Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -44,21 +42,12 @@ const AVATAR_MAP = {
   15: require("../assets/avatars/avatar15.png"),
 };
 
-const GenderOption = React.memo(({ option, onPress }) => (
-  <TouchableOpacity style={styles.genderOption} onPress={() => onPress(option)}>
-    <Text style={styles.genderOptionText}>{option}</Text>
-  </TouchableOpacity>
-));
-
 export default function EditProfile() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(10)).current;
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [bio, setBio] = useState("");
-  const [gender, setGender] = useState("Prefer not to say");
-  const [showGenderOptions, setShowGenderOptions] = useState(false);
   const [avatarId, setAvatarId] = useState("1");
   const [avatar, setAvatar] = useState(AVATAR_MAP["1"]);
 
@@ -72,8 +61,7 @@ export default function EditProfile() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserEmail(user.email);
-        const provider = user.providerData[0]?.providerId;
-        setProviderId(provider || "");
+        setProviderId(user.providerData[0]?.providerId || "");
         setIsLoadingAuth(false);
       } else {
         setUserEmail(null);
@@ -110,12 +98,11 @@ export default function EditProfile() {
 
           const userRef = doc(db, "users", user.uid);
           const userSnap = await getDoc(userRef);
+
           if (userSnap.exists()) {
             const data = userSnap.data();
             setFirstName(data.firstName || "");
             setLastName(data.lastName || "");
-            setBio(data.bio || "");
-            setGender(data.gender || "Prefer not to say");
 
             const savedAvatarId = await AsyncStorage.getItem("userAvatarId");
             const idToUse = savedAvatarId || data.avatarId || "1";
@@ -126,6 +113,7 @@ export default function EditProfile() {
           console.log("Load error:", e);
         }
       };
+
       loadData();
     }, [])
   );
@@ -142,8 +130,6 @@ export default function EditProfile() {
       await updateDoc(userRef, {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        bio,
-        gender,
         avatarId,
       });
 
@@ -154,27 +140,19 @@ export default function EditProfile() {
       console.log("Save error:", e);
       Alert.alert("Error", "Failed to save profile. Try again.");
     }
-  }, [firstName, lastName, bio, gender, avatarId]);
-
-  const genderOptions = useMemo(
-    () => ["Prefer not to say", "Male", "Female"],
-    []
-  );
-  const handleGenderSelect = useCallback((option) => {
-    setGender(option);
-    setShowGenderOptions(false);
-  }, []);
+  }, [firstName, lastName, avatarId]);
 
   if (isLoadingAuth) return null;
 
   return (
     <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
       <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Text style={styles.backText}>      ←</Text>
-          </TouchableOpacity>
+        style={styles.backButton}
+        onPress={() => router.back()}
+      >
+        <Text style={styles.backText}>      ←</Text>
+      </TouchableOpacity>
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Animated.View
           style={{
@@ -208,40 +186,6 @@ export default function EditProfile() {
             placeholder="Last Name"
             placeholderTextColor="#55000070"
           />
-
-          <Text style={styles.label}>Bio</Text>
-          <TextInput
-            style={[styles.input, { height: 80 }]}
-            value={bio}
-            onChangeText={setBio}
-            multiline
-            maxLength={150}
-            placeholder="Bio"
-            placeholderTextColor="#55000070"
-          />
-          <Text style={styles.charCount}>{bio.length} / 150</Text>
-
-          <Text style={styles.label}>Gender</Text>
-          <TouchableOpacity
-            style={styles.genderBox}
-            onPress={() => setShowGenderOptions(!showGenderOptions)}
-          >
-            <Text style={styles.genderText}>{gender}</Text>
-            <Text style={[styles.arrow, showGenderOptions && styles.arrowOpen]}>
-              ▼
-            </Text>
-          </TouchableOpacity>
-
-          {showGenderOptions && (
-            <FlatList
-              data={genderOptions}
-              keyExtractor={(item) => item}
-              renderItem={({ item }) => (
-                <GenderOption option={item} onPress={handleGenderSelect} />
-              )}
-              scrollEnabled={false}
-            />
-          )}
 
           <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
             <Text style={styles.saveText}>Save Changes</Text>

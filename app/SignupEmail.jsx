@@ -17,9 +17,11 @@ import { doc, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SignupEmailStyles from "./styles/SignupEmailStyles";
 
-
+// Memoize component to prevent unnecessary re-renders
 const SignupEmail = React.memo(() => {
   const router = useRouter();
+
+  // Form state
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,9 +30,11 @@ const SignupEmail = React.memo(() => {
   const [error, setError] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
 
-  
+  // Main signup handler – memoized for stable reference
   const handleSignup = useCallback(async () => {
     setError("");
+
+    // Basic validation
     if (!firstName || !lastName || !email || !password || !retypePassword) {
       setError("Please fill all fields!");
       return;
@@ -50,12 +54,19 @@ const SignupEmail = React.memo(() => {
         email,
         password
       );
+
+      // Update Firebase profile
       await updateProfile(userCredential.user, {
         displayName: `${firstName} ${lastName}`,
       });
+
+      // Store UID locally
       await AsyncStorage.setItem("userUID", userCredential.user.uid);
+
+      // Send verification email
       await sendEmailVerification(userCredential.user);
 
+      // Save user data to Firestore
       await setDoc(doc(db, "users", userCredential.user.uid), {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
@@ -66,6 +77,7 @@ const SignupEmail = React.memo(() => {
         createdAt: new Date().toISOString(),
       });
 
+      // Show success modal
       setModalVisible(true);
     } catch (err) {
       console.error(err);
@@ -77,16 +89,18 @@ const SignupEmail = React.memo(() => {
     }
   }, [firstName, lastName, email, password, retypePassword]);
 
+  // Close modal and go to Login
   const handleModalOk = useCallback(() => {
     setModalVisible(false);
     router.push("/Login");
   }, [router]);
 
+  // Navigate back
   const goBack = useCallback(() => {
     router.back();
   }, [router]);
 
-  
+  // Memoized input handlers – prevent function recreation on each render
   const onChangeFirstName = useCallback((text) => setFirstName(text), []);
   const onChangeLastName = useCallback((text) => setLastName(text), []);
   const onChangeEmail = useCallback((text) => setEmail(text), []);
@@ -160,7 +174,7 @@ const SignupEmail = React.memo(() => {
         </View>
       </View>
 
-      {/* Modal */}
+      {/* Email verification confirmation modal */}
       <Modal visible={modalVisible} transparent animationType="fade">
         <View style={SignupEmailStyles.modalOverlay}>
           <View style={SignupEmailStyles.modalContent}>
@@ -181,6 +195,7 @@ const SignupEmail = React.memo(() => {
   );
 });
 
-SignupEmail.displayName = "SignupEmail"; 
+// Display name for React DevTools
+SignupEmail.displayName = "SignupEmail";
 
 export default SignupEmail;

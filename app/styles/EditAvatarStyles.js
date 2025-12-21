@@ -67,21 +67,19 @@ const styles = StyleSheet.create({
     height: 70, 
     borderRadius: 35 
 },
-  saveButton: { 
-    backgroundColor: "#550000", 
-    paddingVertical: 14, 
-    borderRadius: 25, 
-    width: "100%", 
-    marginTop: 20, 
-    elevation: 8 
-},
+ saveButton: {
+    backgroundColor: "#550000",
+    paddingVertical: 14,
+    borderRadius: 25,
+    width: 300,
+    alignItems: "center",
+    marginBottom: 40,
+  },
   saveButtonText: { 
-    textAlign: "center", 
     color: "#FAF0DC", 
     fontWeight: "700", 
-    fontSize: 16, 
-    letterSpacing: 1 
-},
+    fontSize: 16 
+  },
 });
 
 export default styles;

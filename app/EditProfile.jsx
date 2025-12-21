@@ -169,6 +169,12 @@ export default function EditProfile() {
 
   return (
     <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.container}>
+      <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.backText}>      ←</Text>
+          </TouchableOpacity>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Animated.View
           style={{

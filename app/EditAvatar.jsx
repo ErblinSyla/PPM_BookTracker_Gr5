@@ -27,6 +27,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import styles from "./styles/EditAvatarStyles";
 
+
 const AVATARS = [
   { id: "1", image: require("../assets/avatars/avatar01.png") },
   { id: "2", image: require("../assets/avatars/avatar02.png") },

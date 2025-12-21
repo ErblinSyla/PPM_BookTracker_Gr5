@@ -21,6 +21,14 @@ Aplikacioni **Book Tracker** synon të ndihmojë përdoruesit të organizojnë l
 - **AsyncStorage** për ruajtje lokale
 
 ---
+
+## Anëtarët e grupit
+1. **Era Berisha**
+2. **Erblin Syla**
+3. **Erëza Greiçevci**
+4. **Fatos Rama**
+5. **Elion Maksutaj**
+---
 ## Udhëzime për Instalim dhe Nisje të Projektit
 
 **Hyr në folderin e projektit** (nëse tashmë e ke shkarkuar/klonuar repository-n)

@@ -1,4 +1,3 @@
-// SignupEmailStyles.js
 import { StyleSheet } from "react-native";
 
 const SignupEmailStyles = StyleSheet.create({
@@ -79,7 +78,7 @@ const SignupEmailStyles = StyleSheet.create({
     opacity: 0.8,
     textAlign: "center",
   },
-  // Modal stilet
+  
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",

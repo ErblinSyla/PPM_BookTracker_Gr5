@@ -14,13 +14,13 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { collection, addDoc } from "firebase/firestore";
-import { db, auth } from "../firebase/firebaseConfig";
+import { db, auth } from "../firebase/firebaseConfig.js";
 import { useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { onAuthStateChanged } from "firebase/auth";
-import styles from "./styles/AddNewBookStyles";
+import styles from "./styles/AddNewBookStyles.js";
 
 import ModalComponent from "./components/ModalComponent.jsx";
 import CameraCapture from "./components/CameraCapture.jsx";
@@ -47,7 +47,7 @@ const AddNewBook = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) setUserEmail(user.email);
-      else router.replace("/login");
+      else router.replace("/Login");
     });
     return () => unsubscribe();
   }, [router]);
@@ -160,7 +160,7 @@ const AddNewBook = () => {
   const handleSuccessConfirm = () => {
     setModalVisible(false);
     if (modalType === "success") {
-      router.replace("/homepage");
+      router.replace("/Homepage");
     }
   };
 

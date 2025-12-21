@@ -91,7 +91,7 @@ export default function Settings() {
         setUserId(null);
         setProviderId("");
         setIsLoadingAuth(false);
-        router.replace("/login");
+        router.replace("/Login");
       }
     });
 
@@ -303,7 +303,7 @@ export default function Settings() {
 
           <ScrollView contentContainerStyle={styles.scroll}>
             <View style={styles.header}>
-              <TouchableOpacity onPress={() => router.push("/profile")}>
+              <TouchableOpacity onPress={() => router.push("/Profile")}>
                 <Text style={styles.backBtn}>←</Text>
               </TouchableOpacity>
               <Text style={styles.pageTitle}>Settings</Text>

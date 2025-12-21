@@ -65,7 +65,6 @@ export default function SignupEmail() {
         createdAt: new Date().toISOString(),
       });
 
-
       // Shfaq modal
       setModalVisible(true);
 
@@ -82,7 +81,7 @@ export default function SignupEmail() {
 
   const handleModalOk = () => {
     setModalVisible(false);
-    router.push("/login");
+    router.push("/Login");
   };
 
   return (
@@ -131,7 +130,7 @@ export default function SignupEmail() {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.back()}>
-        <Text style={styles.backText}>← Back</Text>
+        <Text style={styles.backText}>←</Text>
       </TouchableOpacity>
 
       {/* Modal për Verify Email */}

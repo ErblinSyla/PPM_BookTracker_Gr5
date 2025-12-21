@@ -34,7 +34,7 @@ export default function Index() {
         await user.reload();
 
         if (user.emailVerified) {
-          router.replace("/homepage");
+          router.replace("/Homepage");
         }
       }
     });
@@ -135,13 +135,13 @@ export default function Index() {
               title="Get Started"
               onPressIn={handlePressIn}
               onPressOut={handlePressOut}
-              onPress={() => router.push("/signup")}
+              onPress={() => router.push("/Signup")}
               style={{ maxWidth: 300 }}
             />
           </Animated.View>
 
           <TouchableOpacity
-            onPress={() => router.push("/login")}
+            onPress={() => router.push("/Login")}
             style={{ marginTop: 18 }}
           >
             <Text style={{ color: "#550000", fontSize: 15 }}>

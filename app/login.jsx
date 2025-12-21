@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   View,
   Text,
@@ -14,14 +20,13 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
-import styles from "./styles/LoginStyles"; 
+import styles from "./styles/LoginStyles";
 import Input from "./components/Input";
 import PasswordInput from "./components/PasswordInput";
 import Options from "./components/Options";
 import LoginButton from "./components/LoginButton";
 import SignupRedirect from "./components/SignupRedirect";
-import HeaderTitle from "./components/HeaderTitle"; 
-
+import HeaderTitle from "./components/HeaderTitle";
 
 export default function Login() {
   const router = useRouter();
@@ -80,7 +85,11 @@ export default function Login() {
     if (!password.trim()) return setErrorMessage("Please enter your password.");
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       if (!user.emailVerified)
@@ -98,22 +107,31 @@ export default function Login() {
 
       await AsyncStorage.setItem("userUID", user.uid);
       Alert.alert("Success", "You have logged in successfully!");
-      router.push("/homepage");
+      router.push("/Homepage");
     } catch (error) {
       console.log("Firebase login error:", error);
       setErrorMessage("Invalid credentials.");
     }
   }, [email, password, isChecked, router]);
 
-  const memoizedHeader = useMemo(() => <HeaderTitle>Welcome Back</HeaderTitle>, []);
+  const memoizedHeader = useMemo(
+    () => <HeaderTitle>Welcome Back</HeaderTitle>,
+    []
+  );
   const memoizedOptions = useMemo(
-    () => <Options isChecked={isChecked} setChecked={setChecked} router={router} />,
+    () => (
+      <Options isChecked={isChecked} setChecked={setChecked} router={router} />
+    ),
     [isChecked, router]
   );
-  const memoizedLoginButton = useMemo(() => <LoginButton handleLogin={handleLogin} />, [
-    handleLogin,
-  ]);
-  const memoizedSignupRedirect = useMemo(() => <SignupRedirect router={router} />, [router]);
+  const memoizedLoginButton = useMemo(
+    () => <LoginButton handleLogin={handleLogin} />,
+    [handleLogin]
+  );
+  const memoizedSignupRedirect = useMemo(
+    () => <SignupRedirect router={router} />,
+    [router]
+  );
 
   return (
     <View style={styles.container}>
@@ -127,7 +145,12 @@ export default function Login() {
         >
           {memoizedHeader}
 
-          <Input label="E-mail" value={email} onChangeText={setEmail} placeholder="example@email.com" />
+          <Input
+            label="E-mail"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="example@email.com"
+          />
           <PasswordInput
             label="Password"
             value={password}
@@ -136,7 +159,9 @@ export default function Login() {
             setShowPassword={setShowPassword}
           />
 
-          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+          {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          ) : null}
 
           {memoizedOptions}
           {memoizedLoginButton}
@@ -146,4 +171,3 @@ export default function Login() {
     </View>
   );
 }
-

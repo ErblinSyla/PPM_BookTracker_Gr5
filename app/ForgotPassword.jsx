@@ -79,7 +79,7 @@ export default function ForgotPassword() {
   const handleModalOk = () => {
     setModalVisible(false);
     setEmail("");
-    router.replace("/login");
+    router.replace("/Login");
   };
 
   return (
@@ -154,7 +154,8 @@ export default function ForgotPassword() {
                   fontSize: 16,
                 }}
               >
-                Linku për ndryshimin e fjalëkalimit ka skaduar ose është përdorur tashmë.
+                Linku për ndryshimin e fjalëkalimit ka skaduar ose është
+                përdorur tashmë.
               </Text>
               <Text
                 style={{
@@ -164,7 +165,8 @@ export default function ForgotPassword() {
                   fontSize: 15,
                 }}
               >
-                Ju lutem shkruani email-in tuaj më poshtë për të marrë një link të ri.
+                Ju lutem shkruani email-in tuaj më poshtë për të marrë një link
+                të ri.
               </Text>
             </View>
           )}
@@ -201,7 +203,9 @@ export default function ForgotPassword() {
           />
 
           {error ? (
-            <Text style={{ color: "red", marginBottom: 10, textAlign: "center" }}>
+            <Text
+              style={{ color: "red", marginBottom: 10, textAlign: "center" }}
+            >
               {error}
             </Text>
           ) : null}
@@ -232,7 +236,7 @@ export default function ForgotPassword() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => router.push("/login")}>
+          <TouchableOpacity onPress={() => router.push("/Login")}>
             <Text
               style={{
                 color: "#550000",
@@ -242,7 +246,9 @@ export default function ForgotPassword() {
               }}
             >
               Remembered your password?{" "}
-              <Text style={{ fontWeight: "700", color: "#550000" }}>Log In</Text>
+              <Text style={{ fontWeight: "700", color: "#550000" }}>
+                Log In
+              </Text>
             </Text>
           </TouchableOpacity>
         </Animated.View>

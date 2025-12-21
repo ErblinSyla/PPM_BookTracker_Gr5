@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   View,
   Text,
@@ -21,21 +27,21 @@ import { onAuthStateChanged } from "firebase/auth";
 import styles from "./styles/EditProfileStyles";
 
 const AVATAR_MAP = {
-  "1": require("../assets/avatars/avatar01.png"),
-  "2": require("../assets/avatars/avatar02.png"),
-  "3": require("../assets/avatars/avatar03.png"),
-  "4": require("../assets/avatars/avatar04.png"),
-  "5": require("../assets/avatars/avatar05.png"),
-  "6": require("../assets/avatars/avatar06.png"),
-  "7": require("../assets/avatars/avatar07.png"),
-  "8": require("../assets/avatars/avatar08.png"),
-  "9": require("../assets/avatars/avatar09.png"),
-  "10": require("../assets/avatars/avatar10.png"),
-  "11": require("../assets/avatars/avatar11.png"),
-  "12": require("../assets/avatars/avatar12.png"),
-  "13": require("../assets/avatars/avatar13.png"),
-  "14": require("../assets/avatars/avatar14.png"),
-  "15": require("../assets/avatars/avatar15.png"),
+  1: require("../assets/avatars/avatar01.png"),
+  2: require("../assets/avatars/avatar02.png"),
+  3: require("../assets/avatars/avatar03.png"),
+  4: require("../assets/avatars/avatar04.png"),
+  5: require("../assets/avatars/avatar05.png"),
+  6: require("../assets/avatars/avatar06.png"),
+  7: require("../assets/avatars/avatar07.png"),
+  8: require("../assets/avatars/avatar08.png"),
+  9: require("../assets/avatars/avatar09.png"),
+  10: require("../assets/avatars/avatar10.png"),
+  11: require("../assets/avatars/avatar11.png"),
+  12: require("../assets/avatars/avatar12.png"),
+  13: require("../assets/avatars/avatar13.png"),
+  14: require("../assets/avatars/avatar14.png"),
+  15: require("../assets/avatars/avatar15.png"),
 };
 
 const GenderOption = React.memo(({ option, onPress }) => (
@@ -73,7 +79,7 @@ export default function EditProfile() {
         setUserEmail(null);
         setProviderId("");
         setIsLoadingAuth(false);
-        router.replace("/login");
+        router.replace("/Login");
       }
     });
 
@@ -82,8 +88,16 @@ export default function EditProfile() {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 900, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 900, useNativeDriver: true }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 900,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 900,
+        useNativeDriver: true,
+      }),
     ]).start();
   }, []);
 
@@ -135,14 +149,17 @@ export default function EditProfile() {
 
       await AsyncStorage.setItem("userAvatarId", avatarId);
       Alert.alert("Success", "Profile updated!");
-      router.push("/profile");
+      router.push("/Profile");
     } catch (e) {
       console.log("Save error:", e);
       Alert.alert("Error", "Failed to save profile. Try again.");
     }
   }, [firstName, lastName, bio, gender, avatarId]);
 
-  const genderOptions = useMemo(() => ["Prefer not to say", "Male", "Female"], []);
+  const genderOptions = useMemo(
+    () => ["Prefer not to say", "Male", "Female"],
+    []
+  );
   const handleGenderSelect = useCallback((option) => {
     setGender(option);
     setShowGenderOptions(false);
@@ -204,7 +221,9 @@ export default function EditProfile() {
             onPress={() => setShowGenderOptions(!showGenderOptions)}
           >
             <Text style={styles.genderText}>{gender}</Text>
-            <Text style={[styles.arrow, showGenderOptions && styles.arrowOpen]}>▼</Text>
+            <Text style={[styles.arrow, showGenderOptions && styles.arrowOpen]}>
+              ▼
+            </Text>
           </TouchableOpacity>
 
           {showGenderOptions && (

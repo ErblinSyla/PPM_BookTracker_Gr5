@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   View,
   Text,
@@ -19,7 +25,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { db, auth } from "../firebase/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import styles from "./styles/EditAvatarStyles"; 
+import styles from "./styles/EditAvatarStyles";
 
 const AVATARS = [
   { id: "1", image: require("../assets/avatars/avatar01.png") },
@@ -58,7 +64,7 @@ export default function EditAvatar() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) router.replace("/login");
+      if (!user) router.replace("/Login");
       setIsLoadingAuth(false);
     });
     return () => unsubscribe();
@@ -66,8 +72,16 @@ export default function EditAvatar() {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 700, useNativeDriver: true }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 700,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 700,
+        useNativeDriver: true,
+      }),
     ]).start();
 
     const loadAvatar = async () => {
@@ -79,9 +93,12 @@ export default function EditAvatar() {
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
           const data = userSnap.data();
-          const idToUse = (await AsyncStorage.getItem("userAvatarId")) || data.avatarId || "1";
+          const idToUse =
+            (await AsyncStorage.getItem("userAvatarId")) ||
+            data.avatarId ||
+            "1";
           setSelectedAvatarId(idToUse);
-          const avatarObj = AVATARS.find(a => a.id === idToUse);
+          const avatarObj = AVATARS.find((a) => a.id === idToUse);
           setSelectedAvatar(avatarObj ? avatarObj.image : AVATARS[0].image);
         }
       } catch (error) {
@@ -124,15 +141,25 @@ export default function EditAvatar() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.container}>
-        <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+        <StatusBar
+          translucent
+          backgroundColor="transparent"
+          barStyle="dark-content"
+        />
         <LinearGradient colors={["#FAF0DC", "#F2EBE2"]} style={styles.gradient}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backText}>← BACK</Text>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.backText}>←</Text>
           </TouchableOpacity>
 
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <Animated.View
-              style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
+              style={[
+                styles.formContainer,
+                { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+              ]}
             >
               <Text style={styles.title}>Edit Avatar</Text>
 

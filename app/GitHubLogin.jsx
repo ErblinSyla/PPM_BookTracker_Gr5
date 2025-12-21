@@ -43,7 +43,7 @@ export default function GitHubLogin() {
           if (result?.user) {
             await saveUserData(result.user);
             Alert.alert("Sukses!", `Mirë se erdhe ${result.user.displayName}`);
-            router.replace("/homepage");
+            router.replace("/Homepage");
           }
         })
         .catch((error) => {
@@ -58,7 +58,7 @@ export default function GitHubLogin() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         await saveUserData(user);
-        router.replace("/homepage");
+        router.replace("/Homepage");
       }
     });
     return unsubscribe;
@@ -75,7 +75,7 @@ export default function GitHubLogin() {
         await signInWithPopup(auth, provider).then(async (result) => {
           if (result?.user) {
             await saveUserData(result.user);
-            router.replace("/homepage");
+            router.replace("/Homepage");
           }
         });
       } else {
@@ -92,4 +92,4 @@ export default function GitHubLogin() {
       <Button title="Continue with GitHub" onPress={signInWithGitHub} />
     </View>
   );
-} 
+}

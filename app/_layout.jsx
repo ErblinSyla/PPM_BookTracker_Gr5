@@ -33,7 +33,7 @@ export default function RootLayout() {
       />
 
       <Stack.Screen
-        name="login"
+        name="Login"
         options={{
           headerShown: false,
           title: "Sign In",
@@ -42,57 +42,42 @@ export default function RootLayout() {
         }}
       />
       <Stack.Screen
-        name="signup"
+        name="Signup"
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name="addNewBook"
+        name="AddNewBook"
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name="homepage"
+        name="Homepage"
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name="bookDetails"
+        name="ModifyBook"
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name="modifyBook"
+        name="Profile"
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name="profile"
+        name="Settings"
         options={{
           headerShown: false,
         }}
       />
-      <Stack.Screen
-        name="settings"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="notifications"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="EditProfile"
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="EditProfile" options={{ headerShown: false }} />
     </Stack>
   );
 }

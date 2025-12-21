@@ -46,7 +46,7 @@ export default function Homepage() {
       if (user) {
         setUserEmail(user.email);
       } else {
-        router.replace("/login");
+        router.replace("/Login");
       }
     });
     return () => unsubscribe();
@@ -103,7 +103,7 @@ export default function Homepage() {
   });
 
   const openBook = (id) => {
-    router.push({ pathname: "/modifyBook", params: { editId: id } });
+    router.push({ pathname: "/ModifyBook", params: { editId: id } });
   };
 
   const showDeleteConfirmation = (id, title) => {
@@ -276,7 +276,7 @@ export default function Homepage() {
               </View>
               <TouchableOpacity
                 style={styles.profileBtn}
-                onPress={() => router.push("/profile")}
+                onPress={() => router.push("/Profile")}
               >
                 <Image
                   source={require("../assets/profile_username-icon.png")}
@@ -324,7 +324,7 @@ export default function Homepage() {
         <View style={styles.footer}>
           <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => router.push("/addNewBook")}
+            onPress={() => router.push("/AddNewBook")}
           >
             <Text style={styles.primaryButtonText}>Add New Book</Text>
           </TouchableOpacity>

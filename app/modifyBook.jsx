@@ -61,7 +61,7 @@ export default function UpdateBookDetails() {
       if (user) {
         setUserEmail(user.email);
       } else {
-        router.replace("/login");
+        router.replace("/Login");
       }
     });
     return () => unsubscribe();
@@ -125,7 +125,7 @@ export default function UpdateBookDetails() {
                 onPress={() => {
                   setModalVisible(false);
                   if (modalType === "success") {
-                    router.push("/homepage");
+                    router.push("/Homepage");
                   }
                 }}
               >

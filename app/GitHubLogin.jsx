@@ -1,5 +1,4 @@
-//GitHubLogin.jsx
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { View, Platform, Alert, TouchableOpacity, Text } from "react-native";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
@@ -19,21 +18,25 @@ import GitHubLoginStyles from "./styles/GitHubLoginStyles";
 
 WebBrowser.maybeCompleteAuthSession();
 
-export default function GitHubLogin() {
+const GitHubLogin = React.memo(() => {
   const router = useRouter();
   const isWeb = Platform.OS === "web";
 
-  const saveUserData = async (user) => {
+  const saveUserData = useCallback(async (user) => {
     try {
       await AsyncStorage.setItem("userUID", user.uid);
       await setDoc(doc(db, "users", user.uid), {
         name: user.displayName || "",
         email: user.email || "",
+        bio: "",
+        gender: "Prefer not to say",
+        avatarId: "1",
+        createdAt: new Date().toISOString(),
       });
     } catch (error) {
       console.error("Error saving user data:", error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (!isWeb) {
@@ -41,7 +44,7 @@ export default function GitHubLogin() {
         .then(async (result) => {
           if (result?.user) {
             await saveUserData(result.user);
-            Alert.alert("Sukses!", `Mirë se erdhe ${result.user.displayName}`);
+            Alert.alert("Sukses!", `Mirë se erdhe ${result.user.displayName || "përdorues"}!`);
             router.replace("/Homepage");
           }
         })
@@ -51,7 +54,7 @@ export default function GitHubLogin() {
           }
         });
     }
-  }, []);
+  }, [isWeb, saveUserData, router]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -61,44 +64,42 @@ export default function GitHubLogin() {
       }
     });
     return unsubscribe;
-  }, [router]);
+  }, [saveUserData, router]);
 
-  const signInWithGitHub = async () => {
+  const signInWithGitHub = useCallback(async () => {
     try {
       await firebaseSignOut(auth);
+
       const provider = new GithubAuthProvider();
       provider.addScope("read:user user:email");
 
       if (isWeb) {
-        await signInWithPopup(auth, provider).then(async (result) => {
-          if (result?.user) {
-            await saveUserData(result.user);
-            router.replace("/Homepage");
-          }
-        });
+        const result = await signInWithPopup(auth, provider);
+        if (result?.user) {
+          await saveUserData(result.user);
+          router.replace("/Homepage");
+        }
       } else {
         await signInWithRedirect(auth, provider);
       }
     } catch (error) {
       Alert.alert("Gabim", "Login me GitHub dështoi. Provo përsëri.");
-      console.error(error);
+      console.error("GitHub login error:", error);
     }
-  };
+  }, [isWeb, saveUserData, router]);
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
   return (
     <View style={GitHubLoginStyles.container}>
       <View style={GitHubLoginStyles.gradient}>
         <View style={GitHubLoginStyles.formContainer}>
-          {/* Teksti para butonit */}
           <Text style={GitHubLoginStyles.subtitle}>
             Sign in quickly with your GitHub account
           </Text>
 
-          {/* Butoni kryesor */}
           <TouchableOpacity
             style={GitHubLoginStyles.githubButton}
             onPress={signInWithGitHub}
@@ -108,12 +109,18 @@ export default function GitHubLogin() {
             </Text>
           </TouchableOpacity>
 
-          {/* Back button */}
-          <TouchableOpacity onPress={goBack} style={GitHubLoginStyles.backButtonContainer}>
+          <TouchableOpacity
+            onPress={goBack}
+            style={GitHubLoginStyles.backButtonContainer}
+          >
             <Text style={GitHubLoginStyles.backButtonText}>← Back</Text>
           </TouchableOpacity>
         </View>
       </View>
     </View>
   );
-}
+});
+
+GitHubLogin.displayName = "GitHubLogin";
+
+export default GitHubLogin;

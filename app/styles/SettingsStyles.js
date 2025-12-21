@@ -189,6 +189,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     textAlign: "center",
   },
+
 });
 
 export default styles;

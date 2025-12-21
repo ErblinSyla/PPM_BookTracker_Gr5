@@ -193,7 +193,8 @@ export default function Profile() {
                 <ProfileOption
                   icon={require("../assets/profile_settings-icon.png")}
                   title="Settings"
-                  desc="Security, Privacy"
+                  desc="Notifications Center"
+                  desc2="Change Password"
                   onPress={() => router.push("/Settings")}
                   end
                 />

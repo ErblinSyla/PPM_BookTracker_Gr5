@@ -1,4 +1,3 @@
-import { info } from "console";
 import { StyleSheet, Platform } from "react-native";
 
 const styles = StyleSheet.create({
@@ -125,17 +124,17 @@ const styles = StyleSheet.create({
   },
   profile__option: {
     flexDirection: "row",
-    gap:95,
+    gap: 95,
     alignItems: "center",
     paddingBottom: 15,
     paddingTop: 15,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(85,0,0,0.1)",
   },
-  
+
   profile__option__end: {
     borderBottomWidth: 0,
-    gap:55,
+    gap: 55,
   },
   option__icon: {
     flexDirection: "row",
@@ -147,7 +146,7 @@ const styles = StyleSheet.create({
     height: 32,
   },
   option__info: {
-    marginTop:20,
+    marginTop: 20,
     flexDirection: "column",
     gap: 4,
   },

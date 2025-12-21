@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -16,10 +16,12 @@ import { auth, db } from "../firebase/firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import SignupEmailStyles from "./styles/SignupEmailStyles"; 
+import SignupEmailStyles from "./styles/SignupEmailStyles";
 
-export default function SignupEmail() {
+
+const SignupEmail = React.memo(() => {
   const router = useRouter();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,7 +30,8 @@ export default function SignupEmail() {
   const [error, setError] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
 
-  const handleSignup = async () => {
+  
+  const handleSignup = useCallback(async () => {
     setError("");
     if (!firstName || !lastName || !email || !password || !retypePassword) {
       setError("Please fill all fields!");
@@ -74,16 +77,23 @@ export default function SignupEmail() {
         setError("Invalid email address!");
       else setError("Something went wrong. Please try again!");
     }
-  };
+  }, [firstName, lastName, email, password, retypePassword]);
 
-  const handleModalOk = () => {
+  const handleModalOk = useCallback(() => {
     setModalVisible(false);
     router.push("/Login");
-  };
+  }, [router]);
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     router.back();
-  };
+  }, [router]);
+
+  
+  const onChangeFirstName = useCallback((text) => setFirstName(text), []);
+  const onChangeLastName = useCallback((text) => setLastName(text), []);
+  const onChangeEmail = useCallback((text) => setEmail(text), []);
+  const onChangePassword = useCallback((text) => setPassword(text), []);
+  const onChangeRetypePassword = useCallback((text) => setRetypePassword(text), []);
 
   return (
     <View style={SignupEmailStyles.container}>
@@ -98,14 +108,14 @@ export default function SignupEmail() {
             style={SignupEmailStyles.input}
             placeholder="First Name"
             value={firstName}
-            onChangeText={setFirstName}
+            onChangeText={onChangeFirstName}
             placeholderTextColor="#55000080"
           />
           <TextInput
             style={SignupEmailStyles.input}
             placeholder="Last Name"
             value={lastName}
-            onChangeText={setLastName}
+            onChangeText={onChangeLastName}
             placeholderTextColor="#55000080"
           />
           <TextInput
@@ -114,7 +124,7 @@ export default function SignupEmail() {
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={onChangeEmail}
             placeholderTextColor="#55000080"
           />
           <TextInput
@@ -122,7 +132,7 @@ export default function SignupEmail() {
             placeholder="Password"
             secureTextEntry
             value={password}
-            onChangeText={setPassword}
+            onChangeText={onChangePassword}
             placeholderTextColor="#55000080"
           />
           <TextInput
@@ -130,17 +140,23 @@ export default function SignupEmail() {
             placeholder="Retype Password"
             secureTextEntry
             value={retypePassword}
-            onChangeText={setRetypePassword}
+            onChangeText={onChangeRetypePassword}
             placeholderTextColor="#55000080"
           />
 
           {error ? <Text style={SignupEmailStyles.errorText}>{error}</Text> : null}
 
-          <TouchableOpacity style={SignupEmailStyles.signupButton} onPress={handleSignup}>
+          <TouchableOpacity
+            style={SignupEmailStyles.signupButton}
+            onPress={handleSignup}
+          >
             <Text style={SignupEmailStyles.signupButtonText}>Create Account</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={goBack} style={SignupEmailStyles.backButtonContainer}>
+          <TouchableOpacity
+            onPress={goBack}
+            style={SignupEmailStyles.backButtonContainer}
+          >
             <Text style={SignupEmailStyles.backButtonText}>← Back</Text>
           </TouchableOpacity>
         </View>
@@ -154,7 +170,10 @@ export default function SignupEmail() {
             <Text style={SignupEmailStyles.modalMessage}>
               We’ve sent a verification link to your email address. Please verify before logging in.
             </Text>
-            <TouchableOpacity style={SignupEmailStyles.modalButton} onPress={handleModalOk}>
+            <TouchableOpacity
+              style={SignupEmailStyles.modalButton}
+              onPress={handleModalOk}
+            >
               <Text style={SignupEmailStyles.modalButtonText}>OK</Text>
             </TouchableOpacity>
           </View>
@@ -162,4 +181,8 @@ export default function SignupEmail() {
       </Modal>
     </View>
   );
-}
+});
+
+SignupEmail.displayName = "SignupEmail"; 
+
+export default SignupEmail;

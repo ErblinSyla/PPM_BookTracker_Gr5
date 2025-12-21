@@ -52,7 +52,7 @@ async function sendTestNotification(){
     });
 }
 
-async function scheduleDailyReminder(hour = 18, minute = 30) {
+async function scheduleDailyReminder(hour = 11, minute = 40) {
     const ok = await requestPermissions();
     if (!ok) throw new Error('Push notification permission not granted');
 
@@ -97,7 +97,7 @@ async function cancelAllNotifications() {
     await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
-async function scheduleWeeklySummary(pagesRead = 0, dayOfWeek = 0, hour = 20, minute = 0) {
+async function scheduleWeeklySummary(pagesRead = 0, dayOfWeek = 1, hour = 20, minute = 0) {
     const ok = await requestPermissions();
     if (!ok) throw new Error('Push notification permission not granted');
 

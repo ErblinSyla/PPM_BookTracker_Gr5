@@ -98,6 +98,27 @@ export default function Settings() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const scheduleNotifications = async () => {
+      if (!userId) return;
+
+      try {
+        if (notificationsEnabled && dailyReminderEnabled) {
+          await NotificationService.scheduleDailyReminder(18, 30);
+        }
+
+        if (notificationsEnabled && weeklySummaryEnabled) {
+          const pagesRead = await NotificationService.getPagesReadThisWeek(userEmail);
+          await NotificationService.scheduleWeeklySummary(pagesRead, 0, 20, 0); // Sunday at 8 PM
+        }
+      } catch (error) {
+        console.error("Error scheduling notifications:", error);
+      }
+    };
+
+    scheduleNotifications();
+  }, [notificationsEnabled, dailyReminderEnabled, weeklySummaryEnabled, userId, userEmail]);
+
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   const saveUserFields = async (fields) => {
@@ -301,7 +322,7 @@ export default function Settings() {
         <SafeAreaView style={styles.safe}>
           <StatusBar style="light" />
 
-          <ScrollView contentContainerStyle={styles.scroll}>
+          <ScrollView contentContainerStyle={styles.scroll} dataSet={{ settingsScroll: true }}>
             <View style={styles.header}>
               <TouchableOpacity onPress={() => router.push("/Profile")}>
                 <Text style={styles.backBtn}>←</Text>

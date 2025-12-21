@@ -6,6 +6,7 @@ const ProfileOption = React.memo(function ProfileOption({
   icon,
   title,
   desc,
+  desc2,
   onPress,
   end = false,
   isUser = false,
@@ -19,7 +20,10 @@ const ProfileOption = React.memo(function ProfileOption({
         <Image source={icon} style={styles.option__image} />
         <View style={styles.option__info}>
           <Text style={styles.info__title}>{title}</Text>
-          <Text style={styles.info__desc}>{desc}</Text>
+          <View style={styles.info__text}>
+            <Text style={styles.info__desc}>{desc}</Text>
+            <Text style={styles.info__desc}>{desc2}</Text>
+          </View>
         </View>
       </View>
 

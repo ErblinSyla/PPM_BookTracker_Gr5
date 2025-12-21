@@ -1,5 +1,21 @@
 import { StyleSheet } from "react-native";
 
+// Hide scrollbar on web while keeping scroll functionality
+if (typeof document !== "undefined") {
+  const style = document.createElement("style");
+  style.textContent = `
+    /* Hide scrollbar but keep scroll functionality */
+    [data-settings-scroll]::-webkit-scrollbar {
+      display: none;
+    }
+    [data-settings-scroll] {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
@@ -189,6 +205,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     textAlign: "center",
   },
+
 });
 
 export default styles;

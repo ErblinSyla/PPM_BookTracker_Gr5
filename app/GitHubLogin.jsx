@@ -17,10 +17,12 @@ import GitHubLoginStyles from "./styles/GitHubLoginStyles";
 
 WebBrowser.maybeCompleteAuthSession();
 
+// Memoize component to avoid unnecessary re-renders
 const GitHubLogin = React.memo(() => {
   const router = useRouter();
   const isWeb = Platform.OS === "web";
 
+  // Save user data to AsyncStorage and Firestore – memoized for stable reference
   const saveUserData = useCallback(async (user) => {
     try {
       await AsyncStorage.setItem("userUID", user.uid);
@@ -37,13 +39,14 @@ const GitHubLogin = React.memo(() => {
     }
   }, []);
 
+  // Handle redirect result after GitHub auth (mobile only)
   useEffect(() => {
     if (!isWeb) {
       getRedirectResult(auth)
         .then(async (result) => {
           if (result?.user) {
             await saveUserData(result.user);
-            Alert.alert("Sukses!", `Mirë se erdhe ${result.user.displayName || "përdorues"}!`);
+            Alert.alert("Success!", `Welcome ${result.user.displayName || "user"}!`);
             router.replace("/Homepage");
           }
         })
@@ -55,6 +58,7 @@ const GitHubLogin = React.memo(() => {
     }
   }, [isWeb, saveUserData, router]);
 
+  // Listen to auth state changes (works on web and after redirect)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -65,8 +69,10 @@ const GitHubLogin = React.memo(() => {
     return unsubscribe;
   }, [saveUserData, router]);
 
+  // Main GitHub sign-in handler – memoized
   const signInWithGitHub = useCallback(async () => {
     try {
+      // Ensure clean auth state
       await firebaseSignOut(auth);
 
       const provider = new GithubAuthProvider();
@@ -82,11 +88,12 @@ const GitHubLogin = React.memo(() => {
         await signInWithRedirect(auth, provider);
       }
     } catch (error) {
-      Alert.alert("Gabim", "Login me GitHub dështoi. Provo përsëri.");
+      Alert.alert("Error", "GitHub login failed. Please try again.");
       console.error("GitHub login error:", error);
     }
   }, [isWeb, saveUserData, router]);
 
+  // Navigate back
   const goBack = useCallback(() => {
     router.back();
   }, [router]);
@@ -120,6 +127,7 @@ const GitHubLogin = React.memo(() => {
   );
 });
 
+// Display name for React DevTools
 GitHubLogin.displayName = "GitHubLogin";
 
 export default GitHubLogin;

@@ -15,13 +15,11 @@ import {
 import { auth, db } from "../firebase/firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import SignupEmailStyles from "./styles/SignupEmailStyles";
 
 
 const SignupEmail = React.memo(() => {
   const router = useRouter();
-
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");

@@ -1,5 +1,7 @@
+//GitHubLogin.jsx
 import React, { useEffect } from "react";
-import { View, Button, Platform, Alert } from "react-native";
+import { View, Platform, Alert, TouchableOpacity, Text } from "react-native";
+import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import {
   GithubAuthProvider,
@@ -10,9 +12,10 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth, db } from "../firebase/firebaseConfig";
-import { useRouter } from "expo-router";
 import { doc, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import GitHubLoginStyles from "./styles/GitHubLoginStyles";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -20,13 +23,9 @@ export default function GitHubLogin() {
   const router = useRouter();
   const isWeb = Platform.OS === "web";
 
-  // Funksioni për ruajtjen e userit
   const saveUserData = async (user) => {
     try {
-      // Ruaj UID në AsyncStorage
       await AsyncStorage.setItem("userUID", user.uid);
-
-      // Ruaj userin në Firestore
       await setDoc(doc(db, "users", user.uid), {
         name: user.displayName || "",
         email: user.email || "",
@@ -67,7 +66,6 @@ export default function GitHubLogin() {
   const signInWithGitHub = async () => {
     try {
       await firebaseSignOut(auth);
-
       const provider = new GithubAuthProvider();
       provider.addScope("read:user user:email");
 
@@ -87,9 +85,35 @@ export default function GitHubLogin() {
     }
   };
 
+  const goBack = () => {
+    router.back();
+  };
+
   return (
-    <View style={{ marginVertical: 16 }}>
-      <Button title="Continue with GitHub" onPress={signInWithGitHub} />
+    <View style={GitHubLoginStyles.container}>
+      <View style={GitHubLoginStyles.gradient}>
+        <View style={GitHubLoginStyles.formContainer}>
+          {/* Teksti para butonit */}
+          <Text style={GitHubLoginStyles.subtitle}>
+            Sign in quickly with your GitHub account
+          </Text>
+
+          {/* Butoni kryesor */}
+          <TouchableOpacity
+            style={GitHubLoginStyles.githubButton}
+            onPress={signInWithGitHub}
+          >
+            <Text style={GitHubLoginStyles.githubButtonText}>
+              Continue with GitHub
+            </Text>
+          </TouchableOpacity>
+
+          {/* Back button */}
+          <TouchableOpacity onPress={goBack} style={GitHubLoginStyles.backButtonContainer}>
+            <Text style={GitHubLoginStyles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 }
